@@ -1,0 +1,102 @@
+body {
+  text-align: center;
+  padding: 0;
+  margin: 0;
+  background-color: #eee;
+  padding-bottom: 30px;
+}
+button:active,
+button:focus {
+  outline: none;
+  border: none;
+}
+#page-header {
+  padding: 10px;
+  margin-bottom: 30px;
+  position: relative;
+  font-family: sans-serif;
+}
+#page-header #title {
+  display: inline-block;
+}
+#page-header #title-text {
+  line-height: 60px;
+  vertical-align: middle;
+  font-weight: bold;
+  font-size: 105%;
+  padding-left: 10px;
+}
+#page-header #logo {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+#player {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  text-align: right;
+  background-color: #eee;
+  font-family: sans-serif;
+}
+#player #current_track_source {
+  color: #444;
+  font-size: 80%;
+}
+#page-tabs {
+  clear: both;
+  padding: 10px 0;
+  border-bottom: solid 1px #ddd;
+}
+#page-tabs .page-tab {
+  display: inline-block;
+}
+#page-tabs .tab {
+  font-size: 110%;
+  margin: 0;
+  background-color: #fafafa;
+  border: solid 1px #ddd;
+  border-radius: 4px;
+  padding: 3px 10px;
+}
+#page-tabs .tab.current {
+  background-color: #368BE6;
+  color: #fff;
+}
+#page-container {
+  clear: both;
+  padding-bottom: 15px;
+}
+#page-container .column {
+  display: inline-block;
+  vertical-align: top;
+  margin-top: 1em;
+  position: relative;
+}
+#page-container .column-header {
+  background-color: #eee;
+  position: relative;
+  z-index: 2;
+  display: inline-block;
+  padding: 0 0.5em;
+}
+#page-container .column-container {
+  margin: -12px 10px 1em 10px;
+  padding: 16px 10px;
+  border: solid 1px #ccc;
+  border-radius: 8px;
+}
+#page-container .button {
+  font-family: serif;
+  font-size: 11pt;
+  padding: 4px 10px;
+  background-color: #fafafa;
+  border: solid 1px #bbb;
+  border-radius: 6px;
+}
+#page-container .button.current {
+  background-color: #ccc;
+}
+#page-container .button-container {
+  padding: 8px 5px;
+}
