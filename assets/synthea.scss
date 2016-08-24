@@ -18,6 +18,44 @@ button:active, button:focus {
 	border: none;
 }
 
+#currentTracks {
+	background-color: #ddd;
+	bottom:0;
+	border: solid 1px rgba(0,0,0,0.4);
+	position:absolute;
+	right:16px;
+
+	.track {
+		$track-height:128px;
+		transition: height 0.5s ease-in-out, opacity 0.5s ease-in-out;
+		height: $track-height;
+		opacity:1;
+		background-color: #eee;
+		overflow:hidden;
+
+		&.ng-enter {
+			display: block !important;
+			height:0;
+			opacity:0;
+			&-active {
+				height: $track-height;
+				opacity:1;
+			}
+		}
+
+		&.ng-leave {
+			display: block !important;
+			height: $track-height;
+			opacity:1;
+			&-active {
+				height:0;
+				opacity:0;
+			}
+		}
+	}
+
+}
+
 #page-header {
 
 	position:relative;

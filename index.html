@@ -75,6 +75,30 @@ layout="column" layout-fill>
 				</div>
 			</div>
 		</div>
-
 	</md-content>
+
+	<div id="currentTracks">
+
+		<div class="track" ng-repeat="channel in sVm.mixer.channels | filter: {'is_active':true}"
+		dis-ng-style="{'z-index':$index}">
+			<div class="track-name" ng-bind="channel.media.name"></div>
+			<div>elapsed:
+				<span ng-bind="channel.currentTime | number:1"></span> /
+				<span ng-bind="channel.duration | number:1"></span>
+			</div>
+
+
+			<md-slider ng-model="channel.currentTime"
+			 ng-change="channel.setTime()"
+			min="0" max="{{channel.duration}}"></md-slider>
+
+			<md-button ng-click="channel.pause()" ng-if="channel.media.is_playing">
+				pause</md-button>
+			<md-button ng-click="channel.play()" ng-if="!channel.media.is_playing">
+				play</md-button>
+
+			<md-button ng-click="channel.stop()">stop</md-button>
+		</div>
+	</div>
+
 </body>
