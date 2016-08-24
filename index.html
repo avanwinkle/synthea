@@ -68,7 +68,7 @@ layout="column" layout-fill>
 						ng-disabled="!cue.file"
 						ng-bind="::cue.name"
 						ng-click="sVm.selectCue(cue)"
-						syn-right-click="sVm.contextCue"
+						syn-right-click="sVm.contextCue(cue)"
 						ng-class="{'current': cue.is_playing}"
 						md-title="{{::cue.tooltip}}"></md-button>
 
@@ -78,53 +78,100 @@ layout="column" layout-fill>
 		</div>
 	</md-content>
 
-	<div id="currentTracks">
-
-		<div class="track" ng-repeat="channel in sVm.mixer.channels | filter: {'is_active':true}"
-		dis-ng-style="{'z-index':$index}">
-			<div class="track-title" ng-bind="channel.media.name"></div>
-
-
-			<md-slider class="track-timebar"
-			ng-model="channel.currentTime"
-			 ng-change="channel.setTime()" aria-label="Playback time"
-			min="0" max="{{channel.duration}}"></md-slider>
-			<div layout="row">
-				<div flex class="track-timecode">
-					<span ng-bind="channel.currentTime | secondsToTimecode"></span>
+	<div id="queuedTracks">
+		<div class="track-container"
+		ng-class="{'expanded': expanded}"
+		ng-repeat="channel in sVm.mixer.channels | filter:{'is_queued': true}">
+			<div class="track">
+				<div layout="row">
+					<div class="track-title" flex ng-bind="channel.media.name"></div>
+					<div ng-bind="channel.duration | secondsToTimecode"></div>
 				</div>
-				<div flex class="track-timecode">
-					<span ng-bind="channel.duration | secondsToTimecode"></span>
+				<div layout="row">
+					<div flex>
+						<md-button class="md-icon-button track-button" aria-label="play"
+						ng-click="expanded = !expanded">
+							<md-icon ng-if="!expanded"><svg syn-icon="chevron_down"></svg></md-icon>
+							<md-icon ng-if="expanded"><svg syn-icon="chevron_up"></svg></md-icon>
+						</md-button>
+					</div>
+					<div flex>
+						<md-button class="md-icon-button track-button" aria-label="play"
+						ng-click="channel.play()">
+							<md-icon><svg syn-icon="play"></svg></md-icon>
+						</md-button>
+					</div>
+					<div flex>
+						<md-button class="md-icon-button track-button" aria-label="clear"
+						ng-click="channel.stop()">
+							<md-icon><svg syn-icon="clear"></svg></md-icon>
+						</md-button>
+					</div>
+				</div>
+				<div layout="row" ng-show="expanded">
+					<div flex>
+						<input ng-model="channel.currentTime"
+						type="number" step="0.1" size="2"
+						placeholder="0.0"
+						ng-change="channel.setTime()" />
+					</div>
 				</div>
 			</div>
+		</div>
+	</div>
 
-			<div layout="row">
-				<div flex>
-					<md-button class="md-icon-button track-button" aria-label="repeat"
-					ng-click="channel.repeat()"
-					ng-class="{'active': channel.media.isLoop}">
-						<md-icon><svg syn-icon="repeat"></svg></md-icon>
-					</md-button>
+	<div id="currentTracks">
+
+		<div class="track-container" ng-repeat="channel in sVm.mixer.channels | filter: {'is_current':true}"
+		ng-style="{'z-index':$index}">
+			<div class="track">
+				<div class="track-title" ng-bind="channel.media.name"></div>
+
+
+				<md-slider class="track-timebar"
+				ng-model="channel.currentTime"
+				 ng-change="channel.setTime()" aria-label="Playback time"
+				min="0" max="{{channel.duration}}"></md-slider>
+				<div layout="row">
+					<div flex class="track-timecode">
+						<span ng-bind="channel.currentTime | secondsToTimecode"></span>
+					</div>
+					<div flex class="track-timecode">
+						<span ng-bind="channel.duration | secondsToTimecode"></span>
+					</div>
 				</div>
-				<div flex>
-					<md-button class="md-icon-button track-button" aria-label="pause"
-					ng-click="channel.pause()"
-					ng-if="channel.media.is_playing">
-						<md-icon><svg syn-icon="pause"></svg></md-icon>
-					</md-button>
-					<md-button class="md-icon-button track-button" aria-label="play"
-					ng-click="channel.play()"
-					ng-if="!channel.media.is_playing">
-						<md-icon>
-							<svg syn-icon="play"></svg>
-						</md-icon>
-					</md-button>
-				</div>
-				<div flex>
-					<md-button class="md-icon-button" aria-label="stop"
-					ng-click="channel.stop()">
-						<md-icon><svg syn-icon="stop"></svg></md-icon>
-					</md-button>
+
+				<div layout="row">
+					<div flex>
+						<md-button class="md-icon-button track-button" aria-label="repeat"
+						ng-click="channel.repeat()"
+						ng-class="{'active': channel.media.isLoop}">
+							<md-icon><svg syn-icon="repeat"></svg></md-icon>
+						</md-button>
+					</div>
+					<div flex>
+						<md-button class="md-icon-button track-button" aria-label="pause"
+						ng-click="channel.pause()"
+						ng-class="{'active': channel.state==='PAUSING'}"
+						ng-if="channel.media.is_playing">
+							<md-icon><svg syn-icon="pause"></svg></md-icon>
+						</md-button>
+						<md-button class="md-icon-button track-button" aria-label="play"
+						ng-click="channel.play()"
+						ng-class="{'active': channel.state==='PLAYING'}"
+						ng-if="!channel.media.is_playing">
+							<md-icon>
+								<svg syn-icon="play"></svg>
+							</md-icon>
+						</md-button>
+					</div>
+					<div flex>
+						<md-button class="md-icon-button track-button" aria-label="stop"
+						ng-class="{'active': channel.state==='STOPPING'}"
+						ng-click="channel.stop()">
+							<md-icon><svg syn-icon="stop"></svg></md-icon>
+						</md-button>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -136,8 +183,12 @@ layout="column" layout-fill>
     <!-- ARROW BACK -->
     <symbol id="ic_arrow_back_24px" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></symbol>
     <symbol id="ic_arrow_back_48px" viewBox="0 0 48 48"><path d="M40 22H15.66l11.17-11.17L24 8 8 24l16 16 2.83-2.83L15.66 26H40v-4z"/></symbol>
- 	<!-- CHEVRON UP -->
+    <!-- CHEVRON_DOWN -->
+    <symbol id="ic_chevron_down_24px" viewBox="0 0 24 24"><path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/></symbol>
+ 	<!-- CHEVRON_UP -->
     <symbol id="ic_chevron_up_24px" viewBox="0 0 24 24"><path d="M12 8l-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z"/></symbol>
+    <!-- CLEAR -->
+    <symbol id="ic_clear_24px" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></symbol>
     <!-- FIRST_PAGE -->
     <symbol id="ic_first_page_24px" viewBox="0 0 24 24"><path d="M18.41 16.59L13.82 12l4.59-4.59L17 6l-6 6 6 6zM6 6h2v12H6z"/></symbol>
     <!-- LAST_PAGE -->
