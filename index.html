@@ -82,14 +82,14 @@ layout="column" layout-fill>
 		<div class="track" ng-repeat="channel in sVm.mixer.channels | filter: {'is_active':true}"
 		dis-ng-style="{'z-index':$index}">
 			<div class="track-name" ng-bind="channel.media.name"></div>
-			<div>elapsed:
-				<span ng-bind="channel.currentTime | number:1"></span> /
-				<span ng-bind="channel.duration | number:1"></span>
-			</div>
+			<div><small>
+				<span ng-bind="channel.currentTime | secondsToTimecode"></span> /
+				<span ng-bind="channel.duration | secondsToTimecode"></span>
+			</small></div>
 
 
 			<md-slider ng-model="channel.currentTime"
-			 ng-change="channel.setTime()"
+			 ng-change="channel.setTime()" aria-label="Playback time"
 			min="0" max="{{channel.duration}}"></md-slider>
 
 			<md-button ng-click="channel.pause()" ng-if="channel.media.is_playing">
