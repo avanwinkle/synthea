@@ -58,7 +58,7 @@ function SynProject(SynCue,$http,$q,$log) {
                     if (!line || !line[0]) {
 
                         // Is it nothing?
-                        if (!line) {
+                        if (!line || line.length===0) {
                             return;
                         }
 
@@ -68,8 +68,7 @@ function SynProject(SynCue,$http,$q,$log) {
                             return;
                         }
                         else {
-                            $log.warn("Unable to parse line:",rawline);
-
+                            $log.warn('Unable to parse line:',rawline);
                         }
                     }
 
