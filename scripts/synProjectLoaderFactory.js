@@ -33,8 +33,14 @@ function ProjectLoaderFactory($http,$log,$q) {
 
                     if (!line || !line[0]) {
 
+                        // Is it nothing?
+                        if (!line) {
+                            return;
+                        }
+
                         // Empty lines are all commas
-                        if (rawline.match(/,/g).length==rawline.length) {
+                        var commas = rawline.match(/,/g);
+                        if (commas && commas.length==rawline.length) {
                             return;
                         }
                         else {
