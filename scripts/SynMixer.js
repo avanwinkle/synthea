@@ -5,9 +5,9 @@ angular
     .module('SyntheaApp')
     .factory('SynMixer', SynMixer);
 
-SynMixer.$inject = ['SynProject','$interval','$timeout'];
+SynMixer.$inject = ['SynProject','$interval','$q','$timeout'];
 
-function SynMixer(SynProject,$interval,$timeout) {
+function SynMixer(SynProject,$interval,$q,$timeout) {
 
     /*
     The MIXER manages the queuing, fading, and replacing
@@ -42,17 +42,93 @@ function SynMixer(SynProject,$interval,$timeout) {
     var pkey;
     // Track our channel counts
     var cidx = 0;
+    // How frequently do we step our fades?
+    const FADE_STEPS = 100;
 
     function Channel(opts) {
         this._id = cidx += 1;
         this.player_ = document.createElement('audio');
 
         // Default ins and outs
-        this.fadeIn = opts.fadeIn || 0;
-        this.fadeOut = opts.fadeOut || 2000;
+        this.fadeInDuration_ = opts.fadeIn || 1000;
+        this.fadeOutDuration_ = opts.fadeOut || 2000;
 
         return this;
     }
+
+    Channel.prototype.fadeIn = function(duration) {
+        var defer = $q.defer();
+
+        // Fade out somehow
+        var fadepct = 0;
+        // How fast do we fade out?
+        duration = duration || this.fadeInDuration_;
+
+
+        // Don't risk a few ms of missed playback on an iteration,
+        // set the volume to full if duration is exactly zero
+        if (duration===0) {
+            this.player_.volume = 1;
+        } else {
+            // Set initial state
+            this.player_.volume = 0;
+        }
+
+        // And start playing
+        this.player_.play();
+        this.media.is_playing = true;
+
+        var fadeAudio = $interval(function() {
+            fadepct += FADE_STEPS;
+
+            // If it's still audible and playing
+            if (this.player_.volume < 1 && !this.player_.ended) {
+                // Player throws an error if volume < 0;
+                this.player_.volume = Math.min(1,fadepct/duration);
+            }
+            else {
+                this.player_.volume = 1;
+                $interval.cancel(fadeAudio);
+                defer.resolve();
+            }
+        }.bind(this),FADE_STEPS);
+
+        return defer.promise;
+    };
+
+    Channel.prototype.fadeOut = function(duration) {
+        var defer = $q.defer();
+
+        // Fade out somehow
+        var fadepct = this.fadeOutDuration_;
+        // How fast do we fade out?
+        duration = duration || this.fadeOutDuration_;
+
+        // Avoid divide-by-zero errors and a ms rounding error
+        if (duration === 0) {
+            this.player_.volume = 0;
+        }
+
+        var fadeAudio = $interval(function() {
+
+            fadepct -= FADE_STEPS;
+
+            // If it's still audible and playing
+            if (this.player_.volume > 0 && !this.player_.ended) {
+                // Player throws an error if volume < 0;
+                this.player_.volume = Math.max(0,fadepct/duration);
+            }
+            else {
+                this.player_.pause();
+                this.media.is_playing = false;
+                $interval.cancel(fadeAudio);
+                defer.resolve();
+            }
+        }.bind(this),FADE_STEPS);
+
+        return defer.promise;
+
+    };
 
     Channel.prototype.isAvailable = function() {
         return !this.player_.src || this.player_.ended || !this.is_active;
@@ -92,7 +168,7 @@ function SynMixer(SynProject,$interval,$timeout) {
             this.is_active = false;
         }.bind(this);
 
-        this.player_.play();
+        this.fadeIn(0);
 
         var elapsedCounter = $interval(function() {
             this.currentTime = this.player_.currentTime;
@@ -105,17 +181,14 @@ function SynMixer(SynProject,$interval,$timeout) {
     };
 
     Channel.prototype.pause = function() {
-        this.player_.pause();
-        this.media.is_playing = false;
+        this.fadeOut();
     };
 
     Channel.prototype.play = function() {
-        this.player_.play();
-        this.media.is_playing = true;
+        this.fadeIn();
     };
 
     Channel.prototype.setTime = function() {
-        console.log("setting time!")
         this.player_.currentTime = this.currentTime;
     };
 
@@ -124,29 +197,9 @@ function SynMixer(SynProject,$interval,$timeout) {
         // We might not need to
         if (!this.is_active) { return; }
 
-        // Fade out somehow
-        var fadepct = this.fadeOut;
-        // How fast do we fade out?
-        const FADE_STEPS = 100;
-
-        var fadeAudio = $interval(function() {
-
-            fadepct -= FADE_STEPS;
-
-            // If it's still audible and playing
-            if (this.player_.volume > 0 || !this.player_.ended) {
-                // Player throws an error if volume < 0;
-                this.player_.volume = Math.max(0,fadepct/this.fadeOut);
-            }
-
-            if (this.player_.volume === 0) {
-                this.player_.pause();
-                this.is_active = false;
-                this.media.is_playing = false;
-                $interval.cancel(fadeAudio);
-            }
-        }.bind(this),FADE_STEPS);
-
+        this.fadeOut().then(function() {
+            this.is_active = false;
+        }.bind(this));
 
     };
 
