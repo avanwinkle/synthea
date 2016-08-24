@@ -36,6 +36,8 @@ function SyntheaAppRun() {
 
 require('./filters.js');
 require('./SynCue.js');
+require('./SynChannel.js');
+require('./SynGroup.js');
 require('./SynMixer.js');
 require('./SynProject.js');
 require('./directives/synIcon.js');
