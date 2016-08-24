@@ -1,25 +1,49 @@
 (function() {
+'use strict';
 
 angular
     .module('SyntheaApp')
-    .factory('ProjectLoader', ProjectLoaderFactory);
+    .service('SynProject',SynProject);
 
-ProjectLoaderFactory.$inject = ['$http','$log','$q'];
+SynProject.$inject = ['SynCue','$http','$q','$log'];
 
-function ProjectLoaderFactory($http,$log,$q) {
+function SynProject(SynCue,$http,$q,$log) {
 
-    var pl = this;
+    // This is a singleton so every service/controller can access
+    var project = {};
 
-    pl.loadProject = function(pName) {
+    function load(pkey) {
 
-        var prom = $q.defer();
+        project.key = pkey;
+        project.master = {};
 
-        $http.get('./Projects/'+pName+'/Layout.csv')
+        var defer = $q.defer();
+
+        // CONFIG FILE
+        $http.get('./Projects/'+project.key+'/Config.txt')
+        .then(function(response) {
+
+            var config = {};
+
+            var lines = response.data.split('\n');
+
+            angular.forEach(lines, function(line) {
+                var l = line.trim().split(':');
+                if (l[0].trim())
+                config[l[0]] = l[1];
+            });
+
+            project.config = config;
+
+        });
+
+        // LAYOUT FILE
+        $http.get('./Projects/'+project.key+'/Layout.csv')
         .then( function(response) {
 
             var master = { pages: [], columns: {}, buttons: {} };
 
-            csv = response.data.split("\n");
+            var csv = response.data.split("\n");
             if (csv.length < 2) csv = response.data.split("\r");
 
             angular.forEach(csv, function(rawline) {
@@ -28,7 +52,7 @@ function ProjectLoaderFactory($http,$log,$q) {
                 if (rawline[0] != "#") {
 
                     // BLACK MAGICK: single quotes break
-                    line = rawline.replace(/'/g,"");
+                    var line = rawline.replace(/'/g,"");
                     line = CSVtoArray(line);
 
                     if (!line || !line[0]) {
@@ -50,13 +74,19 @@ function ProjectLoaderFactory($http,$log,$q) {
                     }
 
                     else {
-                        // Create a button
+                        // Parse for button args
                         var button = {
                             column: line[1],
                             name: line[2],
                             file: line[3],
                         };
 
+                        // Additional args?
+                        if (line.length > 4) {
+                            button.args = line[4].split(',');
+                        }
+
+                        // Tooltip?
                         if (line.length > 5) {
                             button.tooltip = line[5];
                         }
@@ -75,20 +105,55 @@ function ProjectLoaderFactory($http,$log,$q) {
                             master.columns[line[0]].push(line[1]);
                         }
 
-                        master.buttons[line[0]].push(button);
+                        // Create a button object
+                        var b = new SynCue(button);
+
+                        master.buttons[line[0]].push(b);
 
                     }
                 }
 
             });
 
+            // Set our master
+            project.master = master;
+
             /// All done? Return it
-            prom.resolve(master);
+            defer.resolve();
         });
 
-        return prom.promise;
+        return defer.promise;
+    }
+
+    function getConfig(key) {
+        if (key==='key') {
+            return project.key;
+        }
+        else if (project.config.hasOwnProperty(key)) {
+            return project[config[key]];
+        }
+        else {
+            console.error('Project has no configuration "'+key+'"');
+        }
+    }
+
+    // Return a page by index, or default to zero
+    function getPage(idx) {
+        idx = parseInt(idx) || 0;
+        return project.master.pages[idx];
+    }
+
+    function getProject() {
+        return project;
+    }
+
+    return {
+        load: load,
+        getConfig: getConfig,
+        getPage: getPage,
+        getProject: getProject
     };
-    return pl;
+
 }
 
 
@@ -112,6 +177,7 @@ function CSVtoArray(text) {
     if (/,\s*$/.test(text)) a.push('');
     return a;
 }
+
 
 // IIFE
 })();
