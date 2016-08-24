@@ -1,8 +1,22 @@
 (function() {
+'use strict';
 
-angular.module("SyntheaApp",['ngAnimate','ngAria','ngMaterial']);
+angular
+    .module("SyntheaApp",['ngAnimate','ngAria','ngMaterial'])
+    .config(SyntheaAppConfig);
 
-//var csvRe = new RegExp("(?:^|,)(?=[^\"\"]|(\"\")?)\"\"?((?(1)[^\"\"]*|[^,\"\"]*))\"\"?(?=,|$)");
+
+SyntheaAppConfig.$inject = ['$mdThemingProvider'];
+
+function SyntheaAppConfig($mdThemingProvider) {
+
+
+    $mdThemingProvider.theme('default')
+        .primaryPalette('grey')
+        .accentPalette('pink');
+
+}
+
 
 require('./SynCue.js');
 require('./SynMixer.js');

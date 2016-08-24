@@ -29,7 +29,7 @@ function SyntheaController(SynMixer,SynProject,$log) {
 
 
     function activate() {
-        sVm.loadProject('MMCP');
+        sVm.loadProject('BlackFlag');
     }
 
 }

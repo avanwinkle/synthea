@@ -1,0 +1,126 @@
+$syn-accent: #368BE6;
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	text-align: center;
+	padding: 0;
+	margin:0;
+	background-color: #eee;
+	// Keep room for the player
+	padding-bottom: 30px;
+}
+
+button:active, button:focus {
+	outline: none;
+	border: none;
+}
+
+#page-header {
+
+	position:relative;
+	font-family: sans-serif;
+
+	#title {
+		display: inline-block;
+		&-text {
+			line-height: 60px;
+			vertical-align: middle;
+			font-weight: bold;
+			font-size: 105%;
+			padding-left: 10px;
+		}
+	}
+
+	#logo {
+		width: 64px;
+		background-image: url('synthea_icon_cropped.png');
+		background-position:center center;
+		background-repeat: no-repeat;
+		background-size: 48px;
+	}
+
+}
+
+
+#page-tabs {
+	background-color: rgb(66,66,66);
+	color: #eee;
+
+	border-bottom: solid 1px #ddd;
+
+	.page-tab-container {
+
+	}
+
+	.page-tab {
+		padding: 8px 16px;
+		outline: none;
+
+		&:focus {
+			background-color: #999;
+		}
+
+		&.current {
+			background-color: $syn-accent;
+			color: #fff;
+		}
+
+		&:not(.current):hover {
+			background-color: #999;
+			cursor: pointer;
+		}
+	}
+}
+
+#page-container {
+	background-color: #eee;
+	clear: both;
+	padding-bottom: 15px;
+
+	.column {
+		display: inline-block;
+		vertical-align:top;
+		margin-top: 1em;
+		position: relative;
+
+		&-header {
+			background-color: #eee;
+			position: relative;
+			z-index: 2;
+			display: inline-block;
+			padding: 0 0.5em;
+		}
+
+		&-container {
+			margin: -12px 8px 1em 8px;
+			padding: 16px 8px;
+			border: solid 1px #ccc;
+			border-radius: 8px;
+		}
+	}
+
+}
+
+.md-button.cueButton {
+
+	background-color: #fafafa;
+	border: solid 1px #bbb;
+	border-radius: 6px;
+	font-size: 12px;
+	font-weight: 400;
+	margin:0;
+	text-transform: none;
+	width: 100%;
+
+	&.current {
+		background-color: $syn-accent;
+		color: #fff;
+	}
+}
+
+.cueButton-container {
+	padding: 8px 0;
+}
