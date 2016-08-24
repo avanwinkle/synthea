@@ -36,6 +36,8 @@ function SyntheaController(SynMixer,SynProject,$log) {
 
 SyntheaController.prototype.contextCue = function(button) {
     console.info("RIGHT CLICK!",button.cue.name);
+    console.info(this);
+    this.mixer.queue(cue);
 };
 
 SyntheaController.prototype.loadProject = function(pkey) {
@@ -43,7 +45,7 @@ SyntheaController.prototype.loadProject = function(pkey) {
     this.SynProject_.load(pkey).then(function() {
 
         this.project = this.SynProject_.getProject();
-        this.mixer = new this.SynMixer_();
+        this.mixer = this.SynMixer_.createMixer();
 
         this.selectPage( this.SynProject_.getPage() );
     }.bind(this));

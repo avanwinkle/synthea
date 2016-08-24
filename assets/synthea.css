@@ -1,4 +1,4 @@
-* {
+*, *:before, *:after {
   box-sizing: border-box; }
 
 body {
@@ -18,43 +18,78 @@ button:active, button:focus {
   position: absolute;
   right: 16px;
   width: 196px; }
-  #currentTracks .track {
-    background-color: #eee;
-    border: solid 1px rgba(0, 0, 0, 0.4);
-    font-size: 12px;
+  #currentTracks .track-container {
     height: 112px;
-    opacity: 1;
-    overflow: hidden;
-    padding: 8px;
-    transition: height 0.5s ease-in-out, opacity 0.5s ease-in-out; }
-    #currentTracks .track.ng-enter {
+    opacity: 1; }
+    #currentTracks .track-container.ng-enter {
       display: block !important;
       height: 0;
       opacity: 0; }
-      #currentTracks .track.ng-enter-active {
+      #currentTracks .track-container.ng-enter-active {
         height: 112px;
         opacity: 1; }
-    #currentTracks .track.ng-leave {
+    #currentTracks .track-container.ng-leave {
       display: block !important;
-      height: 112px;
-      opacity: 1; }
-      #currentTracks .track.ng-leave-active {
+      opacity: 1;
+      height: 112px; }
+      #currentTracks .track-container.ng-leave-active {
         height: 0;
         opacity: 0; }
-  #currentTracks .track-button.active {
-    stroke: #368BE6; }
-  #currentTracks .track-timecode {
-    font-size: 12px;
-    margin-top: -16px;
-    padding: 0 8px; }
-    #currentTracks .track-timecode:first-child {
-      text-align: left; }
-    #currentTracks .track-timecode:last-child {
-      text-align: right; }
-  #currentTracks .track-title {
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap; }
+
+#queuedTracks {
+  bottom: 0;
+  left: 16px;
+  position: absolute;
+  width: 196px; }
+  #queuedTracks .track-container {
+    height: 64px;
+    opacity: 1; }
+    #queuedTracks .track-container.ng-enter {
+      display: block !important;
+      height: 0;
+      opacity: 0; }
+      #queuedTracks .track-container.ng-enter-active {
+        height: 64px;
+        opacity: 1; }
+    #queuedTracks .track-container.ng-leave {
+      display: block !important;
+      opacity: 1;
+      height: 64px; }
+      #queuedTracks .track-container.ng-leave-active {
+        height: 0;
+        opacity: 0; }
+    #queuedTracks .track-container.expanded {
+      height: 112px; }
+
+.track {
+  background-color: #ddd;
+  border: solid 1px rgba(0, 0, 0, 0.4);
+  font-size: 12px;
+  padding: 8px;
+  opacity: 1;
+  overflow: hidden; }
+
+.track-button.active {
+  stroke: #368BE6; }
+
+.track-container {
+  position: relative;
+  transition: height 0.5s ease-in-out, opacity 0.5s ease-in-out; }
+
+.track-timecode {
+  font-size: 12px;
+  margin-top: -16px;
+  padding: 0 8px; }
+  .track-timecode:first-child {
+    text-align: left; }
+  .track-timecode:last-child {
+    text-align: right; }
+
+.track-title {
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap; }
 
 #page-header {
   position: relative;

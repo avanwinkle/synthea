@@ -4,8 +4,7 @@
 angular
     .module("SyntheaApp",['ngAnimate','ngAria','ngMaterial'])
     .config(SyntheaAppConfig)
-    .run(SyntheaAppRun)
-    .filter('secondsToTimecode', secondsToTimecode);
+    .run(SyntheaAppRun);
 
 
 SyntheaAppConfig.$inject = ['$mdThemingProvider'];
@@ -35,21 +34,7 @@ function SyntheaAppRun() {
     });
 }
 
-function secondsToTimecode() {
-    return function(duration) {
-        var sec_num = parseInt(duration, 10); // don't forget the second param
-        var minutes = Math.floor(sec_num / 60);
-        var seconds = sec_num - (minutes * 60);
-        var decs = Math.floor(duration % 1 * 10);
-
-        if (minutes < 10) {minutes = "0"+minutes;}
-        if (seconds < 10) {seconds = "0"+seconds;}
-        return minutes+':'+seconds+'.'+decs;
-
-    };
-}
-
-
+require('./filters.js');
 require('./SynCue.js');
 require('./SynMixer.js');
 require('./SynProject.js');

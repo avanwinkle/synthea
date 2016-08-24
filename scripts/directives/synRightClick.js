@@ -2,20 +2,22 @@
 
 angular
   .module('SyntheaApp')
-  .directive('synRightClick', function() {
+  .directive('synRightClick', ['SynMixer', function(SynMixer) {
 
     return {
-      link: function(scope,ele,attrs) {
+        restrict: 'A',
 
-        // Bind a contextual method from the parent scope
-        scope.contextAction =
-          scope.$parent.$eval(attrs.synRightClick);
+        link: function(scope,ele,attrs) {
 
-      },
-      restrict: 'A',
-      scope:true,
+            // Bind a contextual method from the parent scope
+            scope.contextAction = function() {
+                SynMixer.getMixer().queue(scope.cue);
+            };
+
+        },
+        // scope:true,
     };
-  });
+}]);
 
 
 // IIFE
