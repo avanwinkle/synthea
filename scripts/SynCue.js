@@ -15,8 +15,11 @@ function SynCue() {
         this.name = config.name;
         this.column = config.column;
         this.file = config.file;
+        this.isLoop = config.loop;
 
-        if (this.file.indexOf('mp3') !== -1) {
+        // BLACK MAGICK: A crude method of identifying
+        // music tracks until they're configured
+        if (this.file.indexOf('mp3') !== this.file.indexOf('ogg')) {
             this.group = 'MUSIC_';
         }
 

@@ -5,9 +5,9 @@ angular
     .module('SyntheaApp')
     .factory('SynMixer', SynMixer);
 
-SynMixer.$inject = ['SynProject','$interval'];
+SynMixer.$inject = ['SynProject','$interval','$timeout'];
 
-function SynMixer(SynProject,$interval) {
+function SynMixer(SynProject,$interval,$timeout) {
 
     /*
     The MIXER manages the queuing, fading, and replacing
@@ -69,8 +69,18 @@ function SynMixer(SynProject,$interval) {
         this.player_.volume = this.fadeIn ? 0 : 1;
         // Occupied!
         this.is_playing = true;
+        this.media.is_playing = true;
+
+        // Listen for changes
+        this.player_.onpause = function(state) {
+            $timeout(function() {
+                this.is_playing = false;
+                this.media.is_playing = false;
+            }.bind(this),0);
+        }.bind(this);
 
         this.player_.play();
+
     };
 
     Channel.prototype.stop = function() {
@@ -96,6 +106,7 @@ function SynMixer(SynProject,$interval) {
             if (this.player_.volume === 0) {
                 this.player_.pause();
                 this.is_playing = false;
+                this.media.is_playing = false;
                 $interval.cancel(fadeAudio);
             }
         }.bind(this),FADE_STEPS);

@@ -19,60 +19,62 @@
 	      href="assets/synthea_icon_cropped.png" />
 	<link rel="icon" type="image/x-icon" href="assets/synthea_flat.ico" />
 </head>
-<body ng-controller="SyntheaController as sVm">
+<body ng-controller="SyntheaController as sVm"
+layout="column" layout-fill>
 <!--{{master | json}}-->
 
 
-<div id="page-header" layout="row">
-	<div flex="none">
-		<img id="logo" src="assets/synthea_icon_cropped.png" />
+	<md-toolbar id="page-header" class="md-hue-2" layout="row"
+	flex="none">
+		<div flex="none" id="logo">
+			<!-- <img id="logo" src="assets/synthea_icon_cropped.png" /> -->
+		</div>
+
+		<div id="title" flex>
+			<span id="title-text"
+			ng-bind="sVm.project.config.name"></span>
+		</div>
+
+		<div flex="none">
+			<md-button ng-click="sVm.stopAll()">Stop All</md-button>
+		</div>
+
+	</md-toolbar>
+
+	<div id="page-tabs" flex="none" layout="row">
+		<span flex></span>
+		<div class="page-tab-container" flex="none"
+		ng-repeat="page in sVm.project.master.pages">
+			<div class="page-tab"
+			ng-bind="page"
+			ng-click="sVm.selectPage(page)"
+			ng-class="{'current': page == sVm.currentPage}"></div>
+		</div>
+		<span flex></span>
 	</div>
 
-	<div id="title" flex>
-		<span id="title-text"
-		ng-bind="sVm.project.config.name"></span>
-	</div>
+	<md-content flex layout="column" id="page-container">
+		<div  layout="row" flex>
+			<div class="column md-card" flex
+			md-padding="2"
+			ng-repeat="column in sVm.currentColumns">
+				<div class="column-header" ng-bind="column"></div>
+				<div class="column-container" layout="column">
+					<div class="cueButton-container"
+					flex="none" layout="row"
+					ng-repeat="cue in sVm.currentButtons | filter: {column: column}">
+						<md-button class="cueButton" flex
+						aria-label="{{::cue.name}}"
+						ng-disabled="!cue.file"
+						ng-bind="::cue.name"
+						ng-click="sVm.selectCue(cue)"
+						ng-class="{'current': cue.is_playing}"
+						md-title="{{::cue.tooltip}}"></md-button>
 
-	<div flex="none">
-		<md-button ng-click="sVm.stopAll()">Stop All</md-button>
-	</div>
-
-</div>
-
-<div id="page-tabs" ng-if="sVm.project.master.pages.length>1">
-	<div class="page-tab"
-	ng-repeat="page in sVm.project.master.pages" >
-		<button class="tab" ng-bind="page"
-		ng-click="sVm.selectPage(page)"
-		ng-class="{'current': page == sVm.currentPage}"></button>
-	</div>
-</div>
-
-<div id="page-container">
-		<div class="column" ng-repeat="column in sVm.currentColumns">
-			<div class="column-header" ng-bind="column"></div>
-			<div class="column-container">
-				<div class="button-container"
-				ng-repeat="cue in sVm.currentButtons | filter: {column: column}">
-					<button class="button"
-					aria-label="{{::cue.name}}"
-					ng-disabled="!cue.file"
-					ng-bind="::cue.name"
-					ng-click="sVm.selectCue(cue)"
-					ng-class="{'current': cue == sVm.currentTrack}"
-					title="{{::cue.tooltip}}"></button>
+					</div>
 				</div>
 			</div>
 		</div>
-	</div>
-</div>
 
-<!--
-<div id="player">
-	<div id="current_track">{{sVm.currentTrack.name}}</div>
-	<div id="current_track_source" ng-show="sVm.currentTrack">{{sVm.currentTrack.column}}, {{sVm.currentPage}}</div>
-	<audio id="audioplayer" src="" controls></audio>
-</div>
--->
-
+	</md-content>
 </body>

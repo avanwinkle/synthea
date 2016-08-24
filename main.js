@@ -139,7 +139,7 @@ function createWindow () {
     height: 600,
     icon: './assets/synthea_flat.ico',
     title: 'Synthea ' + VERSION,
-    width: 800,
+    width: 1200,
   });
 
   // and load the index.html of the app.
