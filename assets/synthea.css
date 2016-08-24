@@ -12,6 +12,33 @@ button:active, button:focus {
   outline: none;
   border: none; }
 
+#currentTracks {
+  background-color: #ddd;
+  bottom: 0;
+  border: solid 1px rgba(0, 0, 0, 0.4);
+  position: absolute;
+  right: 16px; }
+  #currentTracks .track {
+    transition: height 0.5s ease-in-out, opacity 0.5s ease-in-out;
+    height: 128px;
+    opacity: 1;
+    background-color: #eee;
+    overflow: hidden; }
+    #currentTracks .track.ng-enter {
+      display: block !important;
+      height: 0;
+      opacity: 0; }
+      #currentTracks .track.ng-enter-active {
+        height: 128px;
+        opacity: 1; }
+    #currentTracks .track.ng-leave {
+      display: block !important;
+      height: 128px;
+      opacity: 1; }
+      #currentTracks .track.ng-leave-active {
+        height: 0;
+        opacity: 0; }
+
 #page-header {
   position: relative;
   font-family: sans-serif; }

@@ -12,7 +12,7 @@ const VERSION = require('./package.json').version;
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
 
-const DEBUG_MODE = false;
+const DEBUG_MODE = true;
 
 function createMenus() {
 

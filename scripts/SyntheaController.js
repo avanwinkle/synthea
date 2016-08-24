@@ -15,7 +15,7 @@ function SyntheaController(SynMixer,SynProject,$log) {
     this.SynProject_ = SynProject;
     this.$log_ = $log;
     // The current playing track(s)
-    this.currentTrack = undefined;
+    this.currentTracks = [];
 
     // We need a mixer
     var mixer;
@@ -53,19 +53,19 @@ SyntheaController.prototype.selectPage = function(page) {
 };
 
 SyntheaController.prototype.selectCue = function(cue) {
-    // this.$log_.info("Setting audio to '"+cue.name+"' ("+cue.file+")");
-    this.currentTrack = cue;
-    /*
-    document.getElementById('audioplayer').src =
-        './Projects/'+this.project.key+'/normal/'+cue.file;
-    document.getElementById('audioplayer').play();
-    */
+
     // Use it's internal method, so we know that's an option
     this.mixer.play(cue);
+
+    // Track it
+    if (this.currentTracks.indexOf(cue)===-1) {
+        this.currentTracks.push(cue);
+    }
 };
 
 SyntheaController.prototype.stopAll = function() {
     this.mixer.stop();
+    this.currentTracks = [];
 };
 
 // IIFE
