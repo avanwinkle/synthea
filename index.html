@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html ng-app="SyntheaApp" >
 <head>
-	<title>Synthea</title>
+	<!-- <title>Synthea</title> -->
 	<meta charset="UTF-8">
 	<base href="./" />
 	<!-- <script src="./lib/angular-1.3.4/angular.min.js"></script> -->
@@ -9,7 +9,7 @@
 	<script>
 		window.angular = require('angular');
 		const angularMaterial = require('angular-material');
-		const synthea = require('./scripts/synthea.js');
+		const synthea = require('./scripts/SyntheaApp.js');
 	</script>
 
 	<link rel="stylesheet" href="node_modules/angular-material/angular-material.min.css">
@@ -19,43 +19,60 @@
 	      href="assets/synthea_icon_cropped.png" />
 	<link rel="icon" type="image/x-icon" href="assets/synthea_flat.ico" />
 </head>
-<body ng-controller="SyntheaController">
+<body ng-controller="SyntheaController as sVm">
 <!--{{master | json}}-->
 
 
-<div id="page-header">
-	<img id="logo" src="assets/synthea_icon_cropped.png" />
+<div id="page-header" layout="row">
+	<div flex="none">
+		<img id="logo" src="assets/synthea_icon_cropped.png" />
+	</div>
 
-	<div id="title">
-		<span id="title-text">Synthea Previewer</span>
+	<div id="title" flex>
+		<span id="title-text"
+		ng-bind="sVm.project.config.name"></span>
+	</div>
+
+	<div flex="none">
+		<md-button ng-click="sVm.stopAll()">Stop All</md-button>
 	</div>
 
 </div>
 
-<div id="page-tabs">
-	<div class="page-tab" ng-repeat="page in master.pages" >
-		<button class="tab" ng-bind="page" ng-click="selectPage(page)"
-			ng-class="{'current': page == currentPage}"></button>
+<div id="page-tabs" ng-if="sVm.project.master.pages.length>1">
+	<div class="page-tab"
+	ng-repeat="page in sVm.project.master.pages" >
+		<button class="tab" ng-bind="page"
+		ng-click="sVm.selectPage(page)"
+		ng-class="{'current': page == sVm.currentPage}"></button>
 	</div>
 </div>
 
 <div id="page-container">
-		<div class="column" ng-repeat="column in currentColumns">
+		<div class="column" ng-repeat="column in sVm.currentColumns">
 			<div class="column-header" ng-bind="column"></div>
 			<div class="column-container">
-				<div class="button-container" ng-repeat="button in currentButtons | filter: {column: column}">
-					<button class="button" aria-label="{{::button.name}}"
-					ng-bind="::button.name" ng-click="setAudio(button)" ng-class="{'current': button ==currentTrack}" title="{{::button.tooltip}}"></button>
+				<div class="button-container"
+				ng-repeat="cue in sVm.currentButtons | filter: {column: column}">
+					<button class="button"
+					aria-label="{{::cue.name}}"
+					ng-disabled="!cue.file"
+					ng-bind="::cue.name"
+					ng-click="sVm.selectCue(cue)"
+					ng-class="{'current': cue == sVm.currentTrack}"
+					title="{{::cue.tooltip}}"></button>
 				</div>
 			</div>
 		</div>
 	</div>
 </div>
 
+<!--
 <div id="player">
-	<div id="current_track">{{currentTrack.name}}</div>
-	<div id="current_track_source" ng-show="currentTrack">{{currentTrack.column}}, {{currentPage}}</div>
+	<div id="current_track">{{sVm.currentTrack.name}}</div>
+	<div id="current_track_source" ng-show="sVm.currentTrack">{{sVm.currentTrack.column}}, {{sVm.currentPage}}</div>
 	<audio id="audioplayer" src="" controls></audio>
 </div>
+-->
 
 </body>
