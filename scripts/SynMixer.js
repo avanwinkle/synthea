@@ -43,7 +43,7 @@ function SynMixer(SynProject,$interval,$q,$timeout) {
     // Track our channel counts
     var cidx = 0;
     // How frequently do we step our fades?
-    const FADE_STEPS = 100;
+    const FADE_STEPS = 10;
 
     function Channel(opts) {
         this._id = cidx += 1;
@@ -186,6 +186,13 @@ function SynMixer(SynProject,$interval,$q,$timeout) {
 
     Channel.prototype.play = function() {
         this.fadeIn();
+    };
+
+    Channel.prototype.repeat = function() {
+        // Toggle it on a media-by-media basis
+        this.media.isLoop = !this.media.isLoop;
+        // Update the channel to reflect the media
+        this.player_.loop = this.media.isLoop;
     };
 
     Channel.prototype.setTime = function() {

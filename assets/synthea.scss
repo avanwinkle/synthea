@@ -21,17 +21,21 @@ button:active, button:focus {
 #currentTracks {
 	background-color: #ddd;
 	bottom:0;
-	border: solid 1px rgba(0,0,0,0.4);
 	position:absolute;
 	right:16px;
+	width: 196px;
 
 	.track {
-		$track-height:128px;
-		transition: height 0.5s ease-in-out, opacity 0.5s ease-in-out;
+		$track-height:112px;
+
+		background-color: #eee;
+		border: solid 1px rgba(0,0,0,0.4);
+		font-size: 12px;
 		height: $track-height;
 		opacity:1;
-		background-color: #eee;
 		overflow:hidden;
+		padding: 8px;
+		transition: height 0.5s ease-in-out, opacity 0.5s ease-in-out;
 
 		&.ng-enter {
 			display: block !important;
@@ -52,6 +56,29 @@ button:active, button:focus {
 				opacity:0;
 			}
 		}
+	}
+
+	.track-button {
+		&.active {
+			// background-color: rgba(0,0,0,0.2);
+			stroke: $syn-accent;
+		}
+	}
+
+	.track-timecode {
+
+		font-size: 12px;
+		margin-top: -16px;
+		padding: 0 8px;
+
+		&:first-child { text-align: left;}
+		&:last-child { text-align: right;}
+	}
+
+	.track-title {
+		text-overflow:ellipsis;
+		overflow:hidden;
+		white-space: nowrap;
 	}
 
 }
@@ -161,4 +188,11 @@ button:active, button:focus {
 
 .cueButton-container {
 	padding: 8px 0;
+}
+
+md-slider.track-timebar {
+	.md-track-fill, .md-thumb, .md-thumb-container, .md-focus-ring {
+		transition-timing-function: linear;
+		transition-duration: 0.01s;
+	}
 }
