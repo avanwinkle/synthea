@@ -35,7 +35,54 @@ function SynProject(SynCue,$http,$q,$log) {
 
             project.config = config;
 
+            fetchHotkeys_().then(defer.resolve);
         });
+
+
+
+        return defer.promise;
+    }
+
+    function getConfig(key) {
+        if (key==='key') {
+            return project.key;
+        }
+        else if (project.config.hasOwnProperty(key)) {
+            return project[config[key]];
+        }
+        else {
+            console.error('Project has no configuration "'+key+'"');
+        }
+    }
+
+    function fetchHotkeys_() {
+
+        var defer = $q.defer();
+
+        project.hotKeys = {};
+
+        // HOTKEYS FILE
+        $http.get('./Projects/'+project.key+'/Hotkeys.json')
+        .then(function(response) {
+
+            // Store a buttonName-to-keyCode lookup for parsing the layout
+            var nameToKeyCode = {};
+
+            angular.forEach(response.data, function(hotkey) {
+                project.hotKeys[hotkey.code] = hotkey;
+                nameToKeyCode[hotkey.buttonName] = hotkey.code;
+            });
+
+            fetchLayout_(nameToKeyCode).then(defer.resolve);
+
+        });
+
+        return defer.promise;
+    }
+
+    function fetchLayout_(nameToKeyCode) {
+
+        var defer = $q.defer();
 
         // LAYOUT FILE
         $http.get('./Projects/'+project.key+'/Layout.csv')
@@ -45,7 +92,8 @@ function SynProject(SynCue,$http,$q,$log) {
 
             var csv = response.data.split("\n");
             if (csv.length < 2) csv = response.data.split("\r");
-
+            console.info(project.hotKeys);
+            console.warn(nameToKeyCode);
             angular.forEach(csv, function(rawline) {
 
                 // No comments
@@ -109,6 +157,13 @@ function SynProject(SynCue,$http,$q,$log) {
 
                         master.buttons[line[0]].push(b);
 
+
+                        // Is there a hotkey for this button?
+                        if (nameToKeyCode.hasOwnProperty(b.name)) {
+                            console.log("looking for hotkey", b)
+                            project.hotKeys[nameToKeyCode[b.name]].cue = b;
+                        }
+
                     }
                 }
 
@@ -122,18 +177,6 @@ function SynProject(SynCue,$http,$q,$log) {
         });
 
         return defer.promise;
-    }
-
-    function getConfig(key) {
-        if (key==='key') {
-            return project.key;
-        }
-        else if (project.config.hasOwnProperty(key)) {
-            return project[config[key]];
-        }
-        else {
-            console.error('Project has no configuration "'+key+'"');
-        }
     }
 
     // Return a page by index, or default to zero

@@ -27,9 +27,40 @@ function SyntheaController(SynMixer,SynProject,$log) {
 
     activate();
 
+    document.addEventListener('keypress', function(e) {
+        console.log('keypress',e);
+
+
+        if (e.code === 'Space') {
+            e.preventDefault();
+            this.mixer.toggleLock();
+        }
+
+        else if (this.project.hotKeys.hasOwnProperty(e.code)) {
+            var hotkey = this.project.hotKeys[e.code];
+            // Is there a cue that matches this key?
+            if (hotkey.cue) {
+                // SHIFT to queue, no shift to play
+                if (e.shiftKey) {
+                    this.mixer.queue(hotkey.cue);
+                } else {
+                    this.mixer.play(hotkey.cue);
+                }
+            }
+        }
+
+
+    }.bind(this));
+
+    document.addEventListener('keyup', function(e) {
+        if (e.code === 'Backspace') {
+            this.mixer.stop();
+        }
+    }.bind(this));
+
 
     function activate() {
-        sVm.loadProject('BlackFlag');
+        sVm.loadProject('MMCP');
     }
 
 }
