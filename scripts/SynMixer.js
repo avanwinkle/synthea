@@ -75,6 +75,17 @@ function SynMixer(SynGroup,SynProject) {
         });
     };
 
+    Mixer.prototype.toggleLock = function() {
+
+        // Flush everything?
+        angular.forEach(this.channels, function(ch) {
+            if (ch.is_queued) {
+                ch.play();
+            }
+        });
+
+    };
+
 
     return {
         createMixer: function() {

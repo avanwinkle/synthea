@@ -5,10 +5,12 @@ $syn-accent: #368BE6;
 }
 
 body {
-	text-align: center;
-	padding: 0;
-	margin:0;
 	background-color: #eee;
+	margin:0;
+	padding: 0;
+	text-align: center;
+	// Let the md-content handle the scrolling
+	overflow:hidden;
 	// Keep room for the player
 	padding-bottom: 30px;
 }

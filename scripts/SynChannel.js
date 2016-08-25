@@ -149,6 +149,7 @@ function SynChannel($interval,$q,$timeout) {
     Channel.prototype.loadCue = function(cue,autoplay) {
 
         // Do we already have it?
+        /*
         if (this.media === cue) {
             // If we have autoplay and the cue is queued, play it
             if (autoplay) {
@@ -156,6 +157,7 @@ function SynChannel($interval,$q,$timeout) {
             }
             return;
         }
+        */
 
         // Store a reference to the cue
         this.media = cue;
