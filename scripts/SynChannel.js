@@ -26,121 +26,57 @@ function SynChannel($interval,$q,$timeout) {
     var cidx = 0;
     // How frequently do we step our fades?
     const FADE_STEPS = 10;
+    const MAX_VOLUME = 0.5;
 
     function Channel(group,opts) {
         this._id = cidx += 1;
-        this.group_ = group,
-        this.player_ = document.createElement('audio');
+        this.group_ = group;
 
         // Default ins and outs
-        this.fadeInDuration_ = opts.fadeIn || 1000;
+        this.fadeInDuration_ = opts.fadeIn || 0;
         this.fadeOutDuration_ = opts.fadeOut || 2000;
 
         return this;
     }
 
-    Channel.prototype.fadeIn = function(duration) {
+    // A common method to bind the howler fade in an angular promise
+    Channel.prototype.fade_ = function(direction) {
+
+        var start, end, duration;
         var defer = $q.defer();
 
-        // Fade out somehow
-        var fadepct = 0;
-        // How fast do we fade out?
-        duration = duration || this.fadeInDuration_;
-
-        // Don't risk a few ms of missed playback on an iteration,
-        // set the volume to full if duration is exactly zero
-        if (duration===0) {
-            this.player_.volume = 1;
-        } else {
-            // Set initial state
-            this.player_.volume = 0;
+        switch (direction) {
+            case 'in':
+                start = 0;
+                end = MAX_VOLUME;
+                duration = this.fadeInDuration_;
+                break;
+            case 'out':
+                start = MAX_VOLUME;
+                end = 0;
+                duration = this.fadeOutDuration_;
         }
 
-        // And start playing
-        this.player_.play();
-        this.media.is_playing = true;
-        // No longer queued
-        this.state = 'PLAYING';
-
-        // Create an interval to update the playback time
-        this.elapsedCounter = $interval(function() {
-            this.currentTime = this.player_.currentTime;
-            // Cancel if we're not playing anymore
-            if (this.state!=='PLAYING') {
-                $interval.cancel(this.elapsedCounter);
-            }
-        }.bind(this),100);
-
-        this.fadeInInterval_ = $interval(function() {
-            fadepct += FADE_STEPS;
-
-            // If it's still audible and playing
-            if (this.player_.volume < 1 && !this.player_.ended) {
-                // Player throws an error if volume < 0;
-                this.player_.volume = Math.min(1,fadepct/duration);
-            }
-            else {
-                this.player_.volume = 1;
-                $interval.cancel(this.fadeInInterval_);
-                defer.resolve();
-            }
-        }.bind(this),FADE_STEPS);
+        // Make the fade
+        this.player_.fade(start,end,duration);
+        // Resolve the promise, which triggers a $scope.digest?
+        this.player_.once('fade', function() {
+            defer.resolve();
+        });
 
         return defer.promise;
     };
 
-    Channel.prototype.fadeOut = function(duration) {
-        var defer = $q.defer();
+    Channel.prototype.fadeIn_ = function(duration) {
+        return this.fade_('in');
+    };
 
-        // Fade out somehow
-        var fadepct = this.fadeOutDuration_;
-        // How fast do we fade out?
-        duration = duration || this.fadeOutDuration_;
-
-        // Avoid divide-by-zero errors and a ms rounding error
-        if (duration === 0) {
-            this.player_.volume = 0;
-        }
-
-        // Is there currently a fade-in in progress on this channel?
-        if (this.fadeInInterval_) {
-            // That can happen if we hit too many exclusive cues too fast.
-            $interval.cancel(this.fadeInInterval_);
-        }
-        // Is there currently a fade-out in progress on this channel?
-        if (this.fadeOutInterval_) {
-            // That can happen if multiple cancel events occur
-            defer.reject(); // ??? What to do with promises?
-            return defer.promise;
-        }
-
-        this.fadeOutInterval_ = $interval(function() {
-
-            fadepct -= FADE_STEPS;
-
-            // If it's still audible and playing
-            if (this.player_.volume > 0 && !this.player_.ended) {
-                // Player throws an error if volume < 0;
-                this.player_.volume = Math.max(0,fadepct/duration);
-            }
-            else {
-                this.player_.pause();
-                this.media.is_playing = false;
-                // Stop this fade out interval
-                $interval.cancel(this.fadeOutInterval_);
-                // Stop the elapsed time counting
-                $interval.cancel(this.elapsedCounter);
-                this.state = 'PAUSED';
-                defer.resolve();
-            }
-        }.bind(this),FADE_STEPS);
-
-        return defer.promise;
-
+    Channel.prototype.fadeOut_ = function(duration) {
+        return this.fade_('out');
     };
 
     Channel.prototype.isAvailable = function() {
-        return !this.player_.src ||
+        return !this.player_ ||
                this.state === 'ENDED' ||
                this.state === 'STOPPED'
                ;
@@ -148,97 +84,166 @@ function SynChannel($interval,$q,$timeout) {
 
     Channel.prototype.loadCue = function(cue,autoplay) {
 
-        // Do we already have it?
-        /*
-        if (this.media === cue) {
-            // If we have autoplay and the cue is queued, play it
-            if (autoplay) {
-                this.play();
-            }
-            return;
-        }
-        */
+        var defer = $q.defer();
 
         // Store a reference to the cue
         this.media = cue;
 
-        this.player_.src = './Projects/'+ this.group_.mixer_.pkey +'/normal/'+cue.file;
-        this.player_.loop = cue.isLoop;
+        // We need a pointer to the channel
+        var channel = this;
 
-        // Set volume, unless we have a fadeIn
-        this.player_.volume = this.fadeIn ? 0 : 1;
-        // Occupied!
-        this.state = 'QUEUED';
-        this.is_queued = true;
+        this.player_ = new Howl({
+            src: ['./Projects/'+ channel.group_.mixer_.pkey +'/normal/'+cue.file],
+            // Additional params
+            // autoplay: autoplay,
+            loop: cue.isLoop,
+            preload: true,
+            // Set volume, unless we have a fadeIn
+            volume: channel.fadeInDuration_ ? 0 : MAX_VOLUME,
+            onend: function() {
+                // This event fires at the end of each loop
+                if (!cue.isLoop) {
+                    channel.state = 'ENDED';
+                    channel.is_current = false;
+                }
+                $interval.cancel(channel.elapsedCounter);
+            },
+            onload: function() {
+                console.log("cue loaded!")
+                channel.duration = channel.player_.duration();
+                defer.resolve(cue);
+
+                if (autoplay) {
+                    channel.play();
+                }
+                else {
+                    // Occupied!
+                    channel.state = 'QUEUED';
+                    channel.is_queued = true;
+                }
+            },
+            onloaderror: function(soundId,reason) {
+                defer.reject(reason);
+            },
+            onpause: function() {
+
+            },
+            onplay: function() {
+                console.log('onplay event!')
+            }
+        });
+
+        // Notet that we're occupied!
+        this.state = 'QUEUING';
         this.is_current = false;
 
-        // Listen for ready
-        this.player_.oncanplay = function() {
-            $timeout(function() {
-                this.duration = this.player_.duration;
-            }.bind(this),0);
-        }.bind(this);
-
-        // Listen for changes
-        this.player_.onpause = function(state) {
-            $timeout(function() {
-                this.media.is_playing = false;
-                this.state = 'PAUSED';
-            }.bind(this),0);
-        }.bind(this);
-
-        // When the track comes to and end?
-        this.player_.onended = function() {
-            this.state = 'ENDED';
-            this.is_current = false;
-        }.bind(this);
-
-
-        // Begin playback?
-        if (autoplay) {
-            this.play();
-        }
+        return defer.promise;
     };
 
     Channel.prototype.pause = function() {
+
         this.state = 'PAUSING';
-        this.fadeOut();
+
+        this.fadeOut_().then(function() {
+            this.player_.pause();
+            this.state = 'PAUSED';
+            this.is_playing = false;
+            $interval.cancel(this.elapsedCounter);
+        }.bind(this));
+
+        /*
+        this.player_.fade(1,0,this.fadeOutDuration_);
+        this.player_.once('fade', function() {
+
+            console.log('done pausing!')
+            // Wrap in a timeout to ensure a scope digest
+            $timeout(function() {
+                this.player_.pause();
+                this.state = 'PAUSED';
+                this.is_playing = false;
+                $interval.cancel(this.elapsedCounter);
+            }.bind(this),0);
+
+        }.bind(this));
+        */
     };
 
     Channel.prototype.play = function() {
-        this.fadeIn();
-        this.is_queued = false;
-        this.is_current = true;
 
-        // If we're playing, bring out the rest of the group
-        if (this.group_name !== 'COMMON_') {
+        this.state = 'PLAYING';
+
+        this.is_current = true;
+        this.is_playing = true;
+        this.is_queued = false;
+
+        // Create an interval to update the playback time
+        this.elapsedCounter = $interval(function() {
+            this.currentTime = this.player_.seek();
+        }.bind(this),100);
+
+        // Start playing before we start the fade
+        this.player_.volume(0);
+        this.player_.play();
+        this.fadeIn_().then(function() {
+            console.log("all playing now!")
+        });
+
+        // If we autoplayed, cancel the rest of the group
+        if (this.group_.name !== 'COMMON_') {
             this.group_.stopExcept(this.media);
         }
+
+        /*
+        this.player_.fade(0,1,this.fadeInDuration_);
+        this.player_.play();
+        this.player_.once('fade', function() {
+            console.log('done fading!')
+        }.bind(this));
+        */
+
     };
 
     Channel.prototype.repeat = function() {
         // Toggle it on a media-by-media basis
         this.media.isLoop = !this.media.isLoop;
         // Update the channel to reflect the media
-        this.player_.loop = this.media.isLoop;
+        this.player_.loop(this.media.isLoop);
     };
 
     Channel.prototype.setTime = function() {
-        this.player_.currentTime = this.currentTime;
+        this.player_.seek(this.currentTime);
     };
 
     Channel.prototype.stop = function() {
 
-        // We might not need to
-        if (this.state==='STOPPED') { return; }
+        // We might not need to take action
+        if (this.state==='STOPPING'|| this.state==='STOPPED') {
+            return;
+        }
+
+        // What happens when we stop?
+        var stopFn = function() {
+            $interval.cancel(this.elapsedCounter);
+
+            this.state = 'STOPPED';
+            this.is_current = false;
+            this.is_queued = false;
+            this.is_playing = false;
+
+            this.player_.stop();
+            this.player_.unload();
+        }.bind(this);
 
         this.state = 'STOPPING';
 
-        this.fadeOut().then(function() {
-            this.state = 'STOPPED';
-            this.is_queued = false;
-            this.is_current = false;
-        }.bind(this));
+        // Are we playing? Fade out before we stop
+        if (this.is_playing) {
+            this.fadeOut_().then(stopFn);
+        }
+        // If not? Death immediately!
+        else {
+            stopFn();
+        }
 
     };
 

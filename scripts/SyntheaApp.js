@@ -34,6 +34,7 @@ function SyntheaAppRun() {
     });
 }
 
+require('howler');
 require('./filters.js');
 require('./SynCue.js');
 require('./SynChannel.js');

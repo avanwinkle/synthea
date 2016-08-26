@@ -92,8 +92,7 @@ function SynProject(SynCue,$http,$q,$log) {
 
             var csv = response.data.split("\n");
             if (csv.length < 2) csv = response.data.split("\r");
-            console.info(project.hotKeys);
-            console.warn(nameToKeyCode);
+
             angular.forEach(csv, function(rawline) {
 
                 // No comments
@@ -160,7 +159,6 @@ function SynProject(SynCue,$http,$q,$log) {
 
                         // Is there a hotkey for this button?
                         if (nameToKeyCode.hasOwnProperty(b.name)) {
-                            console.log("looking for hotkey", b)
                             project.hotKeys[nameToKeyCode[b.name]].cue = b;
                         }
 

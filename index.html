@@ -9,6 +9,7 @@
 	<script>
 		window.angular = require('angular');
 		const angularMaterial = require('angular-material');
+		// const howler = require('howler');
 		const synthea = require('./scripts/SyntheaApp.js');
 	</script>
 
@@ -125,7 +126,11 @@ layout="column" layout-fill>
 		<div class="track-container" ng-repeat="channel in sVm.mixer.channels | filter: {'is_current':true}"
 		ng-style="{'z-index':$index}">
 			<div class="track">
-				<div class="track-title" ng-bind="channel.media.name"></div>
+				<div layout="row">
+					<div class="track-title" flex
+					ng-bind="channel.media.name"></div>
+					<div class="track-eta" flex="none" ng-bind="channel.duration - channel.currentTime | secondsToTimecode"></div>
+				</div>
 
 
 				<md-slider class="track-timebar"
@@ -134,10 +139,10 @@ layout="column" layout-fill>
 				min="0" max="{{channel.duration}}"></md-slider>
 				<div layout="row">
 					<div flex class="track-timecode">
-						<span ng-bind="channel.currentTime | secondsToTimecode"></span>
+						<span ng-bind="channel.currentTime | secondsToTimecode : true"></span>
 					</div>
 					<div flex class="track-timecode">
-						<span ng-bind="channel.duration | secondsToTimecode"></span>
+						<span ng-bind="channel.duration | secondsToTimecode : true"></span>
 					</div>
 				</div>
 
@@ -153,13 +158,13 @@ layout="column" layout-fill>
 						<md-button class="md-icon-button track-button" aria-label="pause"
 						ng-click="channel.pause()"
 						ng-class="{'active': channel.state==='PAUSING'}"
-						ng-if="channel.media.is_playing">
+						ng-if="channel.is_playing">
 							<md-icon><svg syn-icon="pause"></svg></md-icon>
 						</md-button>
 						<md-button class="md-icon-button track-button" aria-label="play"
 						ng-click="channel.play()"
-						ng-class="{'active': channel.state==='PLAYING'}"
-						ng-if="!channel.media.is_playing">
+						ng-class="{'active': channel.state==='PAUSING'}"
+						ng-if="!channel.is_playing">
 							<md-icon>
 								<svg syn-icon="play"></svg>
 							</md-icon>
