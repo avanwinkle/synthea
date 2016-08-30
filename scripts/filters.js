@@ -3,9 +3,23 @@
 
 angular
     .module('SyntheaApp')
+    .filter('buttonsInColumn', buttonsInColumn)
     .filter('isActive', isActive)
     .filter('isQueued', isQueued)
     .filter('secondsToTimecode', secondsToTimecode);
+
+function buttonsInColumn() {
+    return function(buttons, column_id) {
+        console.log(column_id, buttons);
+        var filtered = [];
+        angular.forEach(buttons, function (b) {
+            if (b.columns.indexOf(column_id) !== -1) {
+                filtered.push(b);
+            }
+        });
+        return filtered;
+    };
+}
 
 function isActive() {
     return function(channel) {

@@ -24,9 +24,6 @@ function SynMixer(SynGroup,SynProject) {
 
     function Mixer() {
 
-        // When mixer is called, store the project key
-        this.pkey = SynProject.getConfig('key');
-
         // All channels!
         this.channels = [];
 
@@ -37,6 +34,11 @@ function SynMixer(SynGroup,SynProject) {
             COMMON_: new SynGroup('COMMON_',this),
         };
 
+        // Global settings from the project
+        var p = SynProject.getProject();
+        this.fadeInDuration = p.config.fadeInDuration || 2000;
+        this.fadeOutDuration = p.config.fadeOutDuration || 2000;
+
         return this;
     }
 
@@ -45,7 +47,7 @@ function SynMixer(SynGroup,SynProject) {
     };
 
     Mixer.prototype.queue = function(cue,autoplay) {
-        console.log("cueing!!!")
+
         var gname;
 
         // Is there a group for this button?

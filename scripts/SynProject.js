@@ -5,174 +5,55 @@ angular
     .module('SyntheaApp')
     .service('SynProject',SynProject);
 
-SynProject.$inject = ['SynCue','$http','$q','$log'];
+SynProject.$inject = ['$http','$q','$log'];
 
-function SynProject(SynCue,$http,$q,$log) {
+function SynProject($http,$q,$log) {
 
     // This is a singleton so every service/controller can access
     var project = {};
+    window.p = project;
 
-    function load(pkey) {
-
-        project.key = pkey;
-        project.master = {};
+    function load(projectDef) {
 
         var defer = $q.defer();
 
-        // CONFIG FILE
-        $http.get('./Projects/'+project.key+'/Config.txt')
-        .then(function(response) {
+        // Look for a layout file
+        if (projectDef.documentRoot) {
+            project.documentRoot = projectDef.documentRoot;
+            $http.get(projectDef.documentRoot + '/layout').then(function(response){
+                angular.extend(project, response.data);
 
-            var config = {};
+                // Make a temporary id-based lookups
+                var cols = {};
+                var buts = {};
+                angular.forEach(project.columns, function(c) {
+                    cols[c.id] = c;
+                    c._buttons = [];
+                });
 
-            var lines = response.data.split('\n');
+                // Create our cue objects
+                angular.forEach(project.buttons, function(b) {
+                    b._fullPath = project.documentRoot + '/normal/' + b.files[0];
+                    // Add to each column
+                    angular.forEach(b.column_ids, function(c) {
+                        cols[c]._buttons.push(b);
+                    });
+                    // And the lookup
+                    buts[b.id] = b;
+                });
 
-            angular.forEach(lines, function(line) {
-                var l = line.trim().split(':');
-                if (l[0].trim())
-                config[l[0]] = l[1];
+                // Map the cues to the hotkeys as well
+                angular.forEach(project.hotKeys, function(h) {
+                    h.cue = buts[h.target];
+                });
+
+                defer.resolve();
             });
 
-            project.config = config;
-
-            fetchHotkeys_().then(defer.resolve);
-        });
-
-
-
-        return defer.promise;
-    }
-
-    function getConfig(key) {
-        if (key==='key') {
-            return project.key;
-        }
-        else if (project.config.hasOwnProperty(key)) {
-            return project[config[key]];
         }
         else {
-            console.error('Project has no configuration "'+key+'"');
+            console.error('No known project format');
         }
-    }
-
-    function fetchHotkeys_() {
-
-        var defer = $q.defer();
-
-        project.hotKeys = {};
-
-        // HOTKEYS FILE
-        $http.get('./Projects/'+project.key+'/Hotkeys.json')
-        .then(function(response) {
-
-            // Store a buttonName-to-keyCode lookup for parsing the layout
-            var nameToKeyCode = {};
-
-            angular.forEach(response.data, function(hotkey) {
-                project.hotKeys[hotkey.code] = hotkey;
-                nameToKeyCode[hotkey.buttonName] = hotkey.code;
-            });
-
-            fetchLayout_(nameToKeyCode).then(defer.resolve);
-
-        });
-
-        return defer.promise;
-    }
-
-    function fetchLayout_(nameToKeyCode) {
-
-        var defer = $q.defer();
-
-        // LAYOUT FILE
-        $http.get('./Projects/'+project.key+'/Layout.csv')
-        .then( function(response) {
-
-            var master = { pages: [], columns: {}, buttons: {} };
-
-            var csv = response.data.split("\n");
-            if (csv.length < 2) csv = response.data.split("\r");
-
-            angular.forEach(csv, function(rawline) {
-
-                // No comments
-                if (rawline[0] != "#") {
-
-                    // BLACK MAGICK: single quotes break
-                    var line = rawline.replace(/'/g,"");
-                    line = CSVtoArray(line);
-
-                    if (!line || !line[0]) {
-
-                        // Is it nothing?
-                        if (!line || line.length===0) {
-                            return;
-                        }
-
-                        // Empty lines are all commas
-                        var commas = rawline.match(/,/g);
-                        if (commas && commas.length==rawline.length) {
-                            return;
-                        }
-                        else {
-                            $log.warn('Unable to parse line:',rawline);
-                        }
-                    }
-
-                    else {
-                        // Parse for button args
-                        var button = {
-                            column: line[1],
-                            name: line[2],
-                            file: line[3],
-                        };
-
-                        // Additional args?
-                        if (line.length > 4) {
-                            button.args = line[4].split(',');
-                        }
-
-                        // Tooltip?
-                        if (line.length > 5) {
-                            button.tooltip = line[5];
-                        }
-
-                        // Add this to the column
-                        var butparent = line[0]+"__"+line[1];
-
-                        // Do we have this page?
-                        if (master.pages.indexOf(line[0]) == -1) {
-                            master.pages.push(line[0]);
-                            master.columns[line[0]] = [];
-                            master.buttons[line[0]] = [];
-                        }
-                        // Do we have this column?
-                        if (master.columns[line[0]].indexOf(line[1]) == -1) {
-                            master.columns[line[0]].push(line[1]);
-                        }
-
-                        // Create a button object
-                        var b = new SynCue(button);
-
-                        master.buttons[line[0]].push(b);
-
-
-                        // Is there a hotkey for this button?
-                        if (nameToKeyCode.hasOwnProperty(b.name)) {
-                            project.hotKeys[nameToKeyCode[b.name]].cue = b;
-                        }
-
-                    }
-                }
-
-            });
-
-            // Set our master
-            project.master = master;
-
-            /// All done? Return it
-            defer.resolve();
-        });
 
         return defer.promise;
     }
@@ -180,7 +61,7 @@ function SynProject(SynCue,$http,$q,$log) {
     // Return a page by index, or default to zero
     function getPage(idx) {
         idx = parseInt(idx) || 0;
-        return project.master.pages[idx];
+        return project.pages[idx];
     }
 
     function getProject() {
@@ -189,7 +70,7 @@ function SynProject(SynCue,$http,$q,$log) {
 
     return {
         load: load,
-        getConfig: getConfig,
+        // getConfig: getConfig,
         getPage: getPage,
         getProject: getProject
     };

@@ -93,7 +93,7 @@ function SynChannel($interval,$q,$timeout) {
         var channel = this;
 
         this.player_ = new Howl({
-            src: ['./Projects/'+ channel.group_.mixer_.pkey +'/normal/'+cue.file],
+            src: [cue._fullPath],
             // Additional params
             // autoplay: autoplay,
             loop: cue.isLoop,
@@ -104,12 +104,12 @@ function SynChannel($interval,$q,$timeout) {
                 // This event fires at the end of each loop
                 if (!cue.isLoop) {
                     channel.state = 'ENDED';
-                    channel.is_current = false;
+                    channel.is_playing = false;
+                    // Clear out the cue and all relatedness
+                    channel.stop();
                 }
-                $interval.cancel(channel.elapsedCounter);
             },
             onload: function() {
-                console.log("cue loaded!")
                 channel.duration = channel.player_.duration();
                 defer.resolve(cue);
 
@@ -117,9 +117,12 @@ function SynChannel($interval,$q,$timeout) {
                     channel.play();
                 }
                 else {
-                    // Occupied!
-                    channel.state = 'QUEUED';
-                    channel.is_queued = true;
+                    // Wait a digest for this non-angular event
+                    $timeout(function() {
+                        // Occupied!
+                        channel.state = 'QUEUED';
+                        channel.is_queued = true;
+                    },0);
                 }
             },
             onloaderror: function(soundId,reason) {
@@ -132,6 +135,7 @@ function SynChannel($interval,$q,$timeout) {
                 console.log('onplay event!')
             }
         });
+
 
         // Notet that we're occupied!
         this.state = 'QUEUING';
@@ -178,15 +182,22 @@ function SynChannel($interval,$q,$timeout) {
 
         // Create an interval to update the playback time
         this.elapsedCounter = $interval(function() {
-            this.currentTime = this.player_.seek();
+            try {
+                this.currentTime = this.player_.seek();
+            }
+            catch(err) {
+                console.warn('Error in seek, terminating counter',err);
+                $interval.cancel(this.elapsedCounter);
+                this.stop();
+            }
         }.bind(this),100);
 
         // Start playing before we start the fade
         this.player_.volume(0);
         this.player_.play();
         this.fadeIn_().then(function() {
-            console.log("all playing now!")
-        });
+            console.log('Channel '+this._id+' fully faded in');
+        }.bind(this));
 
         // If we autoplayed, cancel the rest of the group
         if (this.group_.name !== 'COMMON_') {

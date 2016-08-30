@@ -1,9 +1,9 @@
 const electron = require('electron');
 const fs = require('fs');
 // Module to control application life.
-const app = electron.app;
+// const app = electron.app;
 const dialog = require('electron').dialog;
-const {Menu, MenuItem} = electron;
+const {app, Menu, MenuItem, shell} = electron;
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow;
 const VERSION = require('./package.json').version;
@@ -12,67 +12,42 @@ const VERSION = require('./package.json').version;
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
 
+// Keep a global reference to the application configuration
+let CONFIGS;
+const CONFIG_PATH = app.getPath('userData')+'/config';
+// Keep a global list of available projects
+let PROJECTS;
+
 const DEBUG_MODE = true;
 
 function createMenus() {
 
     var projectNames = [];
-    var projs = fs.readdirSync('./Projects');
 
-
-    function parseConfig(line,attr) {
-
-        // What value are we looking for?
-        attr = attr || 'name';
-
-        if (!line) { return; }
-
-        var l = line.split(':');
-
-        if (l[0] === attr) {
-            return l[1];
-        }
+    for (var i=0;i<PROJECTS.length;i++) {
+        projectNames.push(PROJECTS[i]);
     }
 
-    for(var i=0;i<projs.length;i++) {
+    // Add a link to open the folder
+    projectNames.push({ type: 'separator'});
+    projectNames.push({
+        label: 'Go to Projects Folder',
+        click: function() {
+            electron.shell.showItemInFolder(CONFIGS.projectFolder);
+        },
+    });
+    projectNames.push({
+        label: 'Change Projects Folder...',
+        click: function() {
+            dialog.showOpenDialog({properties:['openDirectory']}, function(d) {
+                if (!d) { return; }
 
-        if (projs[i][0] === '.') {
-            continue;
+                CONFIGS.projectFolder = d[0];
+                saveConfig();
+                createMenus();
+
+            });
         }
-
-        var f = fs.readFileSync(
-            './Projects/'+projs[i]+'/Config.txt',
-            { encoding:'UTF-8'}
-        );
-        f = f.replace('\r','\n');
-        f = f.split('\n');
-
-        for (var k=0;k<f.length;k++) {
-            // Call parse on each line
-            var parse = parseConfig(f[k].trim());
-            if (parse) {
-                // If that parse returned, we found it and can stop looking
-                projectNames.push({
-                    label: parse,
-                    path: projs[i],
-                    click: openProject,
-                });
-                break;
-            }
-        }
-    }
-
-    // Sort it!
-    projectNames.sort(function(a,b) {
-        if (a.label < b.label) {
-            return -1;
-          }
-          if (a.label > b.label) {
-            return 1;
-          }
-
-          // names must be equal
-          return 0;
     });
 
 
@@ -81,9 +56,8 @@ function createMenus() {
             label: 'File',
             submenu: [
                 {
-                    label: 'Open Project',
-                    // role: 'open',
-                    submenu: projectNames,
+                    label: 'Open Project...',
+                    role: 'open',
                 },
                 { type: 'separator',},
                 {
@@ -95,7 +69,11 @@ function createMenus() {
                     role: 'saveAs',
                 }
             ]
-        }
+        },
+        {
+            label: 'Projects',
+            submenu: projectNames,
+        },
     ];
 
     if (process.platform === 'darwin') {
@@ -124,10 +102,10 @@ function createMenus() {
         });
     }
 
-
     // This is async, so NOW build the menu
     const menu = Menu.buildFromTemplate(template);
     Menu.setApplicationMenu(menu);
+
 }
 
 
@@ -149,8 +127,6 @@ function createWindow () {
   // Open the DevTools.
   if (DEBUG_MODE) { mainWindow.webContents.openDevTools(); }
 
-  // Create our menus
-  createMenus();
 
   // OSX Icon
   app.dock.setIcon(
@@ -158,6 +134,8 @@ function createWindow () {
 
   // Tray Icon (Untested)
   // const appIcon = new electron.Tray('./assets/synthea_icon_cropped.png');
+
+  initializeSynthea(app);
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
@@ -169,8 +147,125 @@ function createWindow () {
 
 }
 
+function initializeSynthea() {
+
+    // Does a config file exist?
+    try {
+        fs.statSync(CONFIG_PATH);
+        CONFIGS = JSON.parse(fs.readFileSync(CONFIG_PATH));
+    }
+    catch(err) {
+
+        // Make a default
+        CONFIGS = {
+            projectFolder: app.getPath('userData')+'/Projects',
+        };
+        // Save it
+        saveConfig();
+    }
+
+    // Lookup our available projects
+    lookupProjects();
+
+    // Create our menus
+    createMenus();
+
+    // If we have a last-used project, open that by default
+    mainWindow.webContents.once('did-finish-load', function() {
+        // Now that the menus are built, let's try opening our last project
+        if (CONFIGS.lastProject) {
+            for (var i=0;i<PROJECTS.length;i++) {
+                if (PROJECTS[i].key === CONFIGS.lastProject) {
+                    openProject(PROJECTS[i]);
+                    break;
+                }
+            }
+        }
+    });
+
+}
+
+function lookupProjects() {
+
+    // Already done?
+    if (PROJECTS) { return PROJECTS; }
+
+    var projs = fs.readdirSync(CONFIGS.projectFolder);
+    var output = [];
+
+    for(var i=0;i<projs.length;i++) {
+
+        if (projs[i][0] === '.') {
+            continue;
+        }
+
+        var f;
+
+        // Look for a layout file
+        try {
+            f = fs.readFileSync(
+                CONFIGS.projectFolder+'/'+projs[i]+'/layout',
+                { encoding:'UTF-8'}
+            );
+
+            var pconfig = JSON.parse(f)
+
+            output.push({
+                click: openProject,
+                key: projs[i],
+                label: pconfig.name,
+                documentRoot: CONFIGS.projectFolder + '/' + projs[i],
+            });
+        }
+
+        catch(err) {
+            console.error(err);
+            continue;
+        }
+
+
+    }
+
+    // Sort it!
+    output.sort(function(a,b) {
+        if (a.label < b.label) {
+            return -1;
+          }
+          if (a.label > b.label) {
+            return 1;
+          }
+
+          // names must be equal
+          return 0;
+    });
+
+    // Do the binding here so there'se no async risk
+    PROJECTS = output;
+    return PROJECTS;
+
+}
+
 function openProject(proj, browserWindow, event) {
-    mainWindow.webContents.send('open-project',proj.path);
+    // New config
+    if (proj.documentRoot) {
+        mainWindow.webContents.send('open-project',proj);
+    }
+    else {
+        console.error('No known project format');
+    }
+
+    // Remember that we opened this!
+    if (proj.key && proj.key !== CONFIGS.lastProject) {
+        CONFIGS.lastProject = proj.key;
+        saveConfig();
+    }
+}
+
+function saveConfig() {
+    console.info("Saving configuration", CONFIGS)
+    fs.writeFile(CONFIG_PATH,JSON.stringify(CONFIGS), function(err) {
+        console.error(err);
+    });
 }
 
 // app.setName('Butts');
@@ -190,7 +285,6 @@ app.on('window-all-closed', function () {
 });
 
 app.on('activate', function () {
-
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) {
@@ -200,3 +294,4 @@ app.on('activate', function () {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+// console.log(init)
