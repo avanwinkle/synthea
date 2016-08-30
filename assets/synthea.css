@@ -8,6 +8,11 @@ body {
   text-align: center;
   overflow: hidden;
   padding-bottom: 30px; }
+  body.stealth #page-header, body.stealth #page-tabs {
+    display: none; }
+  body.stealth #page-container, body.stealth column, body.stealth track-container {
+    color: #dddddd !important;
+    background-color: #eeeeee !important; }
 
 button:active, button:focus {
   outline: none;

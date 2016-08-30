@@ -13,6 +13,15 @@ body {
 	overflow:hidden;
 	// Keep room for the player
 	padding-bottom: 30px;
+
+	&.stealth {
+		#page-header, #page-tabs { display: none;}
+
+		#page-container, column, track-container {
+			color: #dddddd !important;
+			background-color: #eeeeee !important;
+		}
+	}
 }
 
 button:active, button:focus {

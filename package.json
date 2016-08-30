@@ -6,7 +6,7 @@
   "description": "A Soundboard for Unscripted Theater",
   "license": "Apache-2.0",
   "main": "main.js",
-  "name": "Synthea",
+  "name": "synthea",
   "productName": "Synthea",
   "repository": {
     "type": "git",

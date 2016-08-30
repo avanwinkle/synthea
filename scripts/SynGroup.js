@@ -51,8 +51,8 @@ function SynGroup(SynChannel) {
 
     Group.prototype.addChannel = function() {
         var ch = new SynChannel(this, {
-            fadeIn: 0,
-            fadeOut: 2000,
+            fadeIn: this.mixer_.fadeInDuration,
+            fadeOut: this.mixer_.fadeOutDuration,
         });
 
         // Store a pointer in this group's channels list
@@ -70,8 +70,9 @@ function SynGroup(SynChannel) {
 
         // Look for one that's available
         for (var i=0;i<this.channels.length;i++) {
-            // Do we have THIS CUE in a channel already?
-            if (this.channels[i].media === cue) {
+            // Do we have THIS CUE in a channel already? EXCEPT the common
+            // channel, cause those can overplay the same cues concurrently
+            if (this.channels[i].media === cue && this.name!=='COMMON_') {
                 ch = this.channels[i];
                 // And be done immediately
                 break;
@@ -100,7 +101,7 @@ function SynGroup(SynChannel) {
         // Find an available channel
         var channel = this.findAvailableChannel(cue);
         console.log((autoplay ? 'playing':'queuing')+
-            ' on '+this.name+' group, channel',channel._id);
+            ' on '+this.name+' group, channel '+channel._id);
         channel.loadCue(cue,autoplay);
     };
 

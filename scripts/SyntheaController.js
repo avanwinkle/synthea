@@ -11,6 +11,7 @@ SyntheaController.$inject = ['SynMixer','SynProject','$log'];
 function SyntheaController(SynMixer,SynProject,$log) {
 
     var sVm = this;
+    window.sVm = sVm;
     this.SynMixer_ = SynMixer;
     this.SynProject_ = SynProject;
     this.$log_ = $log;
@@ -21,23 +22,30 @@ function SyntheaController(SynMixer,SynProject,$log) {
     var mixer;
 
     // Listen for the main application to broadcast a project change
-    ipcRenderer.on('open-project', function(event,projectName) {
-        sVm.loadProject(projectName);
+    ipcRenderer.on('open-project', function(event,projectDef) {
+        console.log("projectDef", projectDef)
+        sVm.loadProject(projectDef);
     });
 
     activate();
 
     document.addEventListener('keypress', function(e) {
-        console.log('keypress',e);
 
+        // If we're in an input, DON'T trigger any keypress events
+        if (e.target.nodeName === 'INPUT') {
+            return;
+        }
 
-        if (e.code === 'Space') {
+        // Spacebar is reserved for locking
+        else if (e.code === 'Space') {
+            // Chromium wants space to scroll the page, don't allow that
             e.preventDefault();
             this.mixer.toggleLock();
         }
 
         else if (this.project.hotKeys.hasOwnProperty(e.code)) {
             var hotkey = this.project.hotKeys[e.code];
+            console.log('hotkey',hotkey);
             // Is there a cue that matches this key?
             if (hotkey.cue) {
                 // SHIFT to queue, no shift to play
@@ -60,14 +68,13 @@ function SyntheaController(SynMixer,SynProject,$log) {
 
 
     function activate() {
-        sVm.loadProject('MMCP');
+        // sVm.loadProject('MMCP');
     }
 
 }
 
+// Define a "context" action (aka right-click) for a cue button
 SyntheaController.prototype.contextCue = function(button) {
-    console.info("RIGHT CLICK!",button.cue.name);
-    console.info(this);
     this.mixer.queue(cue);
 };
 
@@ -84,8 +91,8 @@ SyntheaController.prototype.loadProject = function(pkey) {
 
 SyntheaController.prototype.selectPage = function(page) {
     this.currentPage = page;
-    this.currentColumns = this.project.master.columns[page];
-    this.currentButtons = this.project.master.buttons[page];
+    this.currentColumns = this.project.columns[page];
+    this.currentButtons = this.project.buttons[page];
 };
 
 SyntheaController.prototype.selectCue = function(cue) {

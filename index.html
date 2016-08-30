@@ -20,7 +20,7 @@
 	      href="assets/synthea_icon_cropped.png" />
 	<link rel="icon" type="image/x-icon" href="assets/synthea_flat.ico" />
 </head>
-<body ng-controller="SyntheaController as sVm"
+<body ng-controller="SyntheaController as sVm" class="notstealth"
 layout="column" layout-fill>
 <!--{{master | json}}-->
 
@@ -33,7 +33,7 @@ layout="column" layout-fill>
 
 		<div id="title" flex>
 			<span id="title-text"
-			ng-bind="sVm.project.config.name"></span>
+			ng-bind="sVm.project.name"></span>
 		</div>
 
 		<div flex="none">
@@ -45,9 +45,9 @@ layout="column" layout-fill>
 	<div id="page-tabs" flex="none" layout="row">
 		<span flex></span>
 		<div class="page-tab-container" flex="none"
-		ng-repeat="page in sVm.project.master.pages">
+		ng-repeat="page in sVm.project.pages">
 			<div class="page-tab"
-			ng-bind="page"
+			ng-bind="page.name"
 			ng-click="sVm.selectPage(page)"
 			ng-class="{'current': page == sVm.currentPage}"></div>
 		</div>
@@ -58,15 +58,15 @@ layout="column" layout-fill>
 		<div  layout="row" flex>
 			<div class="column md-card" flex
 			md-padding="2"
-			ng-repeat="column in sVm.currentColumns">
-				<div class="column-header" ng-bind="column"></div>
+			ng-repeat="column in sVm.project.columns | filter: {'page_id': sVm.currentPage.id}">
+				<div class="column-header" ng-bind="column.name"></div>
 				<div class="column-container" layout="column">
 					<div class="cueButton-container"
 					flex="none" layout="row"
-					ng-repeat="cue in sVm.currentButtons | filter: {column: column}">
+					ng-repeat="cue in column._buttons">
 						<md-button class="cueButton"
 						aria-label="{{::cue.name}}"
-						ng-disabled="!cue.file"
+						ng-disabled="!cue.files.length"
 						ng-bind="::cue.name"
 						ng-click="sVm.selectCue(cue)"
 						syn-right-click="sVm.contextCue(cue)"
