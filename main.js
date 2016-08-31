@@ -3,7 +3,7 @@ const fs = require('fs');
 // Module to control application life.
 // const app = electron.app;
 const dialog = require('electron').dialog;
-const {app, Menu, MenuItem, shell} = electron;
+const {app, ipcMain, Menu, MenuItem, shell} = electron;
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow;
 const VERSION = require('./package.json').version;
@@ -18,7 +18,7 @@ const CONFIG_PATH = app.getPath('userData')+'/config';
 // Keep a global list of available projects
 let PROJECTS;
 
-const DEBUG_MODE = true;
+const DEBUG_MODE = false;
 
 function createMenus() {
 
@@ -49,12 +49,46 @@ function createMenus() {
             });
         }
     });
+    projectNames.push({ type: 'separator' });
+    projectNames.push({
+        label: 'Browse Cloud Projects...',
+        click: function() {
+            let child = new BrowserWindow({
+                // parent: mainWindow,
+                modal: true,
+                show: false
+            });
+
+            let url = require('url').format({
+              protocol: 'file',
+              slashes: true,
+              pathname: require('path').join(__dirname, 'loader.html')
+            });
+
+            child.loadURL(url);
+            child.once('ready-to-show', () => {
+              child.show();
+              // if (DEBUG_MODE) { child.webContents.openDevTools(); }
+
+
+              ipcMain.once('open-project', function(evt,projectDef) {
+                openProject(projectDef);
+                child.close();
+              });
+            });
+        }
+    });
 
 
     const template = [
         {
             label: 'File',
             submenu: [
+                {
+                    label: 'New Project',
+                    role: 'new',
+                    enabled: false,
+                },
                 {
                     label: 'Open Project...',
                     role: 'open',
@@ -63,10 +97,12 @@ function createMenus() {
                 {
                     label: 'Save Project',
                     role: 'save',
+                    enabled: false,
                 },
                 {
                     label: 'Save Project As...',
                     role: 'saveAs',
+                    enabled: false,
                 }
             ]
         },
@@ -74,6 +110,34 @@ function createMenus() {
             label: 'Projects',
             submenu: projectNames,
         },
+        {
+            label: 'Playback',
+            submenu: [
+                {
+                    label: 'General Settings...',
+                },
+                {   type: 'separator'},
+                {
+                    label: 'Fade Incoming Tracks',
+                    type: 'checkbox',
+                    checked: false,
+                    accelerator: 'Tab'
+                },
+                {
+                    label: 'Cross-blend Tracks',
+                    type: 'checkbox',
+                    checked: true,
+                    accelerator: 'Shift+Tab',
+                },
+                {   type: 'separator' },
+                {
+                    label: 'DJ Mode',
+                    type: 'checkbox',
+                    checked: false,
+                    click: toggleDJMode,
+                }
+            ]
+        }
     ];
 
     if (process.platform === 'darwin') {
@@ -130,12 +194,13 @@ function createWindow () {
 
   // OSX Icon
   app.dock.setIcon(
-    electron.nativeImage.createFromPath('./assets/synthea_icon_cropped.png'));
+    electron.nativeImage.createFromPath('./assets/synthea_icon.png'));
 
   // Tray Icon (Untested)
-  // const appIcon = new electron.Tray('./assets/synthea_icon_cropped.png');
+  // const appIcon = new electron.Tray('./assets/synthea_icon.png');
 
   initializeSynthea(app);
+
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
@@ -174,7 +239,9 @@ function initializeSynthea() {
     mainWindow.webContents.once('did-finish-load', function() {
         // Now that the menus are built, let's try opening our last project
         if (CONFIGS.lastProject) {
+            console.log("looking for last project")
             for (var i=0;i<PROJECTS.length;i++) {
+                console.log(PROJECTS[i])
                 if (PROJECTS[i].key === CONFIGS.lastProject) {
                     openProject(PROJECTS[i]);
                     break;
@@ -208,18 +275,20 @@ function lookupProjects() {
                 { encoding:'UTF-8'}
             );
 
-            var pconfig = JSON.parse(f)
+            var pconfig = JSON.parse(f);
 
             output.push({
-                click: openProject,
+                // Common attributes for all project definitions
                 key: projs[i],
-                label: pconfig.name,
+                name: pconfig.name,
                 documentRoot: CONFIGS.projectFolder + '/' + projs[i],
+                // Special attributes for the OS menu
+                click: openProject,
+                label: pconfig.name,
             });
         }
 
         catch(err) {
-            console.error(err);
             continue;
         }
 
@@ -228,10 +297,10 @@ function lookupProjects() {
 
     // Sort it!
     output.sort(function(a,b) {
-        if (a.label < b.label) {
+        if (a.name < b.name) {
             return -1;
           }
-          if (a.label > b.label) {
+          if (a.name > b.name) {
             return 1;
           }
 
@@ -245,7 +314,7 @@ function lookupProjects() {
 
 }
 
-function openProject(proj, browserWindow, event) {
+function openProject(proj) {
     // New config
     if (proj.documentRoot) {
         mainWindow.webContents.send('open-project',proj);
@@ -255,7 +324,7 @@ function openProject(proj, browserWindow, event) {
     }
 
     // Remember that we opened this!
-    if (proj.key && proj.key !== CONFIGS.lastProject) {
+    if (proj.key && !proj.location && proj.key !== CONFIGS.lastProject) {
         CONFIGS.lastProject = proj.key;
         saveConfig();
     }
@@ -266,6 +335,32 @@ function saveConfig() {
     fs.writeFile(CONFIG_PATH,JSON.stringify(CONFIGS), function(err) {
         console.error(err);
     });
+}
+
+function toggleDJMode() {
+    // Tell the main window to go DJ
+    mainWindow.webContents.send('toggle-dj',Menu);
+    /*
+    // Toggle the checkmark on the menu
+    var menu = Menu.getApplicationMenu();
+
+    // Find it!
+    for (var i=0;i<menu.items.length;i++) {
+        console.log(menu.items[i]);
+        // WARNING: This reduces the flexibility of where we can put the menu
+        if (menu.items[i].label==='Extras') {
+            var submenu = menu.items[i].submenu;
+            for (var k=0;k<submenu.items.length;k++) {
+                if (submenu.items[k].label === 'DJ Mode') {
+                    // submenu.items[k].checked = !submenu.items[k].checked;
+                    break;
+                }
+            }
+            break;
+        }
+    }
+    */
+
 }
 
 // app.setName('Butts');

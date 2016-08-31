@@ -35,6 +35,7 @@ button:active, button:focus {
 	position:absolute;
 	right:16px;
 	width: 196px;
+	z-index: 20;
 
 	.track-container {
 		$height: 112px;
@@ -68,6 +69,7 @@ button:active, button:focus {
 	left:16px;
 	position:absolute;
 	width: 196px;
+	z-index: 19;
 
 	.track-container {
 		$height: 64px;
@@ -100,6 +102,33 @@ button:active, button:focus {
 	}
 }
 
+#synLoader {
+	padding: 24px;
+	text-align: left;
+
+	&-content {
+		max-width: 400px;
+		margin: 0 auto;
+	}
+
+	#loader-title {
+		font-size: 24px;
+		font-weight:400;
+	}
+
+	#loader-desc {
+		font-weight: 300;
+		margin: 8px 0;
+		text-align: justify;
+	}
+
+	#loader-footer {
+		text-align: right;
+		.cancelbutton:not(:hover) {
+			opacity: 0.5;
+		}
+	}
+}
 
 .track {
 
@@ -147,13 +176,49 @@ button:active, button:focus {
 	white-space: nowrap;
 }
 
-#page-header {
+#page-bannersection {
+	background-color: rgb(100,100,100);
+	background-position: center center;
+	background-size: cover;
 
+	&.hasBanner {
+
+
+		#page-header {
+			height: 128px;
+		}
+
+		#page-tabs {
+			background-color: rgba(100,100,100,0.7);
+		}
+
+		#title {
+			text-align: right;
+					text-shadow: 1px 1px 2px rgba(0,0,0,0.1), 2px 2px 2px rgba(0,0,0,0.15);
+
+
+			&-text {
+				line-height: 48px;
+			}
+		}
+
+		#logo-offset {
+			display: none;
+		}
+
+	}
+}
+
+#page-header {
+	background-color: transparent;
 	position:relative;
 	font-family: sans-serif;
 
 	#title {
 		display: inline-block;
+		padding: 8px;
+		color: rgba(255,255,255,0.8);
+
 		&-text {
 			line-height: 60px;
 			vertical-align: middle;
@@ -164,20 +229,23 @@ button:active, button:focus {
 	}
 
 	#logo {
-		width: 64px;
-		background-image: url('synthea_icon_cropped.png');
-		background-position:center center;
+		background-image: url('synthea_icon.png');
+		background-position: 8px 8px;
 		background-repeat: no-repeat;
 		background-size: 48px;
+	}
+
+	#logo, #logo-offset {
+		width: 64px;
 	}
 
 }
 
 
-#page-tabs {
-	background-color: rgb(66,66,66);
-	color: #eee;
 
+
+#page-tabs {
+	color: #eee;
 	border-bottom: solid 1px #ddd;
 
 	.page-tab-container {
@@ -209,10 +277,17 @@ button:active, button:focus {
 	clear: both;
 	padding-bottom: 15px;
 
+	&-content {
+		justify-content: center;
+	}
+
 	.column {
 		display: inline-block;
 		vertical-align:top;
 		margin-top: 1em;
+		// Have some reasonableness to the button column widths
+		max-width: 300px;
+		min-width:200px;
 		position: relative;
 
 		&-header {

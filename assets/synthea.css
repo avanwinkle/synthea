@@ -23,7 +23,8 @@ button:active, button:focus {
   bottom: 0;
   position: absolute;
   right: 16px;
-  width: 196px; }
+  width: 196px;
+  z-index: 20; }
   #currentTracks .track-container {
     height: 112px;
     opacity: 1; }
@@ -46,7 +47,8 @@ button:active, button:focus {
   bottom: 0;
   left: 16px;
   position: absolute;
-  width: 196px; }
+  width: 196px;
+  z-index: 19; }
   #queuedTracks .track-container {
     height: 64px;
     opacity: 1; }
@@ -66,6 +68,24 @@ button:active, button:focus {
         opacity: 0; }
     #queuedTracks .track-container.expanded {
       height: 112px; }
+
+#synLoader {
+  padding: 24px;
+  text-align: left; }
+  #synLoader-content {
+    max-width: 400px;
+    margin: 0 auto; }
+  #synLoader #loader-title {
+    font-size: 24px;
+    font-weight: 400; }
+  #synLoader #loader-desc {
+    font-weight: 300;
+    margin: 8px 0;
+    text-align: justify; }
+  #synLoader #loader-footer {
+    text-align: right; }
+    #synLoader #loader-footer .cancelbutton:not(:hover) {
+      opacity: 0.5; }
 
 .track {
   background-color: #ddd;
@@ -102,11 +122,30 @@ button:active, button:focus {
   text-overflow: ellipsis;
   white-space: nowrap; }
 
+#page-bannersection {
+  background-color: #646464;
+  background-position: center center;
+  background-size: cover; }
+  #page-bannersection.hasBanner #page-header {
+    height: 128px; }
+  #page-bannersection.hasBanner #page-tabs {
+    background-color: rgba(100, 100, 100, 0.7); }
+  #page-bannersection.hasBanner #title {
+    text-align: right;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1), 2px 2px 2px rgba(0, 0, 0, 0.15); }
+    #page-bannersection.hasBanner #title-text {
+      line-height: 48px; }
+  #page-bannersection.hasBanner #logo-offset {
+    display: none; }
+
 #page-header {
+  background-color: transparent;
   position: relative;
   font-family: sans-serif; }
   #page-header #title {
-    display: inline-block; }
+    display: inline-block;
+    padding: 8px;
+    color: rgba(255, 255, 255, 0.8); }
     #page-header #title-text {
       line-height: 60px;
       vertical-align: middle;
@@ -114,14 +153,14 @@ button:active, button:focus {
       font-size: 105%;
       padding-left: 10px; }
   #page-header #logo {
-    width: 64px;
-    background-image: url("synthea_icon_cropped.png");
-    background-position: center center;
+    background-image: url("synthea_icon.png");
+    background-position: 8px 8px;
     background-repeat: no-repeat;
     background-size: 48px; }
+  #page-header #logo, #page-header #logo-offset {
+    width: 64px; }
 
 #page-tabs {
-  background-color: #424242;
   color: #eee;
   border-bottom: solid 1px #ddd; }
   #page-tabs .page-tab {
@@ -140,10 +179,14 @@ button:active, button:focus {
   background-color: #eee;
   clear: both;
   padding-bottom: 15px; }
+  #page-container-content {
+    justify-content: center; }
   #page-container .column {
     display: inline-block;
     vertical-align: top;
     margin-top: 1em;
+    max-width: 300px;
+    min-width: 200px;
     position: relative; }
     #page-container .column-header {
       background-color: #eee;

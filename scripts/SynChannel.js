@@ -75,6 +75,14 @@ function SynChannel($interval,$q,$timeout) {
         return this.fade_('out');
     };
 
+    Channel.prototype.getDuration = function() {
+        return this.player_.duration();
+    };
+
+    Channel.prototype.getTime = function() {
+        return this.player_.seek();
+    };
+
     Channel.prototype.isAvailable = function() {
         return !this.player_ ||
                this.state === 'ENDED' ||
@@ -95,8 +103,11 @@ function SynChannel($interval,$q,$timeout) {
         this.player_ = new Howl({
             src: [cue._fullPath],
             // Additional params
-            // autoplay: autoplay,
             loop: cue.isLoop,
+            // Use HTML5 mode to allow playback before full download
+            // BUT the buffering process prevents seamless looping, so we
+            // can only stream via HTML5 for non-looping tracks!
+            html5: !cue.isLoop,
             preload: true,
             // Set volume, unless we have a fadeIn
             volume: channel.fadeInDuration_ ? 0 : MAX_VOLUME,
@@ -128,14 +139,25 @@ function SynChannel($interval,$q,$timeout) {
             onloaderror: function(soundId,reason) {
                 defer.reject(reason);
             },
-            onpause: function() {
-
-            },
-            onplay: function() {
-                console.log('onplay event!')
-            }
+            // onpause: function() {},
+            // onplay: function() {}
         });
 
+        // HOWLER BLACK MAGICK:
+        // If an HTML5 non-loop file plays, it sets
+        // the global Howler to use Web Audio, which then nullifies
+        // audio output for non-HTML5 tracks. If this cue is a loop
+        // (and therefore non-HTML5), we should force the global
+        // Howler to switch off of Web Audio mode
+
+        // AVW: This may be the cause of buggy behavior when streaming
+        // over the network and mixing loop/nonloop tracks. One crude
+        // solution would be to only allow seamless looping (an non-web
+        // audio) on local projects...
+        if (cue.isLoop) {
+            console.log("Resetting HTML5 audio!");
+            require('howler').Howler.usingWebAudio = false;
+        }
 
         // Notet that we're occupied!
         this.state = 'QUEUING';
@@ -226,6 +248,7 @@ function SynChannel($interval,$q,$timeout) {
     };
 
     Channel.prototype.stop = function() {
+        console.log("stopping "+this.state+" channel!",this)
 
         // We might not need to take action
         if (this.state==='STOPPING'|| this.state==='STOPPED') {
@@ -234,7 +257,9 @@ function SynChannel($interval,$q,$timeout) {
 
         // What happens when we stop?
         var stopFn = function() {
-            $interval.cancel(this.elapsedCounter);
+            if (this.elaspedCounter) {
+                $interval.cancel(this.elapsedCounter);
+            }
 
             this.state = 'STOPPED';
             this.is_current = false;
