@@ -1,3 +1,5 @@
 node_modules/*
 Projects/*
 Projects
+projects.json
+dist

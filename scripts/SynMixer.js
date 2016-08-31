@@ -26,6 +26,7 @@ function SynMixer(SynGroup,SynProject) {
 
         // All channels!
         this.channels = [];
+        window.c = this.channels;
 
         // The groups, including defaults
         this.groups = {
@@ -43,7 +44,8 @@ function SynMixer(SynGroup,SynProject) {
     }
 
     Mixer.prototype.play = function(cue) {
-        this.queue(cue,true);
+        // Return the channel on which it plays
+        return this.queue(cue,true);
     };
 
     Mixer.prototype.queue = function(cue,autoplay) {
@@ -66,8 +68,8 @@ function SynMixer(SynGroup,SynProject) {
             gname = 'COMMON_';
         }
 
-        this.groups[gname].queue(cue,autoplay);
-
+        // Return the channel on which it plays
+        return this.groups[gname].queue(cue,autoplay);
     };
 
     Mixer.prototype.stop = function() {

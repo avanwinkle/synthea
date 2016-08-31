@@ -15,11 +15,23 @@ function SynProject($http,$q,$log) {
 
     function load(projectDef) {
 
+        // Reset the project!
+        for (var prop in project) {
+            if (project.hasOwnProperty(prop)) {
+                delete project[prop];
+            }
+        }
+
+
         var defer = $q.defer();
+        console.info(projectDef)
 
         // Look for a layout file
         if (projectDef.documentRoot) {
+
+            // If this is a local project (i.e. has no root saved)
             project.documentRoot = projectDef.documentRoot;
+
             $http.get(projectDef.documentRoot + '/layout').then(function(response){
                 angular.extend(project, response.data);
 
@@ -33,7 +45,7 @@ function SynProject($http,$q,$log) {
 
                 // Create our cue objects
                 angular.forEach(project.buttons, function(b) {
-                    b._fullPath = project.documentRoot + '/normal/' + b.files[0];
+                    b._fullPath = project.documentRoot + '/audio/' + b.files[0];
                     // Add to each column
                     angular.forEach(b.column_ids, function(c) {
                         cols[c]._buttons.push(b);
@@ -46,6 +58,13 @@ function SynProject($http,$q,$log) {
                 angular.forEach(project.hotKeys, function(h) {
                     h.cue = buts[h.target];
                 });
+
+                // Do we have a nice image?
+                if (project.bannerImage) {
+                    project.bannerImage_ = 'url(\''+
+                        projectDef.documentRoot + '/' +
+                        project.bannerImage + '\')';
+                }
 
                 defer.resolve();
             });

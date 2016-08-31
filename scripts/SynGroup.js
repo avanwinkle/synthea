@@ -93,7 +93,8 @@ function SynGroup(SynChannel) {
     };
 
     Group.prototype.play = function(cue) {
-        this.queue(cue,true);
+        // Return the channel on which it plays
+        return this.queue(cue,true);
     };
 
     Group.prototype.queue = function(cue,autoplay) {
@@ -102,7 +103,23 @@ function SynGroup(SynChannel) {
         var channel = this.findAvailableChannel(cue);
         console.log((autoplay ? 'playing':'queuing')+
             ' on '+this.name+' group, channel '+channel._id);
-        channel.loadCue(cue,autoplay);
+
+        // Use the loadCue promise to handle errors in the file
+        channel.loadCue(cue,autoplay).then(function(response) {
+
+        }, function(reason) {
+            console.warn("Error loading cue ",cue.name);
+            channel.stop();
+
+            // HOWLER BLACK MAGICK:
+            // A loading error triggers Howler to set a global
+            // 'noAudio' flag, so let's manually reset that to
+            // allow future playback
+            require('howler').Howler.noAudio = false;
+        });
+
+        // Return the channel on which it plays
+        return channel;
     };
 
     Group.prototype.stopExcept = function(cue) {

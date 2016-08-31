@@ -20,42 +20,51 @@
 	      href="assets/synthea_icon_cropped.png" />
 	<link rel="icon" type="image/x-icon" href="assets/synthea_flat.ico" />
 </head>
-<body ng-controller="SyntheaController as sVm" class="notstealth"
+<body ng-controller="SyntheaController as sVm" class="nostealth"
 layout="column" layout-fill>
 <!--{{master | json}}-->
 
 
-	<md-toolbar id="page-header" class="md-hue-2" layout="row"
-	flex="none">
-		<div flex="none" id="logo">
-			<!-- <img id="logo" src="assets/synthea_icon_cropped.png" /> -->
-		</div>
+	<div id="page-bannersection"
+	ng-style="{'background-image':sVm.project.bannerImage_}"
+	ng-class="{'hasBanner': sVm.project.bannerImage_}"
+	>
 
-		<div id="title" flex>
-			<span id="title-text"
-			ng-bind="sVm.project.name"></span>
-		</div>
+		<md-toolbar id="page-header" class="md-hue-2" layout="row"
 
-		<div flex="none">
-			<!-- <md-button ng-click="sVm.stopAll()">Stop All</md-button> -->
-		</div>
+		flex="none">
+			<div flex="none" id="logo">
+				<!-- <img id="logo" src="assets/synthea_icon_cropped.png" /> -->
+			</div>
 
-	</md-toolbar>
+			<div id="title" flex>
+				<span id="title-text"
+				ng-bind="sVm.project.name"></span>
+			</div>
 
-	<div id="page-tabs" flex="none" layout="row">
-		<span flex></span>
-		<div class="page-tab-container" flex="none"
-		ng-repeat="page in sVm.project.pages">
-			<div class="page-tab"
-			ng-bind="page.name"
-			ng-click="sVm.selectPage(page)"
-			ng-class="{'current': page == sVm.currentPage}"></div>
+			<!-- Balance the centering with the logo -->
+			<div flex="none" id="logo-offset">
+				<!-- <md-button ng-click="sVm.stopAll()">Stop All</md-button> -->
+			</div>
+
+		</md-toolbar>
+
+		<div id="page-tabs"
+		flex="none" layout="row">
+			<span flex></span>
+			<div class="page-tab-container" flex="none"
+			ng-repeat="page in sVm.project.pages">
+				<div class="page-tab"
+				ng-bind="page.name"
+				ng-click="sVm.selectPage(page)"
+				ng-class="{'current': page == sVm.currentPage}"></div>
+			</div>
+			<span flex></span>
 		</div>
-		<span flex></span>
 	</div>
 
 	<md-content flex layout="column" id="page-container">
-		<div  layout="row" flex>
+		<div  layout="row" flex layout-wrap id="page-container-content">
 			<div class="column md-card" flex
 			md-padding="2"
 			ng-repeat="column in sVm.project.columns | filter: {'page_id': sVm.currentPage.id}">
