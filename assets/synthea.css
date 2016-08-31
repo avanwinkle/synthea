@@ -42,6 +42,12 @@ button:active, button:focus {
       #currentTracks .track-container.ng-leave-active {
         height: 0;
         opacity: 0; }
+    #currentTracks .track-container.STOPPING {
+      cursor: default; }
+      #currentTracks .track-container.STOPPING .track-timeline-progress {
+        background-color: #444; }
+    #currentTracks .track-container.PAUSING .track-timeline-progress, #currentTracks .track-container.PAUSED .track-timeline-progress {
+      background-color: #6f8dae; }
 
 #queuedTracks {
   bottom: 0;
@@ -95,8 +101,15 @@ button:active, button:focus {
   opacity: 1;
   overflow: hidden; }
 
-.track-button.active {
-  stroke: #368BE6; }
+.track-button {
+  opacity: 1;
+  transition: opacity 0.2s ease-in-out; }
+  .track-button.active {
+    stroke: #368BE6; }
+    .track-button.active svg {
+      background-color: rgba(0, 0, 0, 0.12);
+      border-radius: 4px;
+      fill: #1459a2; }
 
 .track-container {
   position: relative;
@@ -136,7 +149,7 @@ button:active, button:focus {
     z-index: 1;
     transform: scaleX(0);
     transform-origin: left;
-    transition: transform 0.1s linear; }
+    transition: transform 0.1s linear, background-color 0.2s ease-in-out; }
   .track-timeline-seeker {
     cursor: pointer;
     position: absolute;
@@ -251,3 +264,12 @@ button:active, button:focus {
 md-slider.track-timebar .md-track-fill, md-slider.track-timebar .md-thumb, md-slider.track-timebar .md-thumb-container, md-slider.track-timebar .md-focus-ring {
   transition-timing-function: linear;
   transition-duration: 0.01s; }
+
+.blink, #currentTracks .track-container.STOPPING .track-buttons .track-button-stop, #currentTracks .track-container.PAUSING .track-button-pause, #currentTracks .track-container.PAUSED .track-button-pause {
+  animation: blink-animation 0.5s steps(3, start) infinite alternate; }
+
+@keyframes blink-animation {
+  from {
+    opacity: 1; }
+  to {
+    opacity: 0; } }
