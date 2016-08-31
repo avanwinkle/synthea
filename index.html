@@ -79,8 +79,8 @@ layout="column" layout-fill>
 						ng-bind="::cue.name"
 						ng-click="sVm.selectCue(cue)"
 						syn-right-click="sVm.contextCue(cue)"
-						ng-class="{'current': cue.is_playing}"
-						md-title="{{::cue.tooltip}}"></md-button>
+						ng-class="{'current': cue.is_playing}">
+						</md-button>
 
 					</div>
 				</div>
@@ -132,7 +132,8 @@ layout="column" layout-fill>
 
 	<div id="currentTracks">
 
-		<div class="track-container" ng-repeat="channel in sVm.mixer.channels | filter: {'is_current':true}"
+		<div class="track-container {{channel.state}}"
+		ng-repeat="channel in sVm.mixer.channels | filter: {'is_current':true}"
 		ng-style="{'z-index':$index}">
 			<div class="track">
 				<div layout="row">
@@ -166,24 +167,25 @@ layout="column" layout-fill>
 					</div>
 				</div>
 
-				<div layout="row">
+				<div class="track-buttons" layout="row">
 					<div flex>
-						<md-button class="md-icon-button track-button" aria-label="repeat"
+						<md-button class="md-icon-button track-button track-button-loop" aria-label="repeat"
 						ng-click="channel.repeat()"
+						ng-disabled="channel.state==='STOPPING'"
 						ng-class="{'active': channel.media.isLoop}">
 							<md-icon><svg syn-icon="repeat"></svg></md-icon>
 						</md-button>
 					</div>
 					<div flex>
-						<md-button class="md-icon-button track-button" aria-label="pause"
+						<md-button class="md-icon-button track-button track-button-pause" aria-label="pause"
 						ng-click="channel.pause()"
-						ng-class="{'active': channel.state==='PAUSING'}"
+						ng-disabled="channel.state==='PAUSING'||channel.state==='STOPPING'"
 						ng-if="channel.is_playing">
 							<md-icon><svg syn-icon="pause"></svg></md-icon>
 						</md-button>
-						<md-button class="md-icon-button track-button" aria-label="play"
+						<md-button class="md-icon-button track-button track-button-play" aria-label="play"
 						ng-click="channel.play()"
-						ng-class="{'active': channel.state==='PAUSING'}"
+						ng-disabled="channel.state==='STOPPING'"
 						ng-if="!channel.is_playing">
 							<md-icon>
 								<svg syn-icon="play"></svg>
@@ -191,10 +193,15 @@ layout="column" layout-fill>
 						</md-button>
 					</div>
 					<div flex>
-						<md-button class="md-icon-button track-button" aria-label="stop"
-						ng-class="{'active': channel.state==='STOPPING'}"
-						ng-click="channel.stop()">
+						<md-button class="md-icon-button track-button track-button-stop" aria-label="stop"
+						ng-click="channel.stop()"
+						ng-if="channel.is_playing">
 							<md-icon><svg syn-icon="stop"></svg></md-icon>
+						</md-button>
+						<md-button class="md-icon-button track-button track-button-stop" aria-label="stop"
+						ng-if="!channel.is_playing"
+						ng-click="channel.stop()">
+							<md-icon><svg syn-icon="clear"></svg></md-icon>
 						</md-button>
 					</div>
 				</div>

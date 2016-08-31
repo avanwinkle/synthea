@@ -64,6 +64,30 @@ button:active, button:focus {
 				opacity:0;
 			}
 		}
+
+		&.STOPPING {
+			cursor: default;
+			.track-timeline-progress {
+				background-color: #444;
+			}
+			.track-buttons {
+				.track-button-loop, .track-button-play, .track-button-pause {
+
+				}
+				.track-button-stop {
+					 @extend .blink;
+				}
+			}
+		}
+
+		&.PAUSING, &.PAUSED {
+			.track-timeline-progress {
+				background-color: desaturate($syn-accent, 50%);
+			}
+			.track-button-pause {
+				 @extend .blink;
+			}
+		}
 	}
 }
 
@@ -144,9 +168,18 @@ button:active, button:focus {
 }
 
 .track-button {
+
+	opacity: 1;
+	transition: opacity 0.2s ease-in-out;
+
 	&.active {
-		// background-color: rgba(0,0,0,0.2);
 		stroke: $syn-accent;
+
+		svg {
+			background-color: rgba(0,0,0,0.12);
+			border-radius: 4px;
+			fill: darken($syn-accent, 20%);
+		}
 	}
 }
 
@@ -195,7 +228,7 @@ button:active, button:focus {
 		// Use transform rather than width, so it's smoother
 		transform: scaleX(0);
 		transform-origin: left;
-		transition: transform 0.1s linear;
+		transition: transform 0.1s linear, background-color 0.2s ease-in-out;
 	}
 
 	// The seeker lives on top for consistent offsets
@@ -376,4 +409,17 @@ md-slider.track-timebar {
 		transition-timing-function: linear;
 		transition-duration: 0.01s;
 	}
+}
+
+
+.blink {
+  animation: blink-animation 0.5s steps(3, start) infinite alternate;
+}
+@keyframes blink-animation {
+  from {
+  	opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }

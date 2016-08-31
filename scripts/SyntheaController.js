@@ -162,8 +162,8 @@ SyntheaController.prototype.enableDJMode = function() {
             // Loop? Make it random!
             // But also, skip anything that's too short
             if (track.isLoop && 30 < playtime < 120 ) {
-                // Add up to two additional loops
-                playtime += Math.floor(Math.random() * playtime * 2);
+                // Add up to an additional loop
+                playtime += Math.floor(Math.random() * playtime * 1);
             }
 
             // When the time is up, change! (But start a touch earlier)
