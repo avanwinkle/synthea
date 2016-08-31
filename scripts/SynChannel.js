@@ -243,8 +243,9 @@ function SynChannel($interval,$q,$timeout) {
         this.player_.loop(this.media.isLoop);
     };
 
-    Channel.prototype.setTime = function() {
-        this.player_.seek(this.currentTime);
+    // Public binding of private seek method to set an explicit time
+    Channel.prototype.setTime = function(targetTime) {
+        this.player_.seek(targetTime || this.currentTime);
     };
 
     Channel.prototype.stop = function() {

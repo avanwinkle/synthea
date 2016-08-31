@@ -12,7 +12,7 @@ body {
     display: none; }
   body.stealth #page-container, body.stealth column, body.stealth track-container {
     color: #dddddd !important;
-    background-color: #eeeeee !important; }
+    background-color: #eee !important; }
 
 button:active, button:focus {
   outline: none;
@@ -26,19 +26,19 @@ button:active, button:focus {
   width: 196px;
   z-index: 20; }
   #currentTracks .track-container {
-    height: 112px;
+    height: 104px;
     opacity: 1; }
     #currentTracks .track-container.ng-enter {
       display: block !important;
       height: 0;
       opacity: 0; }
       #currentTracks .track-container.ng-enter-active {
-        height: 112px;
+        height: 104px;
         opacity: 1; }
     #currentTracks .track-container.ng-leave {
       display: block !important;
       opacity: 1;
-      height: 112px; }
+      height: 104px; }
       #currentTracks .track-container.ng-leave-active {
         height: 0;
         opacity: 0; }
@@ -106,6 +106,8 @@ button:active, button:focus {
   font-size: 16px;
   font-weight: 500;
   line-height: 1; }
+  .track-eta-preview {
+    color: #368BE6; }
 
 .track-timecode {
   font-size: 12px;
@@ -115,6 +117,36 @@ button:active, button:focus {
     text-align: left; }
   .track-timecode:last-child {
     text-align: right; }
+
+.track-timeline {
+  height: 32px;
+  padding-top: 8px; }
+  .track-timeline-bar {
+    background-color: #bbb;
+    height: 8px;
+    position: relative;
+    width: 100%; }
+  .track-timeline-progress {
+    background-color: #368BE6;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    z-index: 1;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.1s linear; }
+  .track-timeline-seeker {
+    cursor: pointer;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2; }
+    .track-timeline-seeker:focus {
+      outline: none; }
 
 .track-title {
   overflow: hidden;

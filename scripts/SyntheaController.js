@@ -233,7 +233,17 @@ SyntheaController.prototype.selectCue = function(cue) {
 
     // Use the mixers method, which returns the channel
     return this.mixer.play(cue);
+};
 
+SyntheaController.prototype.timelineSeek = function(evt, channel) {
+    channel.setTime(channel.seekPreview_);
+
+};
+
+SyntheaController.prototype.timelineSeekPreview = function(evt,channel) {
+      // Where are we?
+    var seekTarget = evt.offsetX / evt.target.offsetWidth;
+    channel.seekPreview_ = seekTarget * channel.getDuration();
 };
 
 SyntheaController.prototype.stopAll = function() {

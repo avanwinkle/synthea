@@ -1,11 +1,14 @@
 $syn-accent: #368BE6;
+$syn-background: #eee;
+
+$track-background: #ddd;
 
 *, *:before, *:after {
 	box-sizing: border-box;
 }
 
 body {
-	background-color: #eee;
+	background-color: $syn-background;
 	margin:0;
 	padding: 0;
 	text-align: center;
@@ -19,7 +22,7 @@ body {
 
 		#page-container, column, track-container {
 			color: #dddddd !important;
-			background-color: #eeeeee !important;
+			background-color: $syn-background !important;
 		}
 	}
 }
@@ -38,7 +41,7 @@ button:active, button:focus {
 	z-index: 20;
 
 	.track-container {
-		$height: 112px;
+		$height: 104px;
 		height: $height;
 		opacity:1;
 
@@ -131,8 +134,7 @@ button:active, button:focus {
 }
 
 .track {
-
-	background-color: #ddd;
+	background-color: $track-background;
 	border: solid 1px rgba(0,0,0,0.4);
 	font-size: 12px;
 	padding: 8px;
@@ -157,6 +159,10 @@ button:active, button:focus {
 	font-size: 16px;
 	font-weight:500;
 	line-height:1;
+
+	&-preview {
+		color: $syn-accent;
+	}
 }
 
 .track-timecode {
@@ -167,6 +173,42 @@ button:active, button:focus {
 
 	&:first-child { text-align: left;}
 	&:last-child { text-align: right;}
+}
+
+.track-timeline {
+	height: 32px;
+	padding-top: 8px;
+
+	&-bar {
+		background-color: #bbb;
+		height: 8px;
+		position: relative;
+		width: 100%;
+	}
+	&-progress {
+		background-color: $syn-accent;
+		position:absolute;
+		top:0; left:0; bottom:0;
+		width: 100%;
+		z-index: 1;
+
+		// Use transform rather than width, so it's smoother
+		transform: scaleX(0);
+		transform-origin: left;
+		transition: transform 0.1s linear;
+	}
+
+	// The seeker lives on top for consistent offsets
+	&-seeker {
+		cursor: pointer;
+		position: absolute;
+		top:0; left: 0; right:0; bottom:0;
+		z-index: 2;
+
+		&:focus {
+			outline: none;
+		}
+	}
 }
 
 .track-title {
