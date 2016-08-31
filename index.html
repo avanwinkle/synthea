@@ -138,14 +138,25 @@ layout="column" layout-fill>
 				<div layout="row">
 					<div class="track-title" flex
 					ng-bind="channel.media.name"></div>
-					<div class="track-eta" flex="none" ng-bind="channel.duration - channel.currentTime | secondsToTimecode"></div>
+					<div class="track-eta" flex="none" ng-bind="channel.duration - channel.currentTime | secondsToTimecode"
+					ng-hide="channel.seekPreview_">
+					</div>
+					<div class="track-eta track-eta-preview"
+					ng-bind="channel.seekPreview_ | secondsToTimecode:true"
+					ng-if="channel.seekPreview_"></div>
 				</div>
 
 
-				<md-slider class="track-timebar"
-				ng-model="channel.currentTime"
-				 ng-change="channel.setTime()" aria-label="Playback time"
-				min="0" max="{{channel.duration}}"></md-slider>
+				<div class="track-timeline" layout="row">
+					<div class="track-timeline-bar">
+						<div class="track-timeline-progress" ng-style="{'transform':'scaleX('+(channel.currentTime/channel.duration)+')'}"></div>
+						<div class="track-timeline-seeker"
+						ng-mousemove="sVm.timelineSeekPreview($event,channel)"
+						ng-mouseleave="channel.seekPreview_ = undefined"
+						ng-click="sVm.timelineSeek($event,channel)"></div>
+					</div>
+				</div>
+
 				<div layout="row">
 					<div flex class="track-timecode">
 						<span ng-bind="channel.currentTime | secondsToTimecode : true"></span>
