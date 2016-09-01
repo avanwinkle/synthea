@@ -41,6 +41,7 @@ It is still in its infancy, but for those willing and able to learn it, I hope i
 those distributions will be linked to here. For now, you may clone this repo and run locally
 or create your own builds.
 
+
 **Developer Installation**
 
 :anguished: _These instructions should work, but are untested!_
@@ -50,6 +51,7 @@ $ cd synthea
 $ npm install
 $ electron .
 ```
+
 
 **Build Instructions**
 
@@ -87,18 +89,18 @@ myProject
 
 #### Sample Layout File
 
-```JSON
+```javascript
 {
     "name": "My Synthea Project",
-    "bannerImage": "banner.jpg",    // Optional image
+    "bannerImage": "banner.jpg",          // Optional image
     "config": {
-        "fadeInDuration": 1000,     // Default fade-in for cues (ms)
-        "fadeOutDuration": 2000    // Default fade-out for cues (ms)
+        "fadeInDuration": 1000,          // Default fade-in for cues (ms)
+        "fadeOutDuration": 2000          // Default fade-out for cues (ms)
     },
     "pages": [
         {
-            "display_order": 0,
-            "id": 1,
+            "display_order": 0,          // The order of tabs/columns/buttons is user-configurable
+            "id": 1,                     // All pages, columns, and buttons should have unique ids
             "name": "First Tab"
         }
     ],
@@ -107,32 +109,32 @@ myProject
             "display_order": 0,
             "id": 100,
             "name": "First Column",
-            "page_id": 1
+            "page_id": 1                 // A column exists only on a given page, tracked by id
         }
     ],
     "buttons": [
         {
-            "column_ids": [ 1 ],    // A button can appear in multiple columns
-            "files": ["soundfile.wav"]  // A button can have multiple cue files
+            "column_ids": [ 1 ],         // A button can appear in multiple columns, even pages
+            "files": ["soundfile.wav"],  // A button can have multiple cue files
             "id": 1000,
-            "isLoop": true,
+            "isLoop": true,              // Looping can be toggled in-app, but cues can be preset
             "name": "Basic Effect",
         },
         {
             "column_ids": [ 1 ],
             "files": ["musicfile.mp3"],
-            "group": "MUSIC_"   // A reserved string for the music category
+            "group": "MUSIC_",           // A reserved string for the music category
             "id": 1001,
             "isLoop": false,
             "name": "Music Song"
         }
     ],
     "hotKeys": {
-        "KeyA": {               // The key event codename
-            "action": "PLAY",   // A soundboard action
-            "target": 1001     // Id of the button to target
+        "KeyA": {                        // The key event codename
+            "action": "PLAY",            // A soundboard action
+            "target": 1001               // Id of the button to target
         },
-        "Ctrl.Shift.KeyB": {    // Modifier keys are supported
+        "Ctrl.Shift.KeyB": {             // Modifier keys are supported
             "action": "PLAY",
             "target": 1000
         }
