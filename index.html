@@ -78,9 +78,23 @@ layout="column" layout-fill>
 						ng-disabled="!cue.files.length"
 						ng-bind="::cue.name"
 						ng-click="sVm.selectCue(cue)"
-						syn-right-click="sVm.contextCue(cue)"
-						ng-class="{'current': cue.is_playing}">
+						syn-right-click="sVm.contextCue(cue)">
 						</md-button>
+						<div class="cueButton-badge channelState-{{cue.channel_.state}}"
+						md-whiteframe="1">
+							<div class="badge badge-stop">
+								<svg syn-icon="stop" size="14"></svg>
+							</div>
+							<div class="badge badge-play">
+								<svg syn-icon="play" size="14"></svg>
+							</div>
+							<div class="badge badge-pause">
+								<svg syn-icon="pause" size="14"></svg>
+							</div>
+							<div class="badge badge-queue">
+								<svg syn-icon="playlist_play" size="14"></svg>
+							</div>
+						</div>
 
 					</div>
 				</div>
@@ -89,9 +103,11 @@ layout="column" layout-fill>
 	</md-content>
 
 	<div id="queuedTracks">
+		<div class="track-container-title" ng-if="queuedTracks.length">Queued</div>
 		<div class="track-container"
 		ng-class="{'expanded': expanded}"
-		ng-repeat="channel in sVm.mixer.channels | filter:{'is_queued': true}">
+		ng-repeat="channel in sVm.mixer.channels | filter:{'is_queued': true} as queuedTracks"
+		ng-style="{'z-index':$index}">
 			<div class="track">
 				<div layout="row">
 					<div class="track-title" flex ng-bind="channel.media.name"></div>
@@ -132,8 +148,9 @@ layout="column" layout-fill>
 
 	<div id="currentTracks">
 
+		<div class="track-container-title" ng-if="currentTracks.length">Now Playing</div>
 		<div class="track-container {{channel.state}}"
-		ng-repeat="channel in sVm.mixer.channels | filter: {'is_current':true}"
+		ng-repeat="channel in sVm.mixer.channels | filter: {'is_current':true} as currentTracks"
 		ng-style="{'z-index':$index}">
 			<div class="track">
 				<div layout="row">
@@ -195,13 +212,8 @@ layout="column" layout-fill>
 					<div flex>
 						<md-button class="md-icon-button track-button track-button-stop" aria-label="stop"
 						ng-click="channel.stop()"
-						ng-if="channel.is_playing">
+						ng-disabled="channel.state==='PAUSING'">
 							<md-icon><svg syn-icon="stop"></svg></md-icon>
-						</md-button>
-						<md-button class="md-icon-button track-button track-button-stop" aria-label="stop"
-						ng-if="!channel.is_playing"
-						ng-click="channel.stop()">
-							<md-icon><svg syn-icon="clear"></svg></md-icon>
 						</md-button>
 					</div>
 				</div>
@@ -235,6 +247,8 @@ layout="column" layout-fill>
     <symbol id="ic_play_24px" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></symbol>
     <!-- PLAY CIRCLE OUTLINE -->
     <symbol id="ic_play_circle_outline_24px" viewBox="0 0 24 24"><path d="M10 16.5l6-4.5-6-4.5v9zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></symbol>
+    <!-- PLAYLIST PLAY -->
+    <symbol id="ic_playlist_play_24px" viewBox="0 0 24 24"><path d="M19 9H2v2h17V9zm0-4H2v2h17V5zM2 15h13v-2H2v2zm15-2v6l5-3-5-3z"/></symbol>
     <!-- REPEAT -->
     <symbol id="ic_repeat_24px" viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></symbol>
     <!-- SKIP NEXT -->

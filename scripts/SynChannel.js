@@ -36,6 +36,9 @@ function SynChannel($interval,$q,$timeout) {
         this.fadeInDuration_ = opts.fadeIn || 0;
         this.fadeOutDuration_ = opts.fadeOut || 2000;
 
+        // Web Audio for cloud-based projects, direct for local
+        this.useWebAudio = opts.useWebAudio;
+
         return this;
     }
 
@@ -96,18 +99,20 @@ function SynChannel($interval,$q,$timeout) {
 
         // Store a reference to the cue
         this.media = cue;
+        cue.channel_ = this;
 
         // We need a pointer to the channel
         var channel = this;
-
         this.player_ = new Howl({
             src: [cue._fullPath],
             // Additional params
             loop: cue.isLoop,
             // Use HTML5 mode to allow playback before full download
             // BUT the buffering process prevents seamless looping, so we
-            // can only stream via HTML5 for non-looping tracks!
-            html5: !cue.isLoop,
+            // should only stream via HTML5 for non-looping tracks!
+            // However, switching back and forth creates playback problems.
+            // CURRENT SOLUTION: always HTML5 for cloud, never for local
+            html5: this.useWebAudio,
             preload: true,
             // Set volume, unless we have a fadeIn
             volume: channel.fadeInDuration_ ? 0 : MAX_VOLUME,
@@ -154,10 +159,11 @@ function SynChannel($interval,$q,$timeout) {
         // over the network and mixing loop/nonloop tracks. One crude
         // solution would be to only allow seamless looping (an non-web
         // audio) on local projects...
+        /*
         if (cue.isLoop) {
-            console.log("Resetting HTML5 audio!");
             require('howler').Howler.usingWebAudio = false;
         }
+        */
 
         // Notet that we're occupied!
         this.state = 'QUEUING';
@@ -266,6 +272,9 @@ function SynChannel($interval,$q,$timeout) {
             this.is_current = false;
             this.is_queued = false;
             this.is_playing = false;
+
+            // Clear the cue
+            this.media.channel_ = undefined;
 
             this.player_.stop();
             this.player_.unload();

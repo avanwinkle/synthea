@@ -10,9 +10,6 @@ body {
   padding-bottom: 30px; }
   body.stealth #page-header, body.stealth #page-tabs {
     display: none; }
-  body.stealth #page-container, body.stealth column, body.stealth track-container {
-    color: #dddddd !important;
-    background-color: #eee !important; }
 
 button:active, button:focus {
   outline: none;
@@ -26,26 +23,28 @@ button:active, button:focus {
   width: 196px;
   z-index: 20; }
   #currentTracks .track-container {
-    height: 104px;
+    height: 96px;
     opacity: 1; }
+    #currentTracks .track-container-title {
+      text-align: right; }
     #currentTracks .track-container.ng-enter {
       display: block !important;
       height: 0;
       opacity: 0; }
       #currentTracks .track-container.ng-enter-active {
-        height: 104px;
+        height: 96px;
         opacity: 1; }
     #currentTracks .track-container.ng-leave {
       display: block !important;
       opacity: 1;
-      height: 104px; }
+      height: 96px; }
       #currentTracks .track-container.ng-leave-active {
         height: 0;
         opacity: 0; }
     #currentTracks .track-container.STOPPING {
       cursor: default; }
       #currentTracks .track-container.STOPPING .track-timeline-progress {
-        background-color: #444; }
+        background-color: #666; }
     #currentTracks .track-container.PAUSING .track-timeline-progress, #currentTracks .track-container.PAUSED .track-timeline-progress {
       background-color: #6f8dae; }
 
@@ -58,6 +57,8 @@ button:active, button:focus {
   #queuedTracks .track-container {
     height: 64px;
     opacity: 1; }
+    #queuedTracks .track-container-title {
+      text-align: left; }
     #queuedTracks .track-container.ng-enter {
       display: block !important;
       height: 0;
@@ -97,9 +98,11 @@ button:active, button:focus {
   background-color: #ddd;
   border: solid 1px rgba(0, 0, 0, 0.4);
   font-size: 12px;
-  padding: 8px;
+  padding: 8px 8px 0 8px;
   opacity: 1;
-  overflow: hidden; }
+  overflow: hidden;
+  position: relative;
+  z-index: 2; }
 
 .track-button {
   opacity: 1;
@@ -114,6 +117,27 @@ button:active, button:focus {
 .track-container {
   position: relative;
   transition: height 0.5s ease-in-out, opacity 0.5s ease-in-out; }
+  .track-container-title {
+    background-color: #696969;
+    border-radius: 4px 4px 0 0;
+    color: #eee;
+    font-size: 10px;
+    opacity: 1;
+    padding: 4px 8px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    transition: opacity 0.5s ease-in-out; }
+    .track-container-title.ng-enter {
+      display: block !important;
+      opacity: 0; }
+      .track-container-title.ng-enter-active {
+        opacity: 1; }
+    .track-container-title.ng-leave {
+      display: block !important; }
+      .track-container-title.ng-leave-active {
+        opacity: 0; }
 
 .track-eta {
   font-size: 16px;
@@ -245,7 +269,7 @@ button:active, button:focus {
       border: solid 1px #ccc;
       border-radius: 8px; }
 
-.md-button.cueButton {
+.cueButton.md-button {
   background-color: #fafafa;
   border: solid 1px #bbb;
   border-radius: 6px;
@@ -254,19 +278,57 @@ button:active, button:focus {
   margin: 0;
   text-transform: none;
   width: 100%; }
-  .md-button.cueButton.current {
-    background-color: #368BE6;
-    color: #fff; }
+
+.cueButton-badge {
+  position: absolute;
+  top: 4px;
+  left: -4px;
+  background-color: #6f8dae;
+  border-radius: 8px;
+  border: solid 1px rgba(0, 0, 0, 0.1);
+  height: 18px;
+  width: 18px;
+  transition-property: background-color, opacity;
+  transition-duration: 0.5s;
+  transition-timing-function: ease-in-out; }
+  .cueButton-badge.channelState- {
+    opacity: 0; }
+  .cueButton-badge.channelState-PLAYING {
+    background-color: #368BE6; }
+  .cueButton-badge.channelState-STOPPING, .cueButton-badge.channelState-STOPPED {
+    background-color: #bbb; }
+  .cueButton-badge.channelState-QUEUING, .cueButton-badge.channelState-QUEUED {
+    padding: 1px 0 0 2px; }
+  .cueButton-badge .badge {
+    position: absolute;
+    visibility: hidden;
+    margin-left: 1px;
+    margin-top: -2px; }
+    .cueButton-badge .badge.badge-queue {
+      margin-left: 0; }
+    .cueButton-badge .badge .syn-icon {
+      fill: #fff; }
+  .cueButton-badge.channelState-PAUSED .badge-pause,
+  .cueButton-badge.channelState-PAUSING .badge-pause,
+  .cueButton-badge.channelState-PLAYING .badge-play,
+  .cueButton-badge.channelState-QUEUED .badge-queue,
+  .cueButton-badge.channelState-QUEUING .badge-queue,
+  .cueButton-badge.channelState-STOPPING .badge-stop,
+  .cueButton-badge.channelState-STOPPED .badge-stop {
+    visibility: visible; }
 
 .cueButton-container {
-  padding: 8px 0; }
+  padding: 8px 0;
+  position: relative; }
 
 md-slider.track-timebar .md-track-fill, md-slider.track-timebar .md-thumb, md-slider.track-timebar .md-thumb-container, md-slider.track-timebar .md-focus-ring {
   transition-timing-function: linear;
   transition-duration: 0.01s; }
 
-.blink, #currentTracks .track-container.STOPPING .track-buttons .track-button-stop, #currentTracks .track-container.PAUSING .track-button-pause, #currentTracks .track-container.PAUSED .track-button-pause {
-  animation: blink-animation 0.5s steps(3, start) infinite alternate; }
+.blink, #currentTracks .track-container.STOPPING .track-buttons .track-button-stop, #currentTracks .track-container.PAUSING .track-button-pause, #currentTracks .track-container.PAUSED .track-button-pause, .cueButton-badge.channelState-PAUSING .badge-pause .syn-icon,
+.cueButton-badge.channelState-STOPPING .badge-stop .syn-icon,
+.cueButton-badge.channelState-QUEUING .badge-queue .syn-icon {
+  animation: blink-animation 0.5s steps(8, start) infinite alternate; }
 
 @keyframes blink-animation {
   from {
