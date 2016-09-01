@@ -51,7 +51,11 @@ $ cd synthea
 $ npm install
 $ electron .
 ```
+If ```$ electron .``` results in error messages, you may need to manually install Electron and symlink it to your PATH:
 
+```$ npm install -g electron```
+
+Full instructions are available [here](https://www.npmjs.com/package/electron).
 
 **Build Instructions**
 
