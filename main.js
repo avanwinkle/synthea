@@ -115,18 +115,21 @@ function createMenus() {
             submenu: [
                 {
                     label: 'General Settings...',
+                    enabled: false,
                 },
                 {   type: 'separator'},
                 {
                     label: 'Fade Incoming Tracks',
                     type: 'checkbox',
                     checked: false,
+                    enabled: false,
                     accelerator: 'Tab'
                 },
                 {
                     label: 'Cross-blend Tracks',
                     type: 'checkbox',
                     checked: true,
+                    enabled: false,
                     accelerator: 'Shift+Tab',
                 },
                 {   type: 'separator' },
@@ -221,9 +224,19 @@ function initializeSynthea() {
     }
     catch(err) {
 
+        var defaultFolder = app.getPath('userData')+'/Projects';
+
+        // Make the folder, if need be
+        try {
+            fs.accessSync(defaultFolder);
+        }
+        catch(err) {
+            fs.mkdirSync(defaultFolder);
+        }
+
         // Make a default
         CONFIGS = {
-            projectFolder: app.getPath('userData')+'/Projects',
+            projectFolder: defaultFolder,
         };
         // Save it
         saveConfig();

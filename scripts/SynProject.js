@@ -22,9 +22,7 @@ function SynProject($http,$q,$log) {
             }
         }
 
-
         var defer = $q.defer();
-        console.info(projectDef)
 
         // Look for a layout file
         if (projectDef.documentRoot) {

@@ -201,7 +201,7 @@ button:active, button:focus {
     background-color: rgba(100, 100, 100, 0.7); }
   #page-bannersection.hasBanner #title {
     text-align: right;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1), 2px 2px 2px rgba(0, 0, 0, 0.15); }
+    text-shadow: -1px -1px 1px rgba(0, 0, 0, 0.1), -1px 1px 1px rgba(0, 0, 0, 0.1), 1px 1px 2px rgba(0, 0, 0, 0.1), 2px 2px 2px rgba(0, 0, 0, 0.15); }
     #page-bannersection.hasBanner #title-text {
       line-height: 48px; }
   #page-bannersection.hasBanner #logo-offset {
@@ -214,7 +214,7 @@ button:active, button:focus {
   #page-header #title {
     display: inline-block;
     padding: 8px;
-    color: rgba(255, 255, 255, 0.8); }
+    color: rgba(255, 255, 255, 0.9); }
     #page-header #title-text {
       line-height: 60px;
       vertical-align: middle;
@@ -296,16 +296,17 @@ button:active, button:focus {
   .cueButton-badge.channelState-PLAYING {
     background-color: #368BE6; }
   .cueButton-badge.channelState-STOPPING, .cueButton-badge.channelState-STOPPED {
-    background-color: #bbb; }
+    background-color: #999; }
   .cueButton-badge.channelState-QUEUING, .cueButton-badge.channelState-QUEUED {
     padding: 1px 0 0 2px; }
   .cueButton-badge .badge {
     position: absolute;
     visibility: hidden;
-    margin-left: 1px;
-    margin-top: -2px; }
+    top: -1px;
+    left: 0; }
     .cueButton-badge .badge.badge-queue {
-      margin-left: 0; }
+      top: 0;
+      left: 1px; }
     .cueButton-badge .badge .syn-icon {
       fill: #fff; }
   .cueButton-badge.channelState-PAUSED .badge-pause,

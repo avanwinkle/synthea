@@ -28,6 +28,6 @@
   },
   "scripts": {
     "build": "npm run pack:osx",
-    "pack:osx": "electron-packager . $npm_package_productName --out=dist --platform=darwin --arch=x64 --icon=assets/synthea_icon_apple.icns --overwrite"
+    "pack:osx": "rm -r dist/Synthea-darwin-x64/ && electron-packager . $npm_package_productName --out=dist --platform=darwin --arch=x64 --icon=assets/synthea_icon_apple.icns --overwrite"
   }
 }
