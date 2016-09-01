@@ -18,10 +18,12 @@ const CONFIG_PATH = app.getPath('userData')+'/config';
 // Keep a global list of available projects
 let PROJECTS;
 
+// HEY LISTEN! Developers, wanna see what's going on? TURN THIS ON!!
 const DEBUG_MODE = false;
 
 function createMenus() {
 
+    // This is the list of all projects in the "Projects" menu
     var projectNames = [];
 
     for (var i=0;i<PROJECTS.length;i++) {
@@ -53,12 +55,14 @@ function createMenus() {
     projectNames.push({
         label: 'Browse Cloud Projects...',
         click: function() {
+
+            // Create a new window to show the loader
             let child = new BrowserWindow({
-                // parent: mainWindow,
                 modal: true,
                 show: false
             });
 
+            // Create a node-formatted url for the loader window
             let url = require('url').format({
               protocol: 'file',
               slashes: true,
@@ -70,7 +74,7 @@ function createMenus() {
               child.show();
               // if (DEBUG_MODE) { child.webContents.openDevTools(); }
 
-
+              // If the loader window broadcasts a project, handle it
               ipcMain.once('open-project', function(evt,projectDef) {
                 openProject(projectDef);
                 child.close();
@@ -80,6 +84,8 @@ function createMenus() {
     });
 
 
+    // The standard menu templates. Most things are disabled, but placeholders
+    // as reminders of what's yet to come!
     const template = [
         {
             label: 'File',
@@ -222,6 +228,7 @@ function initializeSynthea() {
         fs.statSync(CONFIG_PATH);
         CONFIGS = JSON.parse(fs.readFileSync(CONFIG_PATH));
     }
+    // If not, let's make a config file (it lives in %APP_DIR% or equivalent)
     catch(err) {
 
         var defaultFolder = app.getPath('userData')+'/Projects';
@@ -234,7 +241,7 @@ function initializeSynthea() {
             fs.mkdirSync(defaultFolder);
         }
 
-        // Make a default
+        // Make a default config file, which is just the default folder
         CONFIGS = {
             projectFolder: defaultFolder,
         };
@@ -252,9 +259,10 @@ function initializeSynthea() {
     mainWindow.webContents.once('did-finish-load', function() {
         // Now that the menus are built, let's try opening our last project
         if (CONFIGS.lastProject) {
-            console.log("looking for last project")
+
+            // Iterate over the projects we found in our Projects folder
             for (var i=0;i<PROJECTS.length;i++) {
-                console.log(PROJECTS[i])
+                // Do any of those projects match the last one we opened?
                 if (PROJECTS[i].key === CONFIGS.lastProject) {
                     openProject(PROJECTS[i]);
                     break;
@@ -270,20 +278,21 @@ function lookupProjects() {
     // Already done?
     if (PROJECTS) { return PROJECTS; }
 
+    // Look through everything in the Projects folder to see if it's a project
     var projs = fs.readdirSync(CONFIGS.projectFolder);
     var output = [];
 
     for(var i=0;i<projs.length;i++) {
 
+        // No hidden files, obvs
         if (projs[i][0] === '.') {
             continue;
         }
 
-        var f;
 
         // Look for a layout file
         try {
-            f = fs.readFileSync(
+            var f = fs.readFileSync(
                 CONFIGS.projectFolder+'/'+projs[i]+'/layout',
                 { encoding:'UTF-8'}
             );
@@ -302,13 +311,15 @@ function lookupProjects() {
         }
 
         catch(err) {
+            // Eh, don't really know what to do with a folder that fails.
+            // Just ignore it, I guess...
             continue;
         }
 
 
     }
 
-    // Sort it!
+    // Sort the projects alphabetically by name (for lack of a better plan)
     output.sort(function(a,b) {
         if (a.name < b.name) {
             return -1;
@@ -328,7 +339,7 @@ function lookupProjects() {
 }
 
 function openProject(proj) {
-    // New config
+    // Check the config for a documentRoot, which is all we need
     if (proj.documentRoot) {
         mainWindow.webContents.send('open-project',proj);
     }
@@ -353,30 +364,8 @@ function saveConfig() {
 function toggleDJMode() {
     // Tell the main window to go DJ
     mainWindow.webContents.send('toggle-dj',Menu);
-    /*
-    // Toggle the checkmark on the menu
-    var menu = Menu.getApplicationMenu();
-
-    // Find it!
-    for (var i=0;i<menu.items.length;i++) {
-        console.log(menu.items[i]);
-        // WARNING: This reduces the flexibility of where we can put the menu
-        if (menu.items[i].label==='Extras') {
-            var submenu = menu.items[i].submenu;
-            for (var k=0;k<submenu.items.length;k++) {
-                if (submenu.items[k].label === 'DJ Mode') {
-                    // submenu.items[k].checked = !submenu.items[k].checked;
-                    break;
-                }
-            }
-            break;
-        }
-    }
-    */
-
 }
 
-// app.setName('Butts');
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.

@@ -16,8 +16,6 @@ function SyntheaController(SynMixer,SynProject,$log,$scope,$timeout) {
     this.SynProject_ = SynProject;
     this.$log_ = $log;
     this.$timeout_ = $timeout;
-    // The current playing track(s)
-    this.currentTracks = [];
 
     // We need a mixer
     var mixer;
@@ -72,6 +70,8 @@ function SyntheaController(SynMixer,SynProject,$log,$scope,$timeout) {
                 // Is there a cue that matches this key?
                 if (hotkey.cue) {
                     // SHIFT to queue, no shift to play
+                    // AVW: Does this make sense? I'm going both ways on how
+                    // shift is to be handled... out to sort that out...
                     if (e.shiftKey) {
                         this.mixer.queue(hotkey.cue);
                     } else {
@@ -189,9 +189,11 @@ SyntheaController.prototype.loadProject = function(pkey) {
 
     this.SynProject_.load(pkey).then(function() {
 
+        // Get our project and mixer and bind here for convenience
         this.project = this.SynProject_.getProject();
         this.mixer = this.SynMixer_.createMixer();
 
+        // Get a page object and select it for our initial display
         this.selectPage( this.SynProject_.getPage() );
 
         // And a nice title
@@ -219,19 +221,15 @@ SyntheaController.prototype.selectPage = function(page) {
         }
     }
 
+    // Store this page so we can show it on the view
     this.currentPage = page;
-    this.currentColumns = this.project.columns[page];
-    this.currentButtons = this.project.buttons[page];
 };
 
 SyntheaController.prototype.selectCue = function(cue) {
 
-    // Note that we're playing this cue
-    if (this.currentTracks.indexOf(cue)===-1) {
-        this.currentTracks.push(cue);
-    }
-
-    // Use the mixers method, which returns the channel
+    // Use the mixer's method, which handles all the necessary
+    // group and channel logic. It returns the channel that the cue
+    // gets assigned to.
     return this.mixer.play(cue);
 };
 
@@ -247,10 +245,12 @@ SyntheaController.prototype.timelineSeekPreview = function(evt,channel) {
 };
 
 SyntheaController.prototype.stopAll = function() {
+
+    // Use the mixer's stop() method to handle all audio stoppage
     this.mixer.stop();
-    this.currentTracks = [];
     // Do we have a DJ timer to cancel?
     if (this.dj_timer_) {
+        // Stop that funky music!
         this.$timeout_.cancel(this.dj_timer_);
     }
 };

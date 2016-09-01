@@ -20,19 +20,23 @@ function SynChannel($interval,$q,$timeout) {
     created and allocated by their parent GROUP, and any given channel
     is exclusive to that group.
 
+    This is where MOST OF THE MAGIC HAPPENS in Synthea. Have fun!
+
     */
 
-    // Track our channel counts
+    // Track our channel counts so we can assign global ids
     var cidx = 0;
-    // How frequently do we step our fades?
-    const FADE_STEPS = 10;
+    // Store what "full" volume is, so we can consistently fade in/out of it
     const MAX_VOLUME = 0.5;
 
     function Channel(group,opts) {
+        // Store a channel id, for reference. Simple incremental will do.
         this._id = cidx += 1;
+        // Store a pointer to the group that made this channel, so we can
+        // trigger stopExcept() if this channel is part of an Exclusive Group
         this.group_ = group;
 
-        // Default ins and outs
+        // Default ins and outs come from the options, but hardcode a fallback?
         this.fadeInDuration_ = opts.fadeIn || 0;
         this.fadeOutDuration_ = opts.fadeOut || 2000;
 
@@ -55,6 +59,9 @@ function SynChannel($interval,$q,$timeout) {
                 duration = this.fadeInDuration_;
                 break;
             case 'out':
+                // AVW: If a double-fade is somehow triggered, this could
+                // possibly "pop" the track back to full volume. Is there a
+                // downside to starting at this.player_.volume() ?
                 start = MAX_VOLUME;
                 end = 0;
                 duration = this.fadeOutDuration_;
@@ -70,6 +77,7 @@ function SynChannel($interval,$q,$timeout) {
         return defer.promise;
     };
 
+    // Convenience methods for binding to the internal methods
     Channel.prototype.fadeIn_ = function(duration) {
         return this.fade_('in');
     };
@@ -86,6 +94,7 @@ function SynChannel($interval,$q,$timeout) {
         return this.player_.seek();
     };
 
+    // There are numerous ways to define "available", which we consolidate here
     Channel.prototype.isAvailable = function() {
         return !this.player_ ||
                this.state === 'ENDED' ||
@@ -93,16 +102,22 @@ function SynChannel($interval,$q,$timeout) {
                ;
     };
 
+    // The big kahuna: create a Howl object for a sound cue and create various
+    // listeners and callbacks based on the cues parameters and user's actions
     Channel.prototype.loadCue = function(cue,autoplay) {
 
+        // Loading a cue returns a promise, to be resolved when the cue is ready
         var defer = $q.defer();
 
-        // Store a reference to the cue
+        // Store a reference to the cue object, for getting configs and attrs
         this.media = cue;
+        // Back-ref this channel to the cue, so we can call channel methods
         cue.channel_ = this;
 
-        // We need a pointer to the channel
+        // We'll make a pointer to the channel to avoid having to bind(this)
+        // on every friggin callback function we make for the Howl
         var channel = this;
+
         this.player_ = new Howl({
             src: [cue._fullPath],
             // Additional params
@@ -114,7 +129,7 @@ function SynChannel($interval,$q,$timeout) {
             // CURRENT SOLUTION: always HTML5 for cloud, never for local
             html5: this.useWebAudio,
             preload: true,
-            // Set volume, unless we have a fadeIn
+            // Set volume tu full, unless we have a fadeIn
             volume: channel.fadeInDuration_ ? 0 : MAX_VOLUME,
             onend: function() {
                 // This event fires at the end of each loop
@@ -159,6 +174,10 @@ function SynChannel($interval,$q,$timeout) {
         // over the network and mixing loop/nonloop tracks. One crude
         // solution would be to only allow seamless looping (an non-web
         // audio) on local projects...
+
+        // For the time being, I'm restricting webAudio for only cloud projects
+        // (at the cost of smooth looping) and commenting out this reset...
+
         /*
         if (cue.isLoop) {
             require('howler').Howler.usingWebAudio = false;
@@ -167,6 +186,7 @@ function SynChannel($interval,$q,$timeout) {
 
         // Notet that we're occupied!
         this.state = 'QUEUING';
+        // A queuing/queued channel is not "current", like a playing/paused is
         this.is_current = false;
 
         return defer.promise;
@@ -183,21 +203,6 @@ function SynChannel($interval,$q,$timeout) {
             $interval.cancel(this.elapsedCounter);
         }.bind(this));
 
-        /*
-        this.player_.fade(1,0,this.fadeOutDuration_);
-        this.player_.once('fade', function() {
-
-            console.log('done pausing!')
-            // Wrap in a timeout to ensure a scope digest
-            $timeout(function() {
-                this.player_.pause();
-                this.state = 'PAUSED';
-                this.is_playing = false;
-                $interval.cancel(this.elapsedCounter);
-            }.bind(this),0);
-
-        }.bind(this));
-        */
     };
 
     Channel.prototype.play = function() {
@@ -214,38 +219,32 @@ function SynChannel($interval,$q,$timeout) {
                 this.currentTime = this.player_.seek();
             }
             catch(err) {
+                // There are still some bugs here, this is to help track them
                 console.warn('Error in seek, terminating counter',err);
                 $interval.cancel(this.elapsedCounter);
                 this.stop();
             }
         }.bind(this),100);
 
-        // Start playing before we start the fade
+        // Start playing before we start the fade, to ensure smoothness
         this.player_.volume(0);
         this.player_.play();
         this.fadeIn_().then(function() {
+            // AVW: Trying to track some fades that don't make it all the way
             console.log('Channel '+this._id+' fully faded in');
         }.bind(this));
 
-        // If we autoplayed, cancel the rest of the group
+        // If we are playing an Exclusive Group, cancel the rest of the group
         if (this.group_.name !== 'COMMON_') {
             this.group_.stopExcept(this.media);
         }
-
-        /*
-        this.player_.fade(0,1,this.fadeInDuration_);
-        this.player_.play();
-        this.player_.once('fade', function() {
-            console.log('done fading!')
-        }.bind(this));
-        */
 
     };
 
     Channel.prototype.repeat = function() {
         // Toggle it on a media-by-media basis
         this.media.isLoop = !this.media.isLoop;
-        // Update the channel to reflect the media
+        // Update the channel to reflect the media's attribute
         this.player_.loop(this.media.isLoop);
     };
 
@@ -255,9 +254,8 @@ function SynChannel($interval,$q,$timeout) {
     };
 
     Channel.prototype.stop = function() {
-        console.log("stopping "+this.state+" channel!",this)
 
-        // We might not need to take action
+        // We might not need to take action if we're already stopping it
         if (this.state==='STOPPING'|| this.state==='STOPPED') {
             return;
         }

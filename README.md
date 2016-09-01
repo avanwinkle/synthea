@@ -4,21 +4,20 @@ Short for **SYN**thetic **THE**ater **A**udio, ***Synthea*** is a customizable s
 dialogue, sound effects, and music in unscripted environments. It was written for use in improvised theater, but
 is suitable in any live performance where pre-programmed cues are not sufficient.
 
-***Synthea*** is an Electron-based Angular-powered application that generates a tabbed software soundboard for realtime playback of dialogue,
+***Synthea*** is an Electron-based, Angular-powered application that generates a tabbed software soundboard for realtime playback of dialogue,
 sound effects, and music. Playback options include simultaneous, sequential, and crossfade; cues can be looped or
 randomized; hotkeys can be bound, and much more. Key features include:
 
- - Distinct Playback Behaviors for Dialogue, Sound Effects, and Music Modes
- - Individual Playback Controls for Each Playing Cue
- - Effects Queue to Build Cue List and Delay Playback Until Unlock
- - Intuitive Tab-Based Interface to Store Hundreds of Unique Cues
- - Multiple Variations of a Cue Playable Randomly from a Single Cue Button
- - Programmable Hot-Keys for Instant Access to Common Cues
- - Modifier Key Support for Easy Hot-Key Iterations
- - Segmentable Intro, Outro, and Loop Parameters for Gapless Looping
+ - **Distinct Playback Behaviors** for dialogue, sound effects, and music
+ - **Individual Playback Controls** for each cue being played
+ - **Effects Queue** to queue multiple files and playback on-demand
+ - **Tab-Based, Multi-Column Interface** for rapid access to hundreds of cues
+ - **Multiple Variations of a Cue** randomly played from a single cue button
+ - **Programmable Hot-Keys** for instant access to frequently-used cuess
+ - **Segmentable Intro, Outro, and Loop** options for gapless looping
 
 ***Synthea*** was originally written in Python with wxPython, PyGame, and VLC. It is
-now being actively ported (here in this repo!) to an AngularJS web application wrapped by Electron.
+now being actively rebuilt (here in this repo!) from the ground up to be an AngularJS web application wrapped by Electron with
 
 ## Why Synthea Exists
 
@@ -34,6 +33,16 @@ back sequentially on demand.
 unscripted plays and improv performances, and continues to be developed for better and broader functionality.
 It is still in its infancy, but for those willing and able to learn it, I hope it proves a useful tool.
 
+## Requirements
+
+To develop and build ***Synthea***, you will need [NPM](https://www.npmjs.com/) and git. The application is built on the following platforms and frameworks:
+ - [AngularJS](https://angularjs.org/)
+ - [Angular Material](https://material.angularjs.org/)
+ - [Electron](http://electron.atom.io/)
+ - [Howler](https://howlerjs.com/)
+ - [NodeFS](https://nodejs.org/api/fs.html)
+
+ All of these requirements can be installed through NPM, as defined in `package.json`.
 
 ## Installation
 
@@ -55,7 +64,7 @@ $ electron .
 
 **Build Instructions**
 
-Currently a build setup is only available for Mac OSX, which can be run using the following command (inside the synthea repo directory):
+Builds will be created in the `dist/` folder of the repo. Currently a build setup is only available for Mac OSX, which can be run using the following command (inside the synthea repo directory):
 
 ```$ npm run build```
 
@@ -75,6 +84,8 @@ must be created manually. You can create a project by making a new folder in the
 
 A project is defined by a JSON-formatted "layout" file, an optional banner image file, and an "audio" subfolder containing the cue files (accepting OGG, MP3, WAV, and other major formats).
 
+_TODO: Make a unique extension for the layout file, e.g. layout.syn or synthea.layout (or heck, even layout.json)_
+
 _TODO: Use [asar](https://www.npmjs.com/package/asar) to package each project folder into a single archive file with a unique extension, e.g. myProject.synpkg_
 
 #### Project Folder Layout
@@ -92,7 +103,7 @@ myProject
 ```javascript
 {
     "name": "My Synthea Project",
-    "bannerImage": "banner.jpg",          // Optional image
+    "bannerImage": "banner.jpg",         // Optional image
     "config": {
         "fadeInDuration": 1000,          // Default fade-in for cues (ms)
         "fadeOutDuration": 2000          // Default fade-out for cues (ms)

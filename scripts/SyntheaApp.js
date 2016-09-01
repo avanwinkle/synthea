@@ -11,7 +11,7 @@ SyntheaAppConfig.$inject = ['$mdThemingProvider'];
 
 function SyntheaAppConfig($mdThemingProvider) {
 
-
+    // Not much to configure, just some ngMaterial theme options
     $mdThemingProvider.theme('default')
         .primaryPalette('grey')
         .accentPalette('pink');
@@ -22,11 +22,12 @@ SyntheaAppRun.$inject = [];
 
 function SyntheaAppRun() {
 
+    // The 'contextmenu' event is a right-click, which we use for queuing
     window.addEventListener('contextmenu', function(e) {
 
         var target = angular.element(e.target).scope();
 
-        // Is a Contextual action defined?
+        // Is a Contextual action defined for this target?
         if (target.hasOwnProperty('contextAction')) {
             // Escape the directive scope and pass the parent
             target.contextAction(target.$parent);
@@ -36,7 +37,6 @@ function SyntheaAppRun() {
 
 require('howler');
 require('./filters.js');
-require('./SynCue.js');
 require('./SynChannel.js');
 require('./SynGroup.js');
 require('./SynMixer.js');

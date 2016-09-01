@@ -20,6 +20,7 @@ function SynGroup(SynChannel) {
     only as a buffer to improve performance. Solo Groups can
     be used to build effects sequences on-the-fly, but are
     primarily designed for dialogue assembly.
+        -- NOT CURRENTLY IMPLEMENTED --
 
     EXCLUSIVE GROUPS have two channels and playback appears
     serialized because only one cue can be "active" at a time,
@@ -28,28 +29,33 @@ function SynGroup(SynChannel) {
     the upcoming cue. Exclusive Groups can be used for dominant
     ambient effects (e.g. rain, jungle, machinery) but is most
     heavily utilized for music. Each Mixer has one exclusive
-    Music Group by default.
+    Music Group by default ( { "group": "MUSIC_" } ).
+        -- TO IMPLEMENT: add a 'group' attribute to button json --
 
     The COMMON GROUP has an arbitrary number of channels and plays
     cues in parallel. If a cue is delivered to the mixer and
     no channels are available, a new one will be created. Each
     Mixer has one Common Group by default. Any cue without a
     specified group will be handled by the common group.
+        -- TO IMPLEMENT: this is default for all buttons without 'group' attr --
 
     */
 
     function Group(groupname,mixer) {
         this.name = groupname;
+        // Keep a list of all the channels this group controls
         this.channels = [];
+        // Keep a reference to the master mixer for binding channels
         this.mixer_ = mixer;
 
-        // Start with a default channel
+        // Start with a channel for this group
         this.addChannel();
 
         return this;
     }
 
     Group.prototype.addChannel = function() {
+        // Create a new channel object using the mixer defaults
         var ch = new SynChannel(this, {
             fadeIn: this.mixer_.fadeInDuration,
             fadeOut: this.mixer_.fadeOutDuration,
@@ -102,7 +108,9 @@ function SynGroup(SynChannel) {
 
         // Find an available channel
         var channel = this.findAvailableChannel(cue);
-        console.log((autoplay ? 'playing':'queuing')+
+
+        // Let's keep track of how many groups and channels we're racking up
+        console.log((autoplay ? 'Playing':'Queuing') + cue.name +
             ' on '+this.name+' group, channel '+channel._id);
 
         // Is this channel already playing THIS cue?
@@ -134,7 +142,7 @@ function SynGroup(SynChannel) {
 
         // Use the loadCue promise to handle errors in the file
         channel.loadCue(cue,autoplay).then(function(response) {
-
+            // No handling behavior for successful loading, right now
         }, function(reason) {
             console.warn("Error loading cue ",cue.name);
             channel.stop();
@@ -154,9 +162,10 @@ function SynGroup(SynChannel) {
         // Stop all the channels, except if there's
         // one with a cue provided
         angular.forEach(this.channels, function(c) {
-            // Don't stop ones that are queued
+            // Only stop ones that are "current"ly playing, not queued ones
+            // TODO: make a "super Stop" that kills the whole queue too
             if (c.media!==cue && c.is_current) {
-                console.log('-- stopping channel ',c._id);
+                console.log(' -- stopping channel ',c._id);
                 c.stop();
             }
         });
