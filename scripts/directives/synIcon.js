@@ -28,7 +28,7 @@ angular
         var baseUrl = window.location.href.replace(window.location.hash, '');
 
         // We can pass in a size, or default to 24px;
-        var size = attrs.pgoIconSize || '24';
+        var size = attrs.size || '24';
         // We have SVG sets at 24px and 48px
         var svgSize = parseInt(size) > 24 ? '48' : '24';
 
@@ -42,6 +42,8 @@ angular
         e.style.height = size;
 
       },
+      // Isolate the scope to avoid icPath overwrites in binding
+      scope: {},
       template: '<use xlink:href="{{::icPath}}"></use>',
     };
   });

@@ -53,6 +53,7 @@ function SynGroup(SynChannel) {
         var ch = new SynChannel(this, {
             fadeIn: this.mixer_.fadeInDuration,
             fadeOut: this.mixer_.fadeOutDuration,
+            useWebAudio: this.mixer_.isCloudProject,
         });
 
         // Store a pointer in this group's channels list
@@ -103,6 +104,33 @@ function SynGroup(SynChannel) {
         var channel = this.findAvailableChannel(cue);
         console.log((autoplay ? 'playing':'queuing')+
             ' on '+this.name+' group, channel '+channel._id);
+
+        // Is this channel already playing THIS cue?
+        if (channel.is_current && channel.media === cue) {
+
+            // Are we right-clicking? That means stop!
+            if (!autoplay) {
+                channel.stop();
+            }
+            // Are we paused? Then play!
+            else if (channel.state==='PAUSED') {
+                channel.play();
+            }
+            // Are we playing? Then pause!
+            else if (channel.state==='PLAYING') {
+                channel.pause();
+            }
+
+            return channel;
+        }
+        // Is this channel already queued with THIS cue?
+        else if (channel.is_queued && channel.media === cue) {
+            // A right-click? Remove from queue
+            if (!autoplay) {
+                channel.stop();
+                return channel;
+            }
+        }
 
         // Use the loadCue promise to handle errors in the file
         channel.loadCue(cue,autoplay).then(function(response) {

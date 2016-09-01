@@ -39,6 +39,7 @@ function SynMixer(SynGroup,SynProject) {
         var p = SynProject.getProject();
         this.fadeInDuration = p.config.fadeInDuration || 2000;
         this.fadeOutDuration = p.config.fadeOutDuration || 2000;
+        this.isCloudProject = !!p.documentRoot.match('https?://');
 
         return this;
     }
