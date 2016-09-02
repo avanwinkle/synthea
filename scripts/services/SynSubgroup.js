@@ -3,74 +3,75 @@
 
 angular
     .module('SyntheaApp')
-    .factory('SynGroup', SynGroup);
+    .factory('SynSubgroup', SynSubgroup);
 
-SynGroup.$inject = ['SynChannel'];
+SynSubgroup.$inject = ['SynChannel'];
 
-function SynGroup(SynChannel) {
+function SynSubgroup(SynChannel) {
 
     /*
-    The GROUP controls an arbitrary number of CHANNELS and manages any
+    The SUBGROUP controls an arbitrary number of CHANNELS and manages any
     exclusivity/sequential/parallel playback of cues in that group.
 
-    There are three TYPES of Groups:
+    There are three TYPES of Subgroup:
 
-    SOLO GROUPS have two channels but playback is serialized.
-    These groups effectively have one channel, the second exists
-    only as a buffer to improve performance. Solo Groups can
+    SOLO SUBGROUPS have two channels but playback is serialized.
+    These subgroups effectively have one channel, the second exists
+    only as a buffer to improve performance. Solo Subgroup can
     be used to build effects sequences on-the-fly, but are
     primarily designed for dialogue assembly.
         -- NOT CURRENTLY IMPLEMENTED --
 
-    EXCLUSIVE GROUPS have two channels and playback appears
+    EXCLUSIVE SUBGROUPS have two channels and playback appears
     serialized because only one cue can be "active" at a time,
     but two channels allow for queues and cross-fades. One
     channel holds the currently-playing cue and the other holds
-    the upcoming cue. Exclusive Groups can be used for dominant
+    the upcoming cue. Exclusive Subgroup can be used for dominant
     ambient effects (e.g. rain, jungle, machinery) but is most
     heavily utilized for music. Each Mixer has one exclusive
     Music Group by default ( { "group": "MUSIC_" } ).
         -- TO IMPLEMENT: add a 'group' attribute to button json --
+        -- TO DO: migrate the attr from 'group' to 'subgroup'
 
-    The COMMON GROUP has an arbitrary number of channels and plays
+    The COMMON SUBGROUP has an arbitrary number of channels and plays
     cues in parallel. If a cue is delivered to the mixer and
     no channels are available, a new one will be created. Each
     Mixer has one Common Group by default. Any cue without a
-    specified group will be handled by the common group.
+    specified subgroup will be handled by the common subgroup.
         -- TO IMPLEMENT: this is default for all buttons without 'group' attr --
 
     */
 
-    function Group(groupname,mixer) {
-        this.name = groupname;
-        // Keep a list of all the channels this group controls
+    function Subgroup(subgroupname,mixer) {
+        this.name = subgroupname;
+        // Keep a list of all the channels this subgroup controls
         this.channels = [];
         // Keep a reference to the master mixer for binding channels
-        this.mixer_ = mixer;
+        this._mixer = mixer;
 
-        // Start with a channel for this group
+        // Start with a channel for this subgroup
         this.addChannel();
 
         return this;
     }
 
-    Group.prototype.addChannel = function() {
+    Subgroup.prototype.addChannel = function() {
         // Create a new channel object using the mixer defaults
         var ch = new SynChannel(this, {
-            fadeIn: this.mixer_.fadeInDuration,
-            fadeOut: this.mixer_.fadeOutDuration,
-            useWebAudio: this.mixer_.isCloudProject,
+            fadeIn: this._mixer.fadeInDuration,
+            fadeOut: this._mixer.fadeOutDuration,
+            useWebAudio: this._mixer.isCloudProject,
         });
 
-        // Store a pointer in this group's channels list
+        // Store a pointer in this subgroup's channels list
         this.channels.push(ch);
         // Store a pointer in the master mixer channels list
-        this.mixer_.channels.push(ch);
+        this._mixer.channels.push(ch);
 
         return ch;
     };
 
-    Group.prototype.findAvailableChannel = function(cue) {
+    Subgroup.prototype.findAvailableChannel = function(cue) {
 
         // We have to return a channel no matter what
         var ch;
@@ -99,19 +100,19 @@ function SynGroup(SynChannel) {
         return ch;
     };
 
-    Group.prototype.play = function(cue) {
+    Subgroup.prototype.play = function(cue) {
         // Return the channel on which it plays
         return this.queue(cue,true);
     };
 
-    Group.prototype.queue = function(cue,autoplay) {
+    Subgroup.prototype.queue = function(cue,autoplay) {
 
         // Find an available channel
         var channel = this.findAvailableChannel(cue);
 
         // Let's keep track of how many groups and channels we're racking up
         console.log((autoplay ? 'Playing ':'Queuing ') + cue.name +
-            ' on '+this.name+' group, channel '+channel._id);
+            ' on "'+this.name+'" sub, channel '+channel._id);
 
         // Is this channel already playing THIS cue?
         if (channel.is_current && channel.media === cue) {
@@ -158,7 +159,7 @@ function SynGroup(SynChannel) {
         return channel;
     };
 
-    Group.prototype.stopExcept = function(cue) {
+    Subgroup.prototype.stopExcept = function(cue) {
         // Stop all the channels, except if there's
         // one with a cue provided
         angular.forEach(this.channels, function(c) {
@@ -171,7 +172,7 @@ function SynGroup(SynChannel) {
         });
     };
 
-    return Group;
+    return Subgroup;
 
 }
 

@@ -23,23 +23,23 @@ button:active, button:focus {
   z-index: 20; }
   #currentTracks .track-container {
     height: 96px;
-    opacity: 1; }
+    opacity: 1;
+    position: relative; }
     #currentTracks .track-container-title {
       text-align: right; }
     #currentTracks .track-container.ng-enter {
       display: block !important;
       height: 0;
-      opacity: 0; }
+      z-index: 3; }
       #currentTracks .track-container.ng-enter-active {
-        height: 96px;
-        opacity: 1; }
+        height: 96px; }
     #currentTracks .track-container.ng-leave {
       display: block !important;
       opacity: 1;
-      height: 96px; }
+      height: 96px;
+      z-index: 1; }
       #currentTracks .track-container.ng-leave-active {
-        height: 0;
-        opacity: 0; }
+        height: 0; }
     #currentTracks .track-container.STOPPING {
       cursor: default; }
       #currentTracks .track-container.STOPPING .track-timeline-progress {
@@ -55,23 +55,23 @@ button:active, button:focus {
   z-index: 19; }
   #queuedTracks .track-container {
     height: 64px;
-    opacity: 1; }
+    opacity: 1;
+    position: relative; }
     #queuedTracks .track-container-title {
       text-align: left; }
     #queuedTracks .track-container.ng-enter {
       display: block !important;
       height: 0;
-      opacity: 0; }
+      z-index: 3; }
       #queuedTracks .track-container.ng-enter-active {
-        height: 64px;
-        opacity: 1; }
+        height: 64px; }
     #queuedTracks .track-container.ng-leave {
       display: block !important;
       opacity: 1;
-      height: 64px; }
+      height: 64px;
+      z-index: 1; }
       #queuedTracks .track-container.ng-leave-active {
-        height: 0;
-        opacity: 0; }
+        height: 0; }
     #queuedTracks .track-container.expanded {
       height: 112px; }
 
@@ -259,20 +259,20 @@ button:active, button:focus {
   padding-bottom: 15px; }
   #page-container-content {
     justify-content: center; }
-  #page-container .column {
+  #page-container .section {
     display: inline-block;
     vertical-align: top;
     margin-top: 1em;
     max-width: 300px;
     min-width: 200px;
     position: relative; }
-    #page-container .column-header {
+    #page-container .section-header {
       background-color: #eee;
       position: relative;
       z-index: 2;
       display: inline-block;
       padding: 0 0.5em; }
-    #page-container .column-container {
+    #page-container .section-container {
       margin: -12px 8px 1em 8px;
       padding: 16px 8px;
       border: solid 1px #ccc;

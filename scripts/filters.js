@@ -14,10 +14,10 @@ function buttonsInColumn() {
     be VERY EXPENSIVE to render during playback, since there are so many digest
     cycles. Therefore, this should always be one-time bound in a player env and
     two-way bound in editing */
-    return function(buttons, column_id) {
+    return function(buttons, section_id) {
         var filtered = [];
         angular.forEach(buttons, function (b) {
-            if (b.column_ids.indexOf(column_id) !== -1) {
+            if (b.column_ids.indexOf(section_id) !== -1) {
                 filtered.push(b);
             }
         });

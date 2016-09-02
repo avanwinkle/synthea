@@ -46,13 +46,13 @@ function SyntheaAppRun() {
 
 require('howler');
 require('./SyntheaCore.js');
-require('./SynChannel.js');
-require('./SynGroup.js');
-require('./SynMixer.js');
-require('./SynProject.js');
-require('./SyntheaController.js');
-require('./SynEditorController');
-require('./SynPlayerController');
+require('./controllers/SyntheaController.js');
+require('./controllers/SynEditorController');
+require('./controllers/SynPlayerController');
+require('./services/SynChannel.js');
+require('./services/SynMixer.js');
+require('./services/SynProject.js');
+require('./services/SynSubgroup.js');
 
 // IIFE
 })();

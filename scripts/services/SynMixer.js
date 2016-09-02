@@ -5,9 +5,9 @@ angular
     .module('SyntheaApp')
     .factory('SynMixer', SynMixer);
 
-SynMixer.$inject = ['SynGroup','SynProject'];
+SynMixer.$inject = ['SynSubgroup','SynProject'];
 
-function SynMixer(SynGroup,SynProject) {
+function SynMixer(SynSubgroup,SynProject) {
 
     /*
     The MIXER manages the queuing, fading, and replacing
@@ -28,11 +28,11 @@ function SynMixer(SynGroup,SynProject) {
         this.channels = [];
         window.c = this.channels;
 
-        // The groups, including defaults
-        this.groups = {
-            // SOLO_  : new Group('SOLO_'),
-            MUSIC_ : new SynGroup('MUSIC_',this),
-            COMMON_: new SynGroup('COMMON_',this),
+        // The subgroups, including defaults
+        this.subgroups = {
+            // SOLO_  : new SynSubgroup('SOLO_',this),
+            MUSIC_ : new SynSubgroup('MUSIC_',this),
+            COMMON_: new SynSubgroup('COMMON_',this),
         };
 
         // Global settings from the project
@@ -52,32 +52,33 @@ function SynMixer(SynGroup,SynProject) {
 
     Mixer.prototype.queue = function(cue,autoplay) {
 
-        var gname;
+        var subname;
 
-        // Is there a group for this button?
+        // Is there a subgroup for this button?
+        // TODO: migrate all cue JSON from 'group' to 'subgroup'
         if (cue.group) {
 
-            // Normalize the group names to avoid conflicts
-            gname = cue.group.toLowerCase().replace('_','');
+            // Normalize the subgroup names to avoid conflicts
+            subname = cue.group.toLowerCase().replace('_','');
 
-            // Does this group need to be created?
-            if (!this.groups.hasOwnProperty(gname)) {
-                this.groups[gname] = new SynGroup(gname,this);
+            // Does this subgroup need to be created?
+            if (!this.subgroups.hasOwnProperty(subname)) {
+                this.subgroups[subname] = new SynSubgroup(subname,this);
             }
         }
-        // If not, use the common group
+        // If not, use the common subgroup
         else {
-            gname = 'COMMON_';
+            subname = 'COMMON_';
         }
 
         // Return the channel on which it plays
-        return this.groups[gname].queue(cue,autoplay);
+        return this.subgroups[subname].queue(cue,autoplay);
     };
 
     Mixer.prototype.stop = function() {
 
-        angular.forEach(this.groups, function(group) {
-            group.stopExcept();
+        angular.forEach(this.subgroups, function(subgroup) {
+            subgroup.stopExcept();
         });
     };
 

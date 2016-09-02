@@ -19,11 +19,6 @@ body {
 
 	&.stealth {
 		#page-header, #page-tabs { display: none;}
-
-		#page-container, column, track-container {
-			// color: #dddddd !important;
-			// background-color: $syn-background !important;
-		}
 	}
 }
 
@@ -44,6 +39,7 @@ button:active, button:focus {
 		$height: 96px;
 		height: $height;
 		opacity:1;
+		position: relative;
 
 		&-title {
 			text-align: right;
@@ -52,10 +48,11 @@ button:active, button:focus {
 		&.ng-enter {
 			display: block !important;
 			height:0;
-			opacity:0;
+			z-index: 3;
+			// opacity:0;
 			&-active {
 				height: $height;
-				opacity: 1;
+				// opacity: 1;
 			}
 		}
 
@@ -63,9 +60,10 @@ button:active, button:focus {
 			display: block !important;
 			opacity:1;
 			height: $height;
+			z-index: 1;
 			&-active {
 				height:0;
-				opacity:0;
+				// opacity:0;
 			}
 		}
 
@@ -106,6 +104,7 @@ button:active, button:focus {
 		$height: 64px;
 		height: $height;
 		opacity:1;
+		position: relative;
 
 		&-title {
 			text-align: left;
@@ -114,10 +113,10 @@ button:active, button:focus {
 		&.ng-enter {
 			display: block !important;
 			height:0;
-			opacity:0;
+			z-index: 3;
 			&-active {
 				height: $height;
-				opacity: 1;
+
 			}
 		}
 
@@ -125,9 +124,11 @@ button:active, button:focus {
 			display: block !important;
 			opacity:1;
 			height: $height;
+			z-index: 1;
+
 			&-active {
 				height:0;
-				opacity:0;
+
 			}
 		}
 
@@ -406,11 +407,11 @@ button:active, button:focus {
 		justify-content: center;
 	}
 
-	.column {
+	.section {
 		display: inline-block;
 		vertical-align:top;
 		margin-top: 1em;
-		// Have some reasonableness to the button column widths
+		// Have some reasonableness to the button  widths
 		max-width: 300px;
 		min-width:200px;
 		position: relative;

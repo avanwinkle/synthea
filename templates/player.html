@@ -15,14 +15,14 @@ flex="none" layout="row">
 </div>
 
 <div  layout="row" flex layout-wrap id="page-container-content">
-    <div class="column md-card" flex
+    <div class="section md-card" flex
     md-padding="2"
-    ng-repeat="column in spVm.project.columns | filter: {'page_id': spVm.currentPage.id}">
-        <div class="column-header" ng-bind="column.name"></div>
-        <div class="column-container" layout="column">
+    ng-repeat="section in spVm.project.columns | filter: {'page_id': spVm.currentPage.id}">
+        <div class="section-header" ng-bind="section.name"></div>
+        <div class="section-container" layout="column">
             <div class="cueButton-container"
             flex="none" layout="row"
-            ng-repeat="cue in ::spVm.project.buttons | buttonsInColumn: column.id">
+            ng-repeat="cue in ::spVm.project.buttons | buttonsInColumn: section.id">
                 <md-button class="cueButton"
                 aria-label="{{::cue.name}}"
                 ng-disabled="!cue.files.length"
