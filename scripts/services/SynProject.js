@@ -28,44 +28,35 @@ function SynProject($http,$q,$log) {
         // Look for a layout file
         if (projectDef.documentRoot) {
 
-            // // If this is a local project (i.e. has no root saved)
-            // project.documentRoot = projectDef.documentRoot;
-            // // Store the key
-            // project.key = projectDef.key;
-
             // Copy the project def
             def = angular.copy(projectDef);
 
-            $http.get(projectDef.documentRoot + '/layout').then(function(response){
+            $http.get(projectDef.documentRoot + '/layout.json')
+            .then(function(response){
                 angular.extend(project, response.data);
 
-                // Make a temporary id-based lookups
-                // var cols = {};
-                // Make an id lookup for buttons so we can bind hotkeys
-                var buts = {};
-                // angular.forEach(project.columns, function(c) {
-                //     cols[c.id] = c;
-                //     c._buttons = [];
-                // });
+                // Make an id lookup for cues so we can bind hotkeys
+                var cue_ids = {};
 
                 // Create our cue objects
-                angular.forEach(project.buttons, function(b) {
+                angular.forEach(project.cues, function(c) {
                     // Note the full path to the audio file, including the
                     // documentRoot (which is NOT saved in the project)
-                    b._fullPath = projectDef.documentRoot + '/audio/' + b.files[0];
-                    // AVW: Phasing out in favor of buttonsInColumn
+                    c._fullPath = projectDef.documentRoot + '/audio/' +
+                        c.sources[0];
+                    // AVW: Phasing out in favor of cuesInSection
                     // filter, but may regress if performance is hit too much
                     // // Add to each column
-                    // angular.forEach(b.column_ids, function(c) {
-                    //     cols[c]._buttons.push(b);
+                    // angular.forEach(c.section_ids, function(s) {
+                    //     secs[s]._cues.push(c);
                     // });
                     // And the lookup
-                    buts[b.id] = b;
+                    cue_ids[c.id] = c;
                 });
 
                 // Map the cues to the hotkeys as well
                 angular.forEach(project.hotKeys, function(h) {
-                    h.cue = buts[h.target];
+                    h.cue = cue_ids[h.target];
                 });
 
                 // Do we have a nice image?

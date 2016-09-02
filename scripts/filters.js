@@ -3,22 +3,22 @@
 
 angular
     .module('SyntheaApp')
-    .filter('buttonsInColumn', buttonsInColumn)
+    .filter('cuesInSection', cuesInSection)
     .filter('isActive', isActive)
     .filter('isQueued', isQueued)
     .filter('secondsToTimecode', secondsToTimecode);
 
-function buttonsInColumn() {
+function cuesInSection() {
     /* This filter will populate a column with buttons, to avoid maintaining
     two arrays of buttons (replaces the column._buttons array). HOWEVER it can
     be VERY EXPENSIVE to render during playback, since there are so many digest
     cycles. Therefore, this should always be one-time bound in a player env and
     two-way bound in editing */
-    return function(buttons, section_id) {
+    return function(cues, section_id) {
         var filtered = [];
-        angular.forEach(buttons, function (b) {
-            if (b.column_ids.indexOf(section_id) !== -1) {
-                filtered.push(b);
+        angular.forEach(cues, function (c) {
+            if (c.section_ids.indexOf(section_id) !== -1) {
+                filtered.push(c);
             }
         });
         return filtered;

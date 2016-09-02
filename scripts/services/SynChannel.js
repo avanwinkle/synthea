@@ -1,5 +1,5 @@
 (function() {
-'use strict'
+'use strict';
 
 angular
     .module('SyntheaApp')
@@ -9,28 +9,34 @@ SynChannel.$inject = ['$interval','$q','$timeout'];
 
 function SynChannel($interval,$q,$timeout) {
 
-    /*
-    The CHANNEL manages the playback of a cue, including queueing,
-    playing, pausing, stopping, fading in/out, and clearing memory.
-    There is a 1:1 correlation between Synthea Channel objects and
-    html <audio> elements used to produce audio playback.
-
-    Channels are the direct interface to a sound CUE, and the channel's
-    public methods are used to interact with a cue. Channels are
-    created and allocated by their parent GROUP, and any given channel
-    is exclusive to that subgroup.
-
-    This is where MOST OF THE MAGIC HAPPENS in Synthea. Have fun!
-
-    */
 
     // Track our channel counts so we can assign global ids
     var cidx = 0;
     // Store what "full" volume is, so we can consistently fade in/out of it
     const MAX_VOLUME = 0.5;
 
+
+    /**
+     * The Channel object
+     *
+     * The CHANNEL manages the playback of a cue, including queueing,
+     * playing, pausing, stopping, fading in/out, and clearing memory.
+     * There is a 1:1 correlation between Synthea Channel objects and
+     * html <audio> elements used to produce audio playback.
+
+     * Channels are the direct interface to a sound CUE, and the channel's
+     * public methods are used to interact with a cue. Channels are
+     * created and allocated by their parent GROUP, and any given channel
+     * is exclusive to that subgroup.
+
+     * This is where MOST OF THE MAGIC HAPPENS in Synthea. Have fun!
+     *
+     * @constructor
+     * @param {SynSubgroup} subgroup - the Subgroup that will control this channel
+     * @param {object} options - values for fadeIn, fadeOut, useWebAudio
+     */
     function Channel(subgroup,opts) {
-        // Store a channel id, for reference. Simple incremental will do.
+       // Store a channel id, for reference. Simple incremental will do.
         this._id = cidx += 1;
         // Store a pointer to the subgroup that made this channel, so we can
         // trigger stopExcept() if this channel is part of an Exclusive Group
@@ -46,7 +52,15 @@ function SynChannel($interval,$q,$timeout) {
         return this;
     }
 
-    // A common method to bind the howler fade in an angular promise
+    /**
+     * A method to call the howler fade and bind to an angular promise, for async
+     * callbacks and fewer listeners. This is a private method, as fading
+     * is done automatically on changes in playback state.
+     *
+     * @private
+     * @param  {string} direction - one of 'in' or 'out'
+     * @return {promise} a promise, resolved when the fade is complete
+     */
     Channel.prototype.fade_ = function(direction) {
 
         var start, end, duration;

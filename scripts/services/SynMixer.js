@@ -1,3 +1,9 @@
+/**
+ * SynMixer factory for instantiating SynMixer objects, which are the singleton
+ * master controllers of all Subgroups and Channels in the Project.
+ *
+ */
+
 (function() {
 'use strict';
 
@@ -9,28 +15,41 @@ SynMixer.$inject = ['SynSubgroup','SynProject'];
 
 function SynMixer(SynSubgroup,SynProject) {
 
-    /*
-    The MIXER manages the queuing, fading, and replacing
-    of cues according to global and cue-specific configs.
+    /**
+     * A pointer to the current SynMixer instance, so we can
+     * stop any playback/timers when instantiating a new one
+     *
+     * @private
+     */
+    var mixer;
 
-    For each GROUP, the Mixer maintains an array of CHANNELS
-    that handle individual cues. Each Channel can be assigned
-    only one cue at a time.
-
-    */
-
-    // Our auctual mixer!
-    var mixer_;
-
+    /**
+     *  * Creates an instance of SynMixer
+     *
+     * The MIXER manages the queuing, fading, and replacing
+     * of cues according to global and cue-specific configs.
+     * For each SUBGROUP, the Mixer maintains an array of CHANNELS
+     * that handle individual cues. Each Channel can be assigned
+     * only one cue at a time.
+     *
+     * @constructor
+     * @this {SynMixer}
+     */
     function Mixer() {
 
-        // All channels!
-        this.channels = [];
-        window.c = this.channels;
 
-        // The subgroups, including defaults
+        /**
+         * An array of EVERY Channel that exists in the Mixer
+         * @type {Array}
+         */
+        this.channels = [];
+
+        /**
+         * A mapping of all the available Subgroups in the Mixer. By default
+         * the reserved names "MUSIC_" and "COMMON_" are populated.
+         * @type {Object}
+         */
         this.subgroups = {
-            // SOLO_  : new SynSubgroup('SOLO_',this),
             MUSIC_ : new SynSubgroup('MUSIC_',this),
             COMMON_: new SynSubgroup('COMMON_',this),
         };
@@ -38,18 +57,47 @@ function SynMixer(SynSubgroup,SynProject) {
         // Global settings from the project
         var p = SynProject.getProject();
         var d = SynProject.getProjectDef();
+
+        /**
+         * The global default for fade-in time on new cues
+         * (used only when fade-in is active)
+         * @type {integer}
+         */
         this.fadeInDuration = p.config.fadeInDuration || 2000;
+        /**
+         * The global default for fade-out time on new cues
+         * (used in all cases of pausing/stopping playback)
+         * @type {integer}
+         */
         this.fadeOutDuration = p.config.fadeOutDuration || 2000;
+        /**
+         * A flag to identify whether the current Project is stored locally
+         * or in the cloud, which has ramifications on how playback is handled.
+         * @type {boolean}
+         */
         this.isCloudProject = !!d.documentRoot.match('https?://');
 
         return this;
     }
 
+    /**
+     * Universal method to play a cue
+     * (which essentially passes the command down
+     * the line from Subgroup to Channel to Player)
+     *
+     * @param  {Cue} cue - the Cue object to be played
+     * @return {SynChannel}
+     */
     Mixer.prototype.play = function(cue) {
         // Return the channel on which it plays
         return this.queue(cue,true);
     };
 
+    /**
+     * @param  {Cue} cue - the Cue object to be queued
+     * @param  {boolean} autoplay - whether to begin playback immediately
+     * @return {SynChannel}
+     */
     Mixer.prototype.queue = function(cue,autoplay) {
 
         var subname;
@@ -75,16 +123,25 @@ function SynMixer(SynSubgroup,SynProject) {
         return this.subgroups[subname].queue(cue,autoplay);
     };
 
+    /**
+     * Global method to stop playback on ALL Channels.
+     * @return {undefined}
+     */
     Mixer.prototype.stop = function() {
 
+        // Iterate through the Subgroups and stop them all
         angular.forEach(this.subgroups, function(subgroup) {
             subgroup.stopExcept();
         });
     };
 
+    /**
+     * Flush the queue and playback all cues that are queued
+     * @return {undefined}
+     */
     Mixer.prototype.toggleLock = function() {
 
-        // Flush everything?
+        // Iterate through the Channels and play any that are queued
         angular.forEach(this.channels, function(ch) {
             if (ch.is_queued) {
                 ch.play();
@@ -98,15 +155,15 @@ function SynMixer(SynSubgroup,SynProject) {
         createMixer: function() {
 
             // Clear out an existing mixer, if need be
-            if (mixer_) {
-                mixer_.stop();
+            if (mixer) {
+                mixer.stop();
             }
 
-            mixer_ = new Mixer();
-            return mixer_;
+            mixer = new Mixer();
+            return mixer;
         },
         getMixer: function() {
-            return mixer_;
+            return mixer;
         }
     };
 

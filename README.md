@@ -4,7 +4,7 @@ Short for **SYN**thetic **THE**ater **A**udio, ***Synthea*** is a customizable s
 dialogue, sound effects, and music in unscripted environments. It was written for use in improvised theater, but
 is suitable in any live performance where pre-programmed cues are not sufficient.
 
-***Synthea*** is an Electron-based, Angular-powered application that generates a tabbed software soundboard for realtime playback of dialogue,
+***Synthea*** displays a tabbed software soundboard for realtime playback of dialogue,
 sound effects, and music. Playback options include simultaneous, sequential, and crossfade; cues can be looped or
 randomized; hotkeys can be bound, and much more. Key features include:
 
@@ -42,7 +42,8 @@ To develop and build ***Synthea***, you will need [NPM](https://www.npmjs.com/) 
  - [Howler](https://howlerjs.com/)
  - [NodeFS](https://nodejs.org/api/fs.html)
 
-All of these requirements can be installed through NPM, as defined in `package.json`.
+All of these requirements can be found in `package.json` and are automatically installed
+with Synthea (see below).
 
 ## Installation
 
@@ -60,7 +61,7 @@ $ cd synthea
 $ npm install
 $ electron .
 ```
-If ```$ electron .``` results in error messages, you may need to manually install Electron and symlink it to your PATH:
+If ```$ electron .``` results in error messages, you may need to manually install Electron and symlink it to your PATH, which is easiest with a global electron install:
 
 ```$ npm install -g electron```
 
@@ -68,11 +69,11 @@ Full instructions are available [here](https://www.npmjs.com/package/electron).
 
 **Build Instructions**
 
-Builds will be created in the `dist/` folder of the repo. Currently a build setup is only available for Mac OSX, which can be run using the following command (inside the synthea repo directory):
+Builds will be created in the `dist/` folder of the repo. Currently a build configuration is only available for Mac OSX, which can be run using the following command (inside the synthea repo directory):
 
 ```$ npm run build```
 
-For building on other systems, see the help output by running:
+For instructions to build for other systems, see the help output by running:
 
 ```$ electron-packager --help```
 
@@ -83,19 +84,17 @@ projects can be accessed in the menu at **Projects > Browse Cloud Projects...**.
 
 _Please note that when streaming projects from the cloud, loops may not be gapless._
 
-An upcoming feature is an internal project creator/editor, but in the meantime projects
+An in-progress feature is an internal project creator/editor, but in the meantime projects
 must be created manually. You can create a project by making a new folder in the projects folder, whach can be accessed by the menu **Projects > Go to Projects Folder** (by default, %APPLICATION DATA%/Synthea/Projects). The projects folder can be changed via the menu **Projects > Change Projects Folder...**.
 
-A project is defined by a JSON-formatted "layout" file, an optional banner image file, and an "audio" subfolder containing the cue files (accepting OGG, MP3, WAV, and other major formats).
-
-_TODO: Make a unique extension for the layout file, e.g. layout.syn or synthea.layout (or heck, even layout.json)_
+A project is defined by a JSON-formatted `layout.json` file, an optional banner image file, and an `/audio` subfolder containing the cue files (accepting OGG, MP3, WAV, and other major formats).
 
 _TODO: Use [asar](https://www.npmjs.com/package/asar) to package each project folder into a single archive file with a unique extension, e.g. myProject.synpkg_
 
 #### Project Folder Layout
 ```
 myProject
-  | - layout
+  | - layout.json
   | - my_project_banner.jpg
   | - audio /
   |      - soundfile.wav
@@ -114,12 +113,12 @@ myProject
     },
     "pages": [
         {
-            "display_order": 0,          // The order of tabs/columns/buttons is user-configurable
-            "id": 1,                     // All pages, columns, and buttons should have unique ids
+            "display_order": 0,          // The order of pages/sections/cues is user-configurable
+            "id": 1,                     // All pages, sections, and cues should have unique ids
             "name": "First Tab"
         }
     ],
-    "columns": [
+    "sections": [
         {
             "display_order": 0,
             "id": 100,
@@ -127,17 +126,17 @@ myProject
             "page_id": 1                 // A column exists only on a given page, tracked by id
         }
     ],
-    "buttons": [
+    "cues": [
         {
-            "column_ids": [ 1 ],         // A button can appear in multiple columns, even pages
-            "files": ["soundfile.wav"],  // A button can have multiple cue files
+            "section_ids": [ 1 ],         // A cue can appear in multiple sections, even pages
+            "sources": ["soundfile.wav"],  // A cue can have multiple source files
             "id": 1000,
             "isLoop": true,              // Looping can be toggled in-app, but cues can be preset
             "name": "Basic Effect",
         },
         {
-            "column_ids": [ 1 ],
-            "files": ["musicfile.mp3"],
+            "section_ids": [ 1 ],
+            "sources": ["musicfile.mp3"],
             "group": "MUSIC_",           // A reserved string for the music category
             "id": 1001,
             "isLoop": false,
@@ -147,7 +146,7 @@ myProject
     "hotKeys": {
         "KeyA": {                        // The key event codename
             "action": "PLAY",            // A soundboard action
-            "target": 1001               // Id of the button to target
+            "target": 1001               // Id of the cue to target
         },
         "Ctrl.Shift.KeyB": {             // Modifier keys are supported
             "action": "PLAY",
