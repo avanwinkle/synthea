@@ -2,20 +2,29 @@
 'use strict';
 
 angular
-    .module("SyntheaApp",['ngAnimate','ngAria','ngMaterial'])
+    .module("SyntheaApp",['SyntheaCore','ngAnimate','ngAria','ngMaterial','ngRoute'])
     .config(SyntheaAppConfig)
     .run(SyntheaAppRun);
 
+SyntheaAppConfig.$inject = ['$routeProvider'];
 
-SyntheaAppConfig.$inject = ['$mdThemingProvider'];
+function SyntheaAppConfig($routeProvider) {
 
-function SyntheaAppConfig($mdThemingProvider) {
-
-    // Not much to configure, just some ngMaterial theme options
-    $mdThemingProvider.theme('default')
-        .primaryPalette('grey')
-        .accentPalette('pink');
-
+    // Declare the routes!
+    $routeProvider
+        .when('/edit/:projectkey', {
+            controller: 'SynEditorController',
+            controllerAs: 'seVm',
+            templateUrl: 'templates/editor.html',
+        })
+        .when('/player/:projectkey', {
+            controller: 'SynPlayerController',
+            controllerAs: 'spVm',
+            templateUrl: 'templates/player.html',
+        })
+        .otherwise({
+            templateUrl: 'templates/landing.html',
+        });
 }
 
 SyntheaAppRun.$inject = [];
@@ -36,14 +45,14 @@ function SyntheaAppRun() {
 }
 
 require('howler');
-require('./filters.js');
+require('./SyntheaCore.js');
 require('./SynChannel.js');
 require('./SynGroup.js');
 require('./SynMixer.js');
 require('./SynProject.js');
-require('./directives/synIcon.js');
-require('./directives/synRightClick.js');
 require('./SyntheaController.js');
+require('./SynEditorController');
+require('./SynPlayerController');
 
 // IIFE
 })();

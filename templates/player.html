@@ -1,0 +1,172 @@
+
+
+<div id="page-tabs"
+style="position:fixed;top:90px;left:0;right:0;background-color:rgba(0,0,0,0.4);z-index:10;"
+flex="none" layout="row">
+    <span flex></span>
+    <div class="page-tab-container" flex="none"
+    ng-repeat="page in spVm.project.pages">
+        <div class="page-tab"
+        ng-bind="page.name"
+        ng-click="spVm.selectPage(page)"
+        ng-class="{'current': page == spVm.currentPage}"></div>
+    </div>
+    <span flex></span>
+</div>
+
+<div  layout="row" flex layout-wrap id="page-container-content">
+    <div class="column md-card" flex
+    md-padding="2"
+    ng-repeat="column in spVm.project.columns | filter: {'page_id': spVm.currentPage.id}">
+        <div class="column-header" ng-bind="column.name"></div>
+        <div class="column-container" layout="column">
+            <div class="cueButton-container"
+            flex="none" layout="row"
+            ng-repeat="cue in ::spVm.project.buttons | buttonsInColumn: column.id">
+                <md-button class="cueButton"
+                aria-label="{{::cue.name}}"
+                ng-disabled="!cue.files.length"
+                ng-bind="::cue.name"
+                ng-click="spVm.selectCue(cue)"
+                syn-right-click="spVm.contextCue(cue)">
+                </md-button>
+                <div class="cueButton-badge channelState-{{cue._channel.state}}"
+                md-whiteframe="1">
+                    <div class="badge badge-stop">
+                        <svg syn-icon="stop" size="16"></svg>
+                    </div>
+                    <div class="badge badge-play">
+                        <svg syn-icon="play" size="16"></svg>
+                    </div>
+                    <div class="badge badge-pause">
+                        <svg syn-icon="pause" size="16"></svg>
+                    </div>
+                    <div class="badge badge-queue">
+                        <svg syn-icon="playlist_play" size="16"></svg>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="queuedTracks">
+    <div class="track-container-title" ng-if="queuedTracks.length">Queued</div>
+    <div class="track-container"
+    ng-class="{'expanded': expanded}"
+    ng-repeat="channel in spVm.mixer.channels | filter:{'is_queued': true} as queuedTracks"
+    ng-style="{'z-index':$index}">
+        <div class="track">
+            <div layout="row">
+                <div class="track-title" flex ng-bind="channel.media.name"></div>
+                <div ng-bind="channel.duration | secondsToTimecode"></div>
+            </div>
+            <div layout="row">
+                <div flex>
+                    <md-button class="md-icon-button track-button" aria-label="play"
+                    ng-click="expanded = !expanded">
+                        <md-icon ng-if="!expanded"><svg syn-icon="chevron_down"></svg></md-icon>
+                        <md-icon ng-if="expanded"><svg syn-icon="chevron_up"></svg></md-icon>
+                    </md-button>
+                </div>
+                <div flex>
+                    <md-button class="md-icon-button track-button" aria-label="play"
+                    ng-click="channel.play()">
+                        <md-icon><svg syn-icon="play"></svg></md-icon>
+                    </md-button>
+                </div>
+                <div flex>
+                    <md-button class="md-icon-button track-button" aria-label="clear"
+                    ng-click="channel.stop()">
+                        <md-icon><svg syn-icon="clear"></svg></md-icon>
+                    </md-button>
+                </div>
+            </div>
+            <div layout="row" ng-show="expanded">
+                <div flex>
+                    <input ng-model="channel.currentTime"
+                    type="number" step="0.1" size="2"
+                    placeholder="0.0"
+                    ng-change="channel.setTime()" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="currentTracks">
+
+    <div class="track-container-title" ng-if="currentTracks.length">Now Playing</div>
+    <div class="track-container {{channel.state}}"
+    ng-repeat="channel in spVm.mixer.channels | filter: {'is_current':true} as currentTracks"
+    ng-style="{'z-index':$index}">
+        <div class="track">
+            <div layout="row">
+                <div class="track-title" flex
+                ng-bind="channel.media.name"></div>
+                <div class="track-eta" flex="none" ng-bind="channel.duration - channel.currentTime | secondsToTimecode"
+                ng-hide="channel.seekPreview_">
+                </div>
+                <div class="track-eta track-eta-preview"
+                ng-bind="channel.seekPreview_ | secondsToTimecode:true"
+                ng-if="channel.seekPreview_"></div>
+            </div>
+
+
+            <div class="track-timeline" layout="row">
+                <div class="track-timeline-bar">
+                    <div class="track-timeline-progress" ng-style="{'transform':'scaleX('+(channel.currentTime/channel.duration)+')'}"></div>
+                    <div class="track-timeline-seeker"
+                    ng-mousemove="spVm.timelineSeekPreview($event,channel)"
+                    ng-mouseleave="channel.seekPreview_ = undefined"
+                    ng-click="spVm.timelineSeek($event,channel)"></div>
+                </div>
+            </div>
+
+            <div layout="row">
+                <div flex class="track-timecode">
+                    <span ng-bind="channel.currentTime | secondsToTimecode : true"></span>
+                </div>
+                <div flex class="track-timecode">
+                    <span ng-bind="channel.duration | secondsToTimecode : true"></span>
+                </div>
+            </div>
+
+            <div class="track-buttons" layout="row">
+                <div flex>
+                    <md-button class="md-icon-button track-button track-button-loop" aria-label="repeat"
+                    ng-click="channel.repeat()"
+                    ng-disabled="channel.state==='STOPPING'"
+                    ng-class="{'active': channel.media.isLoop}">
+                        <md-icon><svg syn-icon="repeat"></svg></md-icon>
+                    </md-button>
+                </div>
+                <div flex>
+                    <md-button class="md-icon-button track-button track-button-pause" aria-label="pause"
+                    ng-click="channel.pause()"
+                    ng-disabled="channel.state==='PAUSING'||channel.state==='STOPPING'"
+                    ng-if="channel.is_playing">
+                        <md-icon><svg syn-icon="pause"></svg></md-icon>
+                    </md-button>
+                    <md-button class="md-icon-button track-button track-button-play" aria-label="play"
+                    ng-click="channel.play()"
+                    ng-disabled="channel.state==='STOPPING'"
+                    ng-if="!channel.is_playing">
+                        <md-icon>
+                            <svg syn-icon="play"></svg>
+                        </md-icon>
+                    </md-button>
+                </div>
+                <div flex>
+                    <md-button class="md-icon-button track-button track-button-stop" aria-label="stop"
+                    ng-click="channel.stop()"
+                    ng-disabled="channel.state==='PAUSING'">
+                        <md-icon><svg syn-icon="stop"></svg></md-icon>
+                    </md-button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -25,7 +25,8 @@ angular
 
 
         // The defined <base> url messes up the relative <use> path
-        var baseUrl = window.location.href.replace(window.location.hash, '');
+        //var baseUrl = window.location.href.replace(window.location.hash, '');
+        var baseUrl = 'assets/icons.svg';
 
         // We can pass in a size, or default to 24px;
         var size = attrs.size || '24';

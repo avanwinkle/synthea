@@ -1,0 +1,35 @@
+<div ng-init="seVm.activate()">
+
+    <div>Edit a project</div>
+
+    <div  layout="row" flex layout-wrap id="page-container-content">
+        <div class="column md-card" flex
+        md-padding="2"
+        ng-repeat="column in seVm.project.columns | filter: {'page_id': seVm.currentPage.id} as currentColumns">
+            <div class="column-header" ng-bind="column.name"></div>
+            <div class="column-container" layout="column">
+                <div class="cueButton-container"
+                flex="none" layout="row"
+                ng-repeat="cue in seVm.project.buttons | buttonsInColumn: column.id as currentButtons">
+                    <md-button class="cueButton"
+                    aria-label="{{::cue.name}}"
+                    ng-disabled="!cue.files.length"
+                    ng-bind="::cue.name"
+                    ng-click="seVm.selectCue(cue)">
+                    </md-button>
+                </div>
+                <div class="cueButton-container" flex="none" layout="row">
+                    <div ng-click="seVm.addCue(currentButtons.length,column)">+ Add Cue</div>
+                </div>
+            </div>
+        </div>
+        <div class="column md-card" flex md-padding="2">
+            <div ng-click="seVm.addColumn(currentColumns.length)">+ Add Column</div>
+        </div>
+    </div>
+
+    <button ng-click="seVm.copyMediaToProject()">Copy Media</button>
+
+    <div ng-repeat="medium in seVm.media" ng-bind="medium"></div>
+
+</div>

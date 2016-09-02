@@ -9,11 +9,15 @@ angular
     .filter('secondsToTimecode', secondsToTimecode);
 
 function buttonsInColumn() {
+    /* This filter will populate a column with buttons, to avoid maintaining
+    two arrays of buttons (replaces the column._buttons array). HOWEVER it can
+    be VERY EXPENSIVE to render during playback, since there are so many digest
+    cycles. Therefore, this should always be one-time bound in a player env and
+    two-way bound in editing */
     return function(buttons, column_id) {
-        console.log(column_id, buttons);
         var filtered = [];
         angular.forEach(buttons, function (b) {
-            if (b.columns.indexOf(column_id) !== -1) {
+            if (b.column_ids.indexOf(column_id) !== -1) {
                 filtered.push(b);
             }
         });

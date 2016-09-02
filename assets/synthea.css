@@ -6,8 +6,7 @@ body {
   margin: 0;
   padding: 0;
   text-align: center;
-  overflow: hidden;
-  padding-bottom: 30px; }
+  overflow: hidden; }
   body.stealth #page-header, body.stealth #page-tabs {
     display: none; }
 
@@ -18,7 +17,7 @@ button:active, button:focus {
 #currentTracks {
   background-color: #ddd;
   bottom: 0;
-  position: absolute;
+  position: fixed;
   right: 16px;
   width: 196px;
   z-index: 20; }
@@ -51,7 +50,7 @@ button:active, button:focus {
 #queuedTracks {
   bottom: 0;
   left: 16px;
-  position: absolute;
+  position: fixed;
   width: 196px;
   z-index: 19; }
   #queuedTracks .track-container {
@@ -76,23 +75,33 @@ button:active, button:focus {
     #queuedTracks .track-container.expanded {
       height: 112px; }
 
-#synLoader {
+.modal-body {
   padding: 24px;
   text-align: left; }
-  #synLoader-content {
-    max-width: 400px;
-    margin: 0 auto; }
-  #synLoader #loader-title {
-    font-size: 24px;
-    font-weight: 400; }
-  #synLoader #loader-desc {
-    font-weight: 300;
-    margin: 8px 0;
-    text-align: justify; }
-  #synLoader #loader-footer {
-    text-align: right; }
-    #synLoader #loader-footer .cancelbutton:not(:hover) {
-      opacity: 0.5; }
+
+.modal-content {
+  margin: 0 auto; }
+
+.modal-title {
+  font-size: 24px;
+  font-weight: 400; }
+
+.modal-desc {
+  font-weight: 300;
+  max-width: 400px;
+  margin: 8px 0;
+  text-align: justify; }
+
+.modal-footer .cancelbutton:not(:hover) {
+  opacity: 0.5; }
+
+.hint {
+  /* Copy styles from ng-messages */
+  font-size: 12px;
+  line-height: 14px;
+  transition: all 0.3s cubic-bezier(0.55, 0, 0.55, 0.2);
+  /* Set our own color */
+  color: grey; }
 
 .track {
   background-color: #ddd;

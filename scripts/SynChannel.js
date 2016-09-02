@@ -112,7 +112,9 @@ function SynChannel($interval,$q,$timeout) {
         // Store a reference to the cue object, for getting configs and attrs
         this.media = cue;
         // Back-ref this channel to the cue, so we can call channel methods
-        cue.channel_ = this;
+        // TODO: Use a listener or event to push a state onto the cue, to
+        // avoid this privade backref and expose the state publically
+        cue._channel = this;
 
         // We'll make a pointer to the channel to avoid having to bind(this)
         // on every friggin callback function we make for the Howl
@@ -215,15 +217,20 @@ function SynChannel($interval,$q,$timeout) {
 
         // Create an interval to update the playback time
         this.elapsedCounter = $interval(function() {
-            try {
+
+            // The track might have been faded out, or ended, by the time we get here
+            if (this.player_.playing()) {
                 this.currentTime = this.player_.seek();
             }
-            catch(err) {
-                // There are still some bugs here, this is to help track them
-                console.warn('Error in seek, terminating counter',err);
+            else {
+                // If we're not playing, stop this infernal counter
+                // AVW: I believe this occurs due to mis-syncing of the angular
+                // digest with the Howler events. Even though the channel stop()
+                // method explicitly cancels this counter, it still gets one last
+                // rendering in after the channel is stopped.
                 $interval.cancel(this.elapsedCounter);
-                this.stop();
             }
+
         }.bind(this),100);
 
         // Start playing before we start the fade, to ensure smoothness
@@ -231,7 +238,7 @@ function SynChannel($interval,$q,$timeout) {
         this.player_.play();
         this.fadeIn_().then(function() {
             // AVW: Trying to track some fades that don't make it all the way
-            console.log('Channel '+this._id+' fully faded in');
+            console.log(' -- channel '+this._id+' fade in complete');
         }.bind(this));
 
         // If we are playing an Exclusive Group, cancel the rest of the group
@@ -272,10 +279,11 @@ function SynChannel($interval,$q,$timeout) {
             this.is_playing = false;
 
             // Clear the cue
-            this.media.channel_ = undefined;
+            this.media._channel = undefined;
 
             this.player_.stop();
             this.player_.unload();
+            console.log(' -- channel '+this._id+' stopped');
         }.bind(this);
 
         this.state = 'STOPPING';

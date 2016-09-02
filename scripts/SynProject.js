@@ -11,6 +11,7 @@ function SynProject($http,$q,$log) {
 
     // This is a singleton so every service/controller can access
     var project = {};
+    var def = {};
     window.p = project;
 
     function load(projectDef) {
@@ -27,29 +28,37 @@ function SynProject($http,$q,$log) {
         // Look for a layout file
         if (projectDef.documentRoot) {
 
-            // If this is a local project (i.e. has no root saved)
-            project.documentRoot = projectDef.documentRoot;
+            // // If this is a local project (i.e. has no root saved)
+            // project.documentRoot = projectDef.documentRoot;
+            // // Store the key
+            // project.key = projectDef.key;
+
+            // Copy the project def
+            def = angular.copy(projectDef);
 
             $http.get(projectDef.documentRoot + '/layout').then(function(response){
                 angular.extend(project, response.data);
 
                 // Make a temporary id-based lookups
-                var cols = {};
+                // var cols = {};
+                // Make an id lookup for buttons so we can bind hotkeys
                 var buts = {};
-                angular.forEach(project.columns, function(c) {
-                    cols[c.id] = c;
-                    c._buttons = [];
-                });
+                // angular.forEach(project.columns, function(c) {
+                //     cols[c.id] = c;
+                //     c._buttons = [];
+                // });
 
                 // Create our cue objects
                 angular.forEach(project.buttons, function(b) {
                     // Note the full path to the audio file, including the
                     // documentRoot (which is NOT saved in the project)
-                    b._fullPath = project.documentRoot + '/audio/' + b.files[0];
-                    // Add to each column
-                    angular.forEach(b.column_ids, function(c) {
-                        cols[c]._buttons.push(b);
-                    });
+                    b._fullPath = projectDef.documentRoot + '/audio/' + b.files[0];
+                    // AVW: Phasing out in favor of buttonsInColumn
+                    // filter, but may regress if performance is hit too much
+                    // // Add to each column
+                    // angular.forEach(b.column_ids, function(c) {
+                    //     cols[c]._buttons.push(b);
+                    // });
                     // And the lookup
                     buts[b.id] = b;
                 });
@@ -65,7 +74,6 @@ function SynProject($http,$q,$log) {
                         projectDef.documentRoot + '/' +
                         project.bannerImage + '\')';
                 }
-
                 defer.resolve();
             });
 
@@ -83,15 +91,13 @@ function SynProject($http,$q,$log) {
         return project.pages[idx];
     }
 
-    function getProject() {
-        return project;
-    }
 
     return {
         load: load,
         // getConfig: getConfig,
         getPage: getPage,
-        getProject: getProject
+        getProject: function() { return project; },
+        getProjectDef: function() { return def; }
     };
 
 }

@@ -17,7 +17,7 @@ randomized; hotkeys can be bound, and much more. Key features include:
  - **Segmentable Intro, Outro, and Loop** options for gapless looping
 
 ***Synthea*** was originally written in Python with wxPython, PyGame, and VLC. It is
-now being actively rebuilt (here in this repo!) from the ground up to be an AngularJS web application wrapped by Electron with
+now being actively rebuilt (here in this repo!) from the ground up to be an AngularJS web application wrapped by Electron, with Howler powering the audio.
 
 ## Why Synthea Exists
 
@@ -42,7 +42,7 @@ To develop and build ***Synthea***, you will need [NPM](https://www.npmjs.com/) 
  - [Howler](https://howlerjs.com/)
  - [NodeFS](https://nodejs.org/api/fs.html)
 
- All of these requirements can be installed through NPM, as defined in `package.json`.
+All of these requirements can be installed through NPM, as defined in `package.json`.
 
 ## Installation
 

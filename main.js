@@ -15,106 +15,99 @@ let mainWindow;
 // Keep a global reference to the application configuration
 let CONFIGS;
 const CONFIG_PATH = app.getPath('userData')+'/config';
-// Keep a global list of available projects
-let PROJECTS;
+
+// Keep a pointer to the project menu so we can add/remove
+let PROJECTS = [];
+
+// Keep a reference on what we're doing in the main window
 
 // HEY LISTEN! Developers, wanna see what's going on? TURN THIS ON!!
 const DEBUG_MODE = false;
 
+function addMediaToProject(evt,pkey) {
+
+    dialog.showOpenDialog( {
+        title: 'Select Media for Project',
+        properties: ['openFile', 'multiSelections'],
+    }, function(selection) {
+
+        for (var i=0;i<selection.length;i++) {
+            try {
+
+                var filename = selection[i].split('/').pop();
+
+                fs.createReadStream(selection[i])
+                .pipe(fs.createWriteStream(
+                    CONFIGS.projectFolder+'/'+pkey+'/audio/'+filename));
+            }
+            catch(err) {
+
+            }
+        }
+
+        // Return the new list of files
+        getProjectMedia(null,{key:pkey});
+
+    });
+}
+
+function closeProject(evt) {
+    mainWindow.webContents.send('open-project',null);
+}
+
 function createMenus() {
 
-    // This is the list of all projects in the "Projects" menu
-    var projectNames = [];
-
-    for (var i=0;i<PROJECTS.length;i++) {
-        projectNames.push(PROJECTS[i]);
-    }
-
-    // Add a link to open the folder
-    projectNames.push({ type: 'separator'});
-    projectNames.push({
-        label: 'Go to Projects Folder',
-        click: function() {
-            electron.shell.showItemInFolder(CONFIGS.projectFolder);
-        },
-    });
-    projectNames.push({
-        label: 'Change Projects Folder...',
-        click: function() {
-            dialog.showOpenDialog({properties:['openDirectory']}, function(d) {
-                if (!d) { return; }
-
-                CONFIGS.projectFolder = d[0];
-                saveConfig();
-                createMenus();
-
-            });
-        }
-    });
-    projectNames.push({ type: 'separator' });
-    projectNames.push({
-        label: 'Browse Cloud Projects...',
-        click: function() {
-
-            // Create a new window to show the loader
-            let child = new BrowserWindow({
-                modal: true,
-                show: false
-            });
-
-            // Create a node-formatted url for the loader window
-            let url = require('url').format({
-              protocol: 'file',
-              slashes: true,
-              pathname: require('path').join(__dirname, 'loader.html')
-            });
-
-            child.loadURL(url);
-            child.once('ready-to-show', () => {
-              child.show();
-              // if (DEBUG_MODE) { child.webContents.openDevTools(); }
-
-              // If the loader window broadcasts a project, handle it
-              ipcMain.once('open-project', function(evt,projectDef) {
-                openProject(projectDef);
-                child.close();
-              });
-            });
-        }
-    });
-
+    // renderProjectsMenu();
 
     // The standard menu templates. Most things are disabled, but placeholders
     // as reminders of what's yet to come!
-    const template = [
+    let template = [
         {
             label: 'File',
             submenu: [
                 {
                     label: 'New Project',
                     role: 'new',
-                    enabled: false,
+                    click: openProjectCreator
                 },
                 {
                     label: 'Open Project...',
                     role: 'open',
                 },
+                {
+                    label: 'Close Project',
+                    click: closeProject,
+                },
                 { type: 'separator',},
+                {
+                    label: 'Edit Project',
+                    role: 'edit',
+                    click: editProject,
+                },
                 {
                     label: 'Save Project',
                     role: 'save',
                     enabled: false,
+                    click: function() {
+                         // Broadcast the main window to return us a project to save
+                        mainWindow.webContents.send('get-project');
+                    }
                 },
                 {
                     label: 'Save Project As...',
                     role: 'saveAs',
                     enabled: false,
+                },
+                {   type: 'separator' },
+                {
+                    label: 'Delete Project',
+                    role: 'delete',
                 }
             ]
         },
         {
             label: 'Projects',
-            submenu: projectNames,
+            submenu: renderProjectsMenu(),
         },
         {
             label: 'Playback',
@@ -176,12 +169,69 @@ function createMenus() {
     }
 
     // This is async, so NOW build the menu
-    const menu = Menu.buildFromTemplate(template);
+    let menu = Menu.buildFromTemplate(template);
     Menu.setApplicationMenu(menu);
 
 }
 
+function createModalWindow(name,callbackFn) {
+    // Create a new window to show the creator
+    let child = new BrowserWindow({
+        modal: false,
+        show: false
+    });
 
+    // Create a node-formatted url for the loader window
+    let url = require('url').format({
+      protocol: 'file',
+      slashes: true,
+      pathname: require('path').join(__dirname, '/templates/'+name+'.html')
+    });
+
+    child.loadURL(url);
+    child.once('ready-to-show', () => {
+      child.show();
+      if (DEBUG_MODE) { child.webContents.openDevTools(); }
+    });
+
+    return child;
+}
+
+function createProject(project) {
+
+    // Make sure we have everything
+    if (!project.name || !project.key || !project.pages ||
+    !project.pages.length || !project.pages[0].name) {
+        console.error('Invalid Project');
+        return;
+    }
+
+    // TODO: Validate all of these fields
+
+    // Does this folder already exist?
+    var targetFolder = CONFIGS.projectFolder+'/'+project.key;
+
+    // Make the folder, if need be
+    try {
+        fs.accessSync(targetFolder);
+        console.error('Project folder already exists!');
+        return;
+    }
+    catch(err) {
+        fs.mkdirSync(targetFolder);
+        fs.mkdirSync(targetFolder+'/audio');
+
+        fs.writeFile(targetFolder+'/layout',
+            JSON.stringify(project), function(err) {
+                if (err) {
+                    console.error(err);
+                    return;
+                }
+            });
+
+    }
+
+}
 
 function createWindow () {
   // Create the browser window.
@@ -195,7 +245,7 @@ function createWindow () {
 
   // and load the index.html of the app.
   // AVW: This must be in GRAVES, not APOSTROPHES
-  mainWindow.loadURL(`file://${__dirname}/index.html`);
+  mainWindow.loadURL(`file://${__dirname}/templates/index.html`);
 
   // Open the DevTools.
   if (DEBUG_MODE) { mainWindow.webContents.openDevTools(); }
@@ -209,6 +259,7 @@ function createWindow () {
   // const appIcon = new electron.Tray('./assets/synthea_icon.png');
 
   initializeSynthea(app);
+      renderProjectsMenu();
 
 
   // Emitted when the window is closed.
@@ -218,6 +269,34 @@ function createWindow () {
     // when you should delete the corresponding element.
     mainWindow = null;
   });
+
+}
+
+function editProject(menuItem) {
+    // menuItem.enabled = false;
+    menuItem.label = 'Done Editing Project';
+    for (var i=0;i<menuItem.menu.items.length;i++) {
+        // Enable the "Save Project" menu option
+        if (menuItem.menu.items[i].label === 'Save Project') {
+            menuItem.menu.items[i].enabled = true;
+            break;
+        }
+    }
+    mainWindow.webContents.send('edit-project');
+}
+
+function getProjectMedia(evt,proj) {
+    var output = [];
+
+    var media = fs.readdirSync(CONFIGS.projectFolder+'/'+proj.key+'/audio');
+    for (var i=0;i<media.length;i++) {
+        // Ignore hidden files and those without extensions
+        if (media[i].indexOf('.') > 0) {
+            output.push(media[i]);
+        }
+    }
+
+    mainWindow.webContents.send('project-media',output);
 
 }
 
@@ -249,9 +328,6 @@ function initializeSynthea() {
         saveConfig();
     }
 
-    // Lookup our available projects
-    lookupProjects();
-
     // Create our menus
     createMenus();
 
@@ -259,24 +335,37 @@ function initializeSynthea() {
     mainWindow.webContents.once('did-finish-load', function() {
         // Now that the menus are built, let's try opening our last project
         if (CONFIGS.lastProject) {
-
             // Iterate over the projects we found in our Projects folder
             for (var i=0;i<PROJECTS.length;i++) {
-                // Do any of those projects match the last one we opened?
+                // Do any of those PROJECTS.items match the last one we opened?
                 if (PROJECTS[i].key === CONFIGS.lastProject) {
                     openProject(PROJECTS[i]);
                     break;
                 }
             }
         }
+        // If we don't have a project to lad?
+        else {
+            openProject(null);
+        }
     });
+
+    /*** GENERAL SYNTHEA LISTENERS ***/
+
+    ipcMain.on('add-media-to-project', addMediaToProject);
+
+    ipcMain.on('create-project', openProjectCreator);
+
+    ipcMain.on('get-project-media', getProjectMedia);
+
+    ipcMain.on('save-project', saveProject);
 
 }
 
-function lookupProjects() {
+function renderProjectsMenu() {
 
-    // Already done?
-    if (PROJECTS) { return PROJECTS; }
+
+    PROJECTS = [];
 
     // Look through everything in the Projects folder to see if it's a project
     var projs = fs.readdirSync(CONFIGS.projectFolder);
@@ -299,12 +388,20 @@ function lookupProjects() {
 
             var pconfig = JSON.parse(f);
 
+            // Store that this is a project
+            PROJECTS.push({
+                key: projs[i],
+                name: pconfig.name,
+                documentRoot: CONFIGS.projectFolder + '/' + projs[i],
+            });
+
+            // Create a menu item
             output.push({
                 // Common attributes for all project definitions
                 key: projs[i],
                 name: pconfig.name,
-                documentRoot: CONFIGS.projectFolder + '/' + projs[i],
                 // Special attributes for the OS menu
+                documentRoot: CONFIGS.projectFolder + '/' + projs[i],
                 click: openProject,
                 label: pconfig.name,
             });
@@ -320,6 +417,7 @@ function lookupProjects() {
     }
 
     // Sort the projects alphabetically by name (for lack of a better plan)
+    // But REVERSE so we can insert them
     output.sort(function(a,b) {
         if (a.name < b.name) {
             return -1;
@@ -332,19 +430,70 @@ function lookupProjects() {
           return 0;
     });
 
-    // Do the binding here so there'se no async risk
-    PROJECTS = output;
-    return PROJECTS;
+    // Add a link to open the folder
+    output.push({ type: 'separator'});
+    output.push({
+        label: 'Go to Projects Folder',
+        click: function() {
+            electron.shell.showItemInFolder(CONFIGS.projectFolder);
+        },
+    });
+    output.push({
+        label: 'Change Projects Folder...',
+        click: function() {
+            dialog.showOpenDialog({properties:['openDirectory']}, function(d) {
+                if (!d) { return; }
 
+                CONFIGS.projectFolder = d[0];
+                saveConfig();
+                createMenus();
+
+            });
+        }
+    });
+    output.push( { type: 'separator' });
+    output.push( {
+        label: 'Browse Cloud Projects...',
+        click: function() {
+
+            // Create a new window to show the loader
+            let child = new BrowserWindow({
+                modal: true,
+                show: false
+            });
+
+            // Create a node-formatted url for the loader window
+            let url = require('url').format({
+              protocol: 'file',
+              slashes: true,
+              pathname: require('path').join(__dirname, '/templates/loader.html')
+            });
+
+            child.loadURL(url);
+            child.once('ready-to-show', () => {
+              child.show();
+              if (DEBUG_MODE) { child.webContents.openDevTools(); }
+
+              // If the loader window broadcasts a project, handle it
+              ipcMain.once('open-project', function(evt,projectDef) {
+                openProject(projectDef);
+                child.close();
+              });
+            });
+        }
+    });
+
+    return output;
 }
 
 function openProject(proj) {
     // Check the config for a documentRoot, which is all we need
-    if (proj.documentRoot) {
+    // Or null, to clear out any projects
+    if (proj.documentRoot || proj===null) {
         mainWindow.webContents.send('open-project',proj);
     }
     else {
-        console.error('No known project format');
+        console.error('No project documentRoot, unable to process',proj);
     }
 
     // Remember that we opened this!
@@ -354,11 +503,53 @@ function openProject(proj) {
     }
 }
 
+function openProjectCreator() {
+    var modal = createModalWindow('creator');
+    // If the loader window broadcasts a project, handle it
+    ipcMain.once('create-project', function(evt,project) {
+        createProject(project);
+        modal.close();
+    });
+
+}
+
 function saveConfig() {
     console.info("Saving configuration", CONFIGS)
     fs.writeFile(CONFIG_PATH,JSON.stringify(CONFIGS), function(err) {
         console.error(err);
     });
+}
+
+function saveProject(evt, project) {
+    console.info('Saving project!', project);
+
+    // TODO: Implement a JSON schema validation method to streamline this
+
+    function stripProps(obj) {
+        // STRIP INTERNALS
+        for (var prop in obj) {
+            if (obj.hasOwnProperty(prop)) {
+                if ( prop.indexOf('$')===0 || prop.indexOf('_')===0 || prop.indexOf('_')===prop.length-1) {
+                    delete(obj[prop]);
+                }
+                // Recursion?
+                else if (Array.isArray(obj[prop])) {
+                    for (var i in obj[prop]) {
+                        stripProps(obj[prop][i]);
+                    }
+                }
+                else if (typeof(obj[prop])==='object') {
+                    stripProps(obj[prop])
+                }
+            }
+        }
+    }
+
+    stripProps(project);
+
+    fs.writeFile(CONFIGS.projectFolder+'/'+project.key+'/layout',
+        JSON.stringify(project));
+
 }
 
 function toggleDJMode() {

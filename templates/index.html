@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html ng-app="SyntheaApp" >
+<head>
+	<!-- <title>Synthea</title> -->
+	<meta charset="UTF-8">
+	<base href="../" />
+	<!-- <script src="./lib/angular-1.3.4/angular.min.js"></script> -->
+	<!-- <script src="./synthea.js"></script> -->
+	<script>
+		window.angular = require('angular');
+		require('angular-material');
+		require('angular-route');
+		const synthea = require('../scripts/SyntheaApp.js');
+	</script>
+
+	<link rel="stylesheet" href="node_modules/angular-material/angular-material.min.css">
+	<link rel="stylesheet" href="assets/synthea.css">
+	<link rel="icon"
+	      type="image/png"
+	      href="assets/synthea_icon_cropped.png" />
+	<link rel="icon" type="image/x-icon" href="assets/synthea_flat.ico" />
+</head>
+<body ng-controller="SyntheaController as sVm" class="nostealth"
+layout="column" layout-fill>
+
+
+	<div id="page-bannersection"
+	ng-style="{'background-image':sVm.project.bannerImage_}"
+	ng-class="{'hasBanner': sVm.project.bannerImage_}"
+	>
+
+		<md-toolbar id="page-header" class="md-hue-2" layout="row"
+
+		flex="none">
+			<div flex="none" id="logo"></div>
+
+			<div id="title" flex>
+				<span id="title-text"
+				ng-bind="sVm.project.name || 'Synthea'"></span>
+			</div>
+
+			<!-- Balance the centering with the logo -->
+			<div flex="none" id="logo-offset">
+			</div>
+
+		</md-toolbar>
+
+		<!--
+		<div id="page-tabs"
+		flex="none" layout="row">
+			<span flex></span>
+			<div class="page-tab-container" flex="none"
+			ng-repeat="page in sVm.project.pages">
+				<div class="page-tab"
+				ng-bind="page.name"
+				ng-click="sVm.selectPage(page)"
+				ng-class="{'current': page == sVm.currentPage}"></div>
+			</div>
+			<span flex></span>
+		</div>
+		-->
+	</div>
+
+	<md-content flex layout="column" id="page-container" ng-view></md-content>
+
+
+</body>

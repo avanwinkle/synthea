@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html ng-app="SyntheaCreatorApp">
+<head>
+    <base href="../">
+    <title>Create a Project</title>
+    <script>
+        window.angular = require('angular');
+        const angularMaterial = require('angular-material');
+        // const howler = require('howler');
+        const synthea = require('../scripts/SyntheaCreatorApp.js');
+    </script>
+    <link rel="stylesheet" href="node_modules/angular-material/angular-material.min.css">
+    <link rel="stylesheet" href="assets/synthea.css">
+</head>
+<body id="synCreator" class="modal-body"
+ng-controller="SyntheaCreatorController as scVm">
+
+
+    <form name="synCreatorForm" class="modal-content">
+
+        <div class="modal-title">Create a New Project</div>
+
+        <div class="modal-desc">This early prototype allows you
+        to make your own Synthea projects. Neat!</div>
+
+        <div layout="column" class="">
+
+            <div>
+                <md-input-container>
+                    <label>Project Name</label>
+                    <input ng-model="scVm.project.name"
+                    md-no-asterisk="true"
+                    placeholder="My New Soundboard"
+                    required="required"></input>
+                    <div class="hint">The displayed name of your project</div>
+                </md-input-container>
+            </div>
+
+            <div>
+                <md-input-container class="md-accent">
+                    <label>Folder Name</label>
+                    <input ng-model="scVm.project.key"
+                    md-no-asterisk="true"
+                    placeholder="myboard"
+                    required="required"></input>
+                    <div class="hint">We'll create a folder for your files</div>
+                </md-input-container>
+            </div>
+
+            <div>
+                <md-input-container>
+                    <label>First Page Name</label>
+                    <input ng-model="scVm.project.pages[0].name"
+                    md-no-asterisk="true"
+                    placeholder="Page One"
+                    required="required"></input>
+                    <div class="hint">You need one page to get started</div>
+                </md-input-container>
+            </div>
+
+        </div>
+
+        <div id="loader-footer">
+            <md-button class="cancelbutton"
+            ng-click="scVm.close()">Cancel</md-button>
+            <span flex></span>
+            <md-button class="md-accent"
+            ng-disabled="synCreatorForm.$invalid"
+            ng-click="scVm.createProject()">
+                Create Project
+            </md-button>
+        </div>
+    </form>
+
+</body>
+</html>

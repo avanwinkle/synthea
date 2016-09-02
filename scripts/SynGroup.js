@@ -110,7 +110,7 @@ function SynGroup(SynChannel) {
         var channel = this.findAvailableChannel(cue);
 
         // Let's keep track of how many groups and channels we're racking up
-        console.log((autoplay ? 'Playing':'Queuing') + cue.name +
+        console.log((autoplay ? 'Playing ':'Queuing ') + cue.name +
             ' on '+this.name+' group, channel '+channel._id);
 
         // Is this channel already playing THIS cue?

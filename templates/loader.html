@@ -1,35 +1,39 @@
 <!DOCTYPE html>
 <html ng-app="SyntheaLoaderApp">
 <head>
+    <base href="../">
     <title>Cloud Projects</title>
     <script>
         window.angular = require('angular');
         const angularMaterial = require('angular-material');
         // const howler = require('howler');
-        const synthea = require('./scripts/SyntheaLoaderApp.js');
+        const synthea = require('../scripts/SyntheaLoaderApp.js');
     </script>
     <link rel="stylesheet" href="node_modules/angular-material/angular-material.min.css">
     <link rel="stylesheet" href="assets/synthea.css">
 </head>
-<body id="synLoader" ng-controller="SyntheaLoaderController as slVm">
+<body id="synLoader" class="modal-body"
+ng-controller="SyntheaLoaderController as slVm">
 
 
-    <div id="synLoader-content">
+    <div class="modal-content">
 
-        <div id="loader-title">Synthea Cloud Projects</div>
-        <div id="loader-desc">
+        <div class="modal-title">Synthea Cloud Projects</div>
+        <div class="modal-desc">
             These example projects are real-world uses of Synthea
             in live unscripted theater. All audio contents are property
-            of their respective owners.</div>
+            of their respective owners.
+        </div>
         <div>
             <div ng-repeat="proj in slVm.projects | orderBy: 'name'">
                 <md-button ng-click="slVm.loadProject(proj)"
                 ng-bind="proj.name" aria-label="proj.name"></md-button>
             </div>
         </div>
-        <div id="loader-footer">
+        <div class="modal-footer" layout="row">
             <md-button class="cancelbutton"
             ng-click="slVm.close()">Cancel</md-button>
+            <span flex>
         </div>
     </div>
 
