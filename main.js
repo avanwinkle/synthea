@@ -22,7 +22,7 @@ let PROJECTS = [];
 // Keep a reference on what we're doing in the main window
 
 // HEY LISTEN! Developers, wanna see what's going on? TURN THIS ON!!
-const DEBUG_MODE = false;
+let DEBUG_MODE = false;
 
 function addMediaToProject(evt,pkey) {
 
@@ -149,6 +149,10 @@ function createMenus() {
             submenu: [
                 {
                     role: 'about',
+                },
+                {
+                    label: 'Enable Debug Mode',
+                    click: enableDebugMode,
                 },
                 {
                     type: 'separator',
@@ -283,6 +287,11 @@ function editProject(menuItem) {
         }
     }
     mainWindow.webContents.send('edit-project');
+}
+
+function enableDebugMode() {
+    DEBUG_MODE = true;
+    mainWindow.webContents.openDevTools();
 }
 
 function getProjectMedia(evt,proj) {

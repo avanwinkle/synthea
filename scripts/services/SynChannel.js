@@ -5,15 +5,18 @@ angular
     .module('SyntheaApp')
     .factory('SynChannel', SynChannel);
 
-SynChannel.$inject = ['$interval','$q','$timeout'];
+SynChannel.$inject = ['SynProject','$interval','$q','$timeout'];
 
-function SynChannel($interval,$q,$timeout) {
+function SynChannel(SynProject,$interval,$q,$timeout) {
 
 
     // Track our channel counts so we can assign global ids
     var cidx = 0;
     // Store what "full" volume is, so we can consistently fade in/out of it
     const MAX_VOLUME = 0.5;
+
+    // Store our project configs so we can reference fading preferences
+    const PROJECT_CONFIG = SynProject.getProject().config;
 
 
     /**
@@ -42,10 +45,6 @@ function SynChannel($interval,$q,$timeout) {
         // trigger stopExcept() if this channel is part of an Exclusive Group
         this._subgroup = subgroup;
 
-        // Default ins and outs come from the options, but hardcode a fallback?
-        this.fadeInDuration_ = opts.fadeIn || 0;
-        this.fadeOutDuration_ = opts.fadeOut || 2000;
-
         // Web Audio for cloud-based projects, direct for local
         this.useWebAudio = opts.useWebAudio;
 
@@ -57,20 +56,26 @@ function SynChannel($interval,$q,$timeout) {
      * callbacks and fewer listeners. This is a private method, as fading
      * is done automatically on changes in playback state.
      *
+     * If a cue should not be faded in from zero, a `startingLevel` can be
+     * passed and the fade-in will start there.
+     *
      * @private
-     * @param  {string} direction - one of 'in' or 'out'
-     * @return {promise} a promise, resolved when the fade is complete
+     * @param  {string} direction One of 'in' or 'out'
+     * @param  {integer} startingLevel Volume at which to start the fade-in
+     * @return {promise} A promise, resolved when the fade is complete
      */
-    Channel.prototype.fade_ = function(direction) {
+    Channel.prototype.fade_ = function(direction,startingLevel) {
 
         var start, end, duration;
         var defer = $q.defer();
 
         switch (direction) {
             case 'in':
-                start = 0;
+                start = startingLevel ?
+                    // Constrain the start between zero and maximum volume
+                    Math.min(Math.max(startingLevel,0),MAX_VOLUME) : 0;
                 end = MAX_VOLUME;
-                duration = this.fadeInDuration_;
+                duration = PROJECT_CONFIG.fadeInDuration;
                 break;
             case 'out':
                 // AVW: If a double-fade is somehow triggered, this could
@@ -78,37 +83,108 @@ function SynChannel($interval,$q,$timeout) {
                 // downside to starting at this._player.volume() ?
                 start = MAX_VOLUME;
                 end = 0;
-                duration = this.fadeOutDuration_;
+                duration = PROJECT_CONFIG.fadeOutDuration;
         }
 
         // Make the fade
         this._player.fade(start,end,duration);
         // Resolve the promise, which triggers a $scope.digest?
         this._player.once('fade', function() {
-            defer.resolve();
+            defer.resolve(duration);
         });
 
         return defer.promise;
     };
 
-    // Convenience methods for binding to the internal methods
-    Channel.prototype.fadeIn_ = function(duration) {
-        return this.fade_('in');
+    /**
+     * Fade in the Channel and return a promise that is resolved when the
+     * fade-in is complete.
+     *
+     * @return {promise}
+     */
+    Channel.prototype._fadeIn = function() {
+
+        // Mazlow's hierarchy of fade-in priorities
+        //---------------------------------------------------
+        var isFadeIn;
+        // console.log("Fade in priority:")
+        // FIRST PRIORITY: A hotkey override stored on the channel
+        if (typeof(this.forceFadeIn) === 'boolean') {
+            isFadeIn = this.forceFadeIn;
+            // console.log('--forced');
+        }
+        // SECOND PRIORITY: The cue itself
+        else if (typeof(this.media.isFadeIn) === 'boolean') {
+            isFadeIn = this.media.isFadeIn;
+            // console.log('--media');
+        }
+        // THIRD PRIORITY: The subgroup we're in
+        else if (typeof(this._subgroup.opts.isFadeIn) === 'boolean') {
+            isFadeIn = this._subgroup.opts.isFadeIn;
+            // console.log('--subgroup');
+        }
+        // FOURTH PRIORITY: The project default
+        else {
+            isFadeIn = PROJECT_CONFIG.isFadeIn;
+            // console.log('--project');
+        }
+
+        // Do we ACTUALLY fade in?
+        if (isFadeIn) {
+            // Set the volume to zero for fade-in goodness
+            this._player.volume(0);
+            // Start playing before we start the fade, to ensure smoothness
+            this._player.play();
+            // Return the promise from the fade_() method
+            return this.fade_('in');
+        }
+        else {
+            // Create a promise to resolve ourselves
+            var fadeprom = $q.defer();
+            // Set the channel to full volume
+            this._player.volume(MAX_VOLUME);
+            // Play immediately
+            this._player.play();
+            // Resolve immediately so the "fade" is complete (duration == 0)
+            fadeprom.resolve(0);
+            // Return the promise
+            return fadeprom.promise;
+        }
+
     };
 
-    Channel.prototype.fadeOut_ = function(duration) {
+    /**
+     * Convenience method to fade out this channel. Returns a promise when
+     * the channel is fully faded out (this.state has changed).
+     *
+     * @return {promise}
+     */
+    Channel.prototype._fadeOut = function() {
         return this.fade_('out');
     };
 
+    /**
+     * Wrapper method for getting the media duration
+     * @return {Float} Seconds of duration
+     */
     Channel.prototype.getDuration = function() {
         return this._player.duration();
     };
 
+    /**
+     * Wrapper method for getting the current playback position of the media
+     * @return {Float} Seconds elapsed
+     */
     Channel.prototype.getTime = function() {
         return this._player.seek();
     };
 
-    // There are numerous ways to define "available", which we consolidate here
+    /**
+     * Convenience method for determining whether this Channel is eligible to
+     * load a new cue. Checks against the player and state.
+     *
+     * @return {Boolean} True if this Channel is available, false if not
+     */
     Channel.prototype.isAvailable = function() {
         return !this._player ||
                this.state === 'ENDED' ||
@@ -116,10 +192,18 @@ function SynChannel($interval,$q,$timeout) {
                ;
     };
 
-    // The big kahuna: create a Howl object for a sound cue and create various
-    // listeners and callbacks based on the cues parameters and user's actions
-    Channel.prototype.loadCue = function(cue,autoplay) {
-
+    /**
+     * The big kahuna: create a player object (currently a Howl) for a cue object
+     * and establish various listeners and callbacks based on the cues options.
+     *
+     * @param  {cue} cue The cue object to be loaded
+     * @param  {object} opts An optional object with additional configurations
+     * @return {promise} A promise resolved when the cue is ready for playback
+     */
+    Channel.prototype.loadCue = function(cue,opts) {
+        // Force opts
+        opts = opts || {};
+        console.log("loading cue with options",opts)
         // Loading a cue returns a promise, to be resolved when the cue is ready
         var defer = $q.defer();
 
@@ -130,7 +214,7 @@ function SynChannel($interval,$q,$timeout) {
         // avoid this privade backref and expose the state publically
         cue._channel = this;
 
-        // We'll make a pointer to the channel to avoid having to bind(this)
+        // We'll make a pointer to the channel to avoid having to .bind(this)
         // on every friggin callback function we make for the Howl
         var channel = this;
 
@@ -145,8 +229,6 @@ function SynChannel($interval,$q,$timeout) {
             // CURRENT SOLUTION: always HTML5 for cloud, never for local
             html5: this.useWebAudio,
             preload: true,
-            // Set volume tu full, unless we have a fadeIn
-            volume: channel.fadeInDuration_ ? 0 : MAX_VOLUME,
             onend: function() {
                 // This event fires at the end of each loop
                 if (!cue.isLoop) {
@@ -160,7 +242,7 @@ function SynChannel($interval,$q,$timeout) {
                 channel.duration = channel._player.duration();
                 defer.resolve(cue);
 
-                if (autoplay) {
+                if (opts.autoplay) {
                     channel.play();
                 }
                 else {
@@ -205,6 +287,10 @@ function SynChannel($interval,$q,$timeout) {
         // A queuing/queued channel is not "current", like a playing/paused is
         this.is_current = false;
 
+        // If we have a fadeIn override, now is the place to set it
+        // Conveniently, this will reset every time a cue is loaded. Hurray!
+        this.forceFadeIn = opts.forceFadeIn;
+
         return defer.promise;
     };
 
@@ -212,7 +298,7 @@ function SynChannel($interval,$q,$timeout) {
 
         this.state = 'PAUSING';
 
-        this.fadeOut_().then(function() {
+        this._fadeOut().then(function() {
             this._player.pause();
             this.state = 'PAUSED';
             this.is_playing = false;
@@ -247,12 +333,9 @@ function SynChannel($interval,$q,$timeout) {
 
         }.bind(this),100);
 
-        // Start playing before we start the fade, to ensure smoothness
-        this._player.volume(0);
-        this._player.play();
-        this.fadeIn_().then(function() {
+        this._fadeIn().then(function(duration) {
             // AVW: Trying to track some fades that don't make it all the way
-            console.log(' -- channel '+this._id+' fade in complete');
+            console.log(' -- channel '+this._id+' fade in complete ('+duration+'ms)');
         }.bind(this));
 
         // If we are playing an Exclusive Group, cancel the rest of the subgroup
@@ -269,7 +352,10 @@ function SynChannel($interval,$q,$timeout) {
         this._player.loop(this.media.isLoop);
     };
 
-    // Public binding of private seek method to set an explicit time
+    /**
+     * Wrapper method for setting the playback position of the media
+     * @param {float}
+     */
     Channel.prototype.setTime = function(targetTime) {
         this._player.seek(targetTime || this.currentTime);
     };
@@ -304,7 +390,7 @@ function SynChannel($interval,$q,$timeout) {
 
         // Are we playing? Fade out before we stop
         if (this.is_playing) {
-            this.fadeOut_().then(stopFn);
+            this._fadeOut().then(stopFn);
         }
         // If not? Death immediately!
         else {

@@ -30,13 +30,17 @@ layout="column" layout-fill>
 	>
 
 		<md-toolbar id="page-header" class="md-hue-2" layout="row"
-
 		flex="none">
 			<div flex="none" id="logo"></div>
 
-			<div id="title" flex>
-				<span id="title-text"
-				ng-bind="sVm.project.name || 'Synthea'"></span>
+			<div id="title" flex layout="column">
+				<div id="title-text"
+				ng-bind="sVm.project.name || 'Synthea'"></div>
+				<div class="title-option">
+					<span ng-click="sVm.project.config.isFadeIn = !sVm.project.config.isFadeIn">
+						Fade-In: {{sVm.project.config.isFadeIn ? 'On' : 'Off'}}
+					</span>
+				</div>
 			</div>
 
 			<!-- Balance the centering with the logo -->
@@ -45,20 +49,7 @@ layout="column" layout-fill>
 
 		</md-toolbar>
 
-		<!--
-		<div id="page-tabs"
-		flex="none" layout="row">
-			<span flex></span>
-			<div class="page-tab-container" flex="none"
-			ng-repeat="page in sVm.project.pages">
-				<div class="page-tab"
-				ng-bind="page.name"
-				ng-click="sVm.selectPage(page)"
-				ng-class="{'current': page == sVm.currentPage}"></div>
-			</div>
-			<span flex></span>
-		</div>
-		-->
+
 	</div>
 
 	<md-content flex layout="column" id="page-container" ng-view></md-content>

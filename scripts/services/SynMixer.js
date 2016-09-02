@@ -46,13 +46,10 @@ function SynMixer(SynSubgroup,SynProject) {
 
         /**
          * A mapping of all the available Subgroups in the Mixer. By default
-         * the reserved names "MUSIC_" and "COMMON_" are populated.
+         * the names "__MUSIC__" and "__COMMON__" are reserved.
          * @type {Object}
          */
-        this.subgroups = {
-            MUSIC_ : new SynSubgroup('MUSIC_',this),
-            COMMON_: new SynSubgroup('COMMON_',this),
-        };
+        this.subgroups = {};
 
         // Global settings from the project
         var p = SynProject.getProject();
@@ -86,11 +83,15 @@ function SynMixer(SynSubgroup,SynProject) {
      * the line from Subgroup to Channel to Player)
      *
      * @param  {Cue} cue - the Cue object to be played
+     * @param {object} opts options to define playback
      * @return {SynChannel}
      */
-    Mixer.prototype.play = function(cue) {
+    Mixer.prototype.play = function(cue, opts) {
+
+        // Accept any incoming options, and add autoplay
+        var options = angular.merge({autoplay: true}, opts);
         // Return the channel on which it plays
-        return this.queue(cue,true);
+        return this.queue(cue, options);
     };
 
     /**
@@ -98,29 +99,21 @@ function SynMixer(SynSubgroup,SynProject) {
      * @param  {boolean} autoplay - whether to begin playback immediately
      * @return {SynChannel}
      */
-    Mixer.prototype.queue = function(cue,autoplay) {
+    Mixer.prototype.queue = function(cue,opts) {
 
         var subname;
 
         // Is there a subgroup for this button?
-        // TODO: migrate all cue JSON from 'group' to 'subgroup'
-        if (cue.group) {
-
-            // Normalize the subgroup names to avoid conflicts
-            subname = cue.group.toLowerCase().replace('_','');
-
-            // Does this subgroup need to be created?
-            if (!this.subgroups.hasOwnProperty(subname)) {
-                this.subgroups[subname] = new SynSubgroup(subname,this);
-            }
-        }
         // If not, use the common subgroup
-        else {
-            subname = 'COMMON_';
+        subname = cue.subgroup || '__COMMON__';
+
+        // Does this subgroup need to be created?
+        if (!this.subgroups.hasOwnProperty(subname)) {
+            this.subgroups[subname] = new SynSubgroup(subname,this);
         }
 
         // Return the channel on which it plays
-        return this.subgroups[subname].queue(cue,autoplay);
+        return this.subgroups[subname].queue(cue,opts);
     };
 
     /**

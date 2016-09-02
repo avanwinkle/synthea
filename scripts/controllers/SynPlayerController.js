@@ -132,8 +132,8 @@ SynPlayerController.prototype.activate =  function() {
 
 };
 
-// Define a "context" action (aka right-click) for a cue button
-SynPlayerController.prototype.contextCue = function(button) {
+// Define a "context" action (aka right-click) for a cue
+SynPlayerController.prototype.contextCue = function(cue,event) {
     this.mixer.queue(cue);
 };
 
@@ -141,7 +141,7 @@ SynPlayerController.prototype.contextCue = function(button) {
 SynPlayerController.prototype.enableDJMode = function() {
 
     // How many new tracks before repeat?
-    const TOTAL_TRACKS = this.project.buttons.length;
+    const TOTAL_TRACKS = this.project.cues.length;
     const PLAY_MEMORY = Math.min( TOTAL_TRACKS, 10);
     let recently_played = [];
 
@@ -153,7 +153,7 @@ SynPlayerController.prototype.enableDJMode = function() {
     // Play a random track
     function getRandomTrack() {
         var tracknum = Math.floor(Math.random() * TOTAL_TRACKS);
-        return syn.project.buttons[ tracknum ];
+        return syn.project.cues[ tracknum ];
     }
 
     function playThatFunkyMusic() {
@@ -225,12 +225,17 @@ SynPlayerController.prototype.selectPage = function(page) {
     this.currentPage = page;
 };
 
-SynPlayerController.prototype.selectCue = function(cue) {
+SynPlayerController.prototype.selectCue = function(cue,event) {
+
+    // We can pass in a "force" value for fadeIn
+    var forceFadeIn;
+    if (event && event.shiftKey) { forceFadeIn = true; }
+    else if (event && event.altKey) { forceFadeIn = false;}
 
     // Use the mixer's method, which handles all the necessary
     // group and channel logic. It returns the channel that the cue
     // gets assigned to.
-    return this.mixer.play(cue);
+    return this.mixer.play(cue,{forceFadeIn: forceFadeIn});
 };
 
 SynPlayerController.prototype.timelineSeek = function(evt, channel) {

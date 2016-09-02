@@ -128,17 +128,18 @@ myProject
     ],
     "cues": [
         {
-            "section_ids": [ 1 ],         // A cue can appear in multiple sections, even pages
-            "sources": ["soundfile.wav"],  // A cue can have multiple source files
+            "section_ids": [ 1, 4 ],     // A cue can appear in multiple sections, even pages
+            "sources": ["soundf.wav"],   // A cue can have multiple source files
             "id": 1000,
             "isLoop": true,              // Looping can be toggled in-app, but cues can be preset
             "name": "Basic Effect",
         },
         {
             "section_ids": [ 1 ],
-            "sources": ["musicfile.mp3"],
-            "group": "MUSIC_",           // A reserved string for the music category
+            "sources": ["music.mp3"],
+            "group": "music",            // The subgroup name for this cue
             "id": 1001,
+            "isFadeIn": false,           // Override the project's fade settings
             "isLoop": false,
             "name": "Music Song"
         }
@@ -151,6 +152,11 @@ myProject
         "Ctrl.Shift.KeyB": {             // Modifier keys are supported
             "action": "PLAY",
             "target": 1000
+        }
+    },
+    "subgroups": {                       // Specific options for any subgroup
+        "rain": {                        // Subgroups here are optional
+            "isFadeIn": true             // Subgroup fades override project fades
         }
     }
 }

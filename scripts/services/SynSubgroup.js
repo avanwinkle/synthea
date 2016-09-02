@@ -5,9 +5,9 @@ angular
     .module('SyntheaApp')
     .factory('SynSubgroup', SynSubgroup);
 
-SynSubgroup.$inject = ['SynChannel'];
+SynSubgroup.$inject = ['SynChannel','SynProject'];
 
-function SynSubgroup(SynChannel) {
+function SynSubgroup(SynChannel,SynProject) {
 
     /*
     The SUBGROUP controls an arbitrary number of CHANNELS and manages any
@@ -48,6 +48,10 @@ function SynSubgroup(SynChannel) {
         this.channels = [];
         // Keep a reference to the master mixer for binding channels
         this._mixer = mixer;
+
+        // We can define custom options from the project file
+        var subgs = SynProject.getProject().subgroups || {};
+        this.opts = subgs[subgroupname] || {};
 
         // Start with a channel for this subgroup
         this.addChannel();
@@ -100,25 +104,30 @@ function SynSubgroup(SynChannel) {
         return ch;
     };
 
-    Subgroup.prototype.play = function(cue) {
+    Subgroup.prototype.play = function(cue,opts) {
+        // Force autoplay, again
+        var options = angular.merge({autoplay:true},opts);
         // Return the channel on which it plays
-        return this.queue(cue,true);
+        return this.queue(cue,options);
     };
 
-    Subgroup.prototype.queue = function(cue,autoplay) {
+    Subgroup.prototype.queue = function(cue,opts) {
+
+        // Force opts
+        opts = opts || {};
 
         // Find an available channel
         var channel = this.findAvailableChannel(cue);
 
         // Let's keep track of how many groups and channels we're racking up
-        console.log((autoplay ? 'Playing ':'Queuing ') + cue.name +
+        console.log((opts.autoplay ? 'Playing ':'Queuing ') + cue.name +
             ' on "'+this.name+'" sub, channel '+channel._id);
 
         // Is this channel already playing THIS cue?
         if (channel.is_current && channel.media === cue) {
 
             // Are we right-clicking? That means stop!
-            if (!autoplay) {
+            if (!opts.autoplay) {
                 channel.stop();
             }
             // Are we paused? Then play!
@@ -135,14 +144,14 @@ function SynSubgroup(SynChannel) {
         // Is this channel already queued with THIS cue?
         else if (channel.is_queued && channel.media === cue) {
             // A right-click? Remove from queue
-            if (!autoplay) {
+            if (!opts.autoplay) {
                 channel.stop();
                 return channel;
             }
         }
 
         // Use the loadCue promise to handle errors in the file
-        channel.loadCue(cue,autoplay).then(function(response) {
+        channel.loadCue(cue,opts).then(function(response) {
             // No handling behavior for successful loading, right now
         }, function(reason) {
             console.warn("Error loading cue ",cue.name);

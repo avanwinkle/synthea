@@ -27,8 +27,8 @@ flex="none" layout="row">
                 aria-label="{{::cue.name}}"
                 ng-disabled="!cue.sources.length"
                 ng-bind="::cue.name"
-                ng-click="spVm.selectCue(cue)"
-                syn-right-click="spVm.contextCue(cue)">
+                ng-click="spVm.selectCue(cue,$event)"
+                syn-right-click="spVm.contextCue(cue,$event)">
                 </md-button>
                 <div class="cueButton-badge channelState-{{cue._channel.state}}"
                 md-whiteframe="1">
