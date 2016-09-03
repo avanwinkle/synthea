@@ -12,19 +12,25 @@
                 flex="none" layout="row"
                 ng-repeat="cue in seVm.project.cues | cuesInSection: section.id as currentCues">
                     <md-button class="cueButton"
-                    aria-label="{{::cue.name}}"
-                    ng-disabled="!cue.files.length"
-                    ng-bind="::cue.name"
-                    ng-click="seVm.selectCue(cue)">
+                    aria-label="{{cue.name}}"
+                    ng-bind="cue.name"
+                    ng-click="seVm.editCue(cue,$event)">
                     </md-button>
+                    <div class="cueButton-badge channelState-ERROR"
+                    ng-if="!cue.sources.length"
+                    md-whiteframe="1">
+                        <div class="badge badge-error">
+                            <svg syn-icon="error" size="22"></svg>
+                        </div>
+                    </div>
                 </div>
                 <div class="cueButton-container" flex="none" layout="row">
-                    <div ng-click="seVm.addCue(currentCues.length,section)">+ Add Cue</div>
+                    <div ng-click="seVm.addCue(currentCues.length,section,$event)">+ Add Cue</div>
                 </div>
             </div>
         </div>
         <div class="section md-card" flex md-padding="2">
-            <div ng-click="seVm.addColumn(currentSections.length)">+ Add Section</div>
+            <div ng-click="seVm.addSection(currentSections.length,$event)">+ Add Section</div>
         </div>
     </div>
 

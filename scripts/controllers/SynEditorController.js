@@ -6,15 +6,17 @@ angular
     .module('SyntheaApp')
     .controller("SynEditorController", SynEditorController);
 
-SynEditorController.$inject = ['SynMixer','SynProject','$log','$q'];
+SynEditorController.$inject = ['SynMixer','SynProject','$log','$mdDialog','$q'];
 
-function SynEditorController(SynMixer,SynProject,$log,$q) {
+function SynEditorController(SynMixer,SynProject,$log,$mdDialog,$q) {
 
     var seVm = this;
     window.seVm = this;
 
     this.project = SynProject.getProject();
     this.projectDef = SynProject.getProjectDef();
+
+    this.$mdDialog_ = $mdDialog;
     this.$q_ = $q;
 
     // Start at the zero page
@@ -22,13 +24,13 @@ function SynEditorController(SynMixer,SynProject,$log,$q) {
 
     // Get an id counter
     this.idCount = 0;
-    var allthings = this.project.pages.concat(this.project.columns, this.project.buttons);
+    var allthings = this.project.pages.concat(
+        this.project.sections, this.project.cues);
     for (var i=0;i<allthings.length;i++) {
         if (allthings[i].id >= this.idCount) {
             this.idCount = allthings[i].id + 1;
         }
     }
-
 
     // Listen for calls to save
     ipcRenderer.on('get-project', function(evt) {
@@ -37,32 +39,46 @@ function SynEditorController(SynMixer,SynProject,$log,$q) {
 
 }
 
-SynEditorController.prototype.activate = function() {
+SynEditorController.prototype.addCue = function(idx, section, $event) {
 
-    this.getProjectMediaList().then(function(media) {
-        this.media = media;
-    }.bind(this));
-};
-
-SynEditorController.prototype.addColumn = function(idx) {
-    this.project.columns.push({
+    var newCue = {
         id: this.idCount++,
-        name: 'new column '+idx,
-        page_id: this.currentPage.id,
-        display_order: idx,
-        // _buttons: [],
-    });
-};
-
-SynEditorController.prototype.addCue = function(idx, column) {
-    var cue = {
-        id: this.idCount++,
-        files: [],
-        name: 'new button '+idx,
-        column_ids: [column.id],
+        sources: [],
+        name: 'new cue '+idx,
+        section_ids: [section.id],
         display_order: idx,
     };
-    this.project.buttons.push(cue);
+
+    // Make a cue in the cue editing modal
+    this.editCue(newCue,$event).then(function(response) {
+        this.project.cues.push(newCue);
+        // Try it this way: store the cue ids on the sections, rather than vice versa
+        if (!section.cue_ids) {
+            section.cue_ids = [];
+        }
+        section.cue_ids.push(newCue.id);
+    }.bind(this));
+
+};
+
+SynEditorController.prototype.addSection = function(idx,$event) {
+
+    var prompt = this.$mdDialog_.prompt()
+        .title('Name for this Section')
+        .targetEvent($event)
+        .ok('Add Section')
+        .cancel('Cancel');
+
+    this.$mdDialog_.show(prompt).then(function(result) {
+        this.project.sections.push({
+            id: this.idCount++,
+            name: 'new section '+idx,
+            page_id: this.currentPage.id,
+            display_order: idx,
+            cue_ids: [],
+        });
+    }.bind(this));
+
 };
 
 SynEditorController.prototype.copyMediaToProject = function() {
@@ -88,6 +104,30 @@ SynEditorController.prototype.copyMediaToProject = function() {
     }.bind(this));
 };
 
+SynEditorController.prototype.editCue = function(cue,$event) {
+
+    // Make our own promise so we can intercept the response if needed
+    var defer = this.$q_.defer();
+    var mediaProm = this.getProjectMediaList();
+
+    this.$mdDialog_.show({
+        bindToController: true,
+        controller: 'SynEditCueController',
+        controllerAs: 'secVm',
+        locals: {
+            cue: cue,
+            // $mdDialog will automatically bind the result
+            // of the promise to this local variable
+            mediaList: mediaProm,
+        },
+        templateUrl: 'templates/modals/edit-cue.html',
+        targetEv: $event,
+    }).then(
+        // We don't actually have any interceptions yet...
+        defer.resolve, defer.reject);
+
+    return defer.promise;
+};
 
 SynEditorController.prototype.getProjectMediaList = function() {
 

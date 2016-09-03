@@ -45,14 +45,15 @@ function SyntheaAppRun() {
 }
 
 require('howler');
-require('./SyntheaCore.js');
-require('./controllers/SyntheaController.js');
+require('./SyntheaCore');
+require('./controllers/SyntheaController');
+require('./controllers/SynEditCueController');
 require('./controllers/SynEditorController');
 require('./controllers/SynPlayerController');
-require('./services/SynChannel.js');
-require('./services/SynMixer.js');
-require('./services/SynProject.js');
-require('./services/SynSubgroup.js');
+require('./services/SynChannel');
+require('./services/SynMixer');
+require('./services/SynProject');
+require('./services/SynSubgroup');
 
 // IIFE
 })();

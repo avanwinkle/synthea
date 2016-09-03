@@ -1,0 +1,27 @@
+<div>Edit This Cue!</div>
+
+<form>
+    <md-input-container>
+        <label>Name</label>
+        <input ng-model="secVm.cue.name">
+    </md-input-container>
+    <md-button ng-click="secVm.activate()">Fetch Media</md-button>
+    <select multiple
+        ng-model="secVm.cue.sources"
+        ng-options="file for file in secVm.mediaList">
+    </select>
+</form>
+
+<div layout="row">
+    <div>
+        <md-button ng-click="secVm.$cancel()">
+            Cancel
+        </md-button>
+    </div>
+    <span flex></span>
+    <div>
+        <md-button ng-click="secVm.$close(secVm.cue)">
+            Save
+        </md-button>
+    </div>
+</div>
