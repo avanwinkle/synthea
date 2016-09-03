@@ -1,16 +1,65 @@
-<div ng-init="seVm.activate()">
+<div id="page-headergroup"
+ng-style="{'background-image':sVm.project.bannerImage_}"
+ng-class="{'hasBanner': sVm.project.bannerImage_}"
+>
 
-    <div>Edit a project</div>
+
+    <md-toolbar id="page-header-container" class="md-hue-2" layout="row"
+    flex="none">
+        <div flex="none" id="page-header-logo"></div>
+
+        <div id="page-header" flex layout="column">
+            <div class="page-title"
+            ng-bind="sVm.project.name || 'Synthea'"></div>
+            <div class="page-option-container">
+                <span class="page-option"
+                ng-click="sVm.project.config.isFadeIn = !sVm.project.config.isFadeIn">
+                    Fade-In: {{sVm.project.config.isFadeIn ? 'On' : 'Off'}}
+                </span>
+            </div>
+        </div>
+
+        <!-- Balance the centering with the logo -->
+        <div flex="none" id="logo-offset">
+        </div>
+
+    </md-toolbar>
+
+    <div id="page-tabs" flex="none" layout="row">
+        <span flex></span>
+        <div class="page-tab-container" flex="none"
+        ng-repeat="page in sVm.project.pages">
+            <div class="page-tab"
+            ng-bind="page.name"
+            ng-click="sVm.selectPage(page)"
+            ng-class="{'current': page == sVm.currentPage}"></div>
+        </div>
+
+        <md-button
+        style="margin:0 16px;"
+        ng-click="seVm.addPage($event)">
+            + Add Page
+        </md-button>
+
+        <span flex></span>
+    </div>
+
+</div>
+
+
+
+<md-content flex layout="column" id="page-container">
+
 
     <div  layout="row" flex layout-wrap id="page-container-content">
-        <div class="column md-card" flex
+        <div class="section md-card" flex
         md-padding="2"
-        ng-repeat="section in seVm.project.sections | filter: {'page_id': seVm.currentPage.id} as currentSections">
+        ng-repeat="section in sVm.project.sections | filter: {'page_id': sVm.currentPage.id} :true as currentSections">
             <div class="section-header" ng-bind="section.name"></div>
             <div class="section-container" layout="column">
                 <div class="cueButton-container"
                 flex="none" layout="row"
-                ng-repeat="cue in seVm.project.cues | cuesInSection: section.id as currentCues">
+                ng-repeat="cue in sVm.project.cues | cuesInSection: section.id as currentCues">
                     <md-button class="cueButton"
                     aria-label="{{cue.name}}"
                     ng-bind="cue.name"
@@ -24,20 +73,47 @@
                         </div>
                     </div>
                 </div>
-                <div class="cueButton-container" flex="none" layout="row">
-                    <md-button ng-click="seVm.addCue(currentCues.length,section,$event)">
+                <div class="cueButton-container"
+                flex="none" layout="row">
+                    <md-button class="md-accent editor-addbutton"
+                    ng-click="seVm.addCue(currentCues.length,section,$event)">
                         + Add Cue
                     </md-button>
                 </div>
             </div>
         </div>
-        <div class="section md-card" flex md-padding="2">
-            <div ng-click="seVm.addSection(currentSections.length,$event)">+ Add Section</div>
+        <div class="section md-card" flex>
+            <md-button class="md-accent" ng-click="seVm.addSection(currentSections.length,sVm.currentPage.id,$event)">+ Add Section</md-button>
         </div>
     </div>
 
-    <button ng-click="seVm.copyMediaToProject()">Copy Media</button>
-
     <div ng-repeat="medium in seVm.media" ng-bind="medium"></div>
 
-</div>
+</md-content>
+
+<md-toolbar id="edit-toolbar" layout="row"
+class="md-accent md-hue-2">
+    <div class="md-toolbar-tools" layout="row">
+        <h2>Edit Project</h2>
+        <span flex></span>
+        <md-button class="md-icon-button"
+        ng-click="seVm.copyMediaToProject()"
+        aria-label="Add Media">
+            <md-icon>
+                <svg syn-icon="library_add"></svg>
+            </md-icon>
+            <md-tooltip md-direction="top" md-delay="200">
+                Add Media to Project
+            </md-tooltip>
+        </md-button>
+        <md-button class="md-icon-button"
+        aria-label="Project Settings">
+            <md-icon>
+                <svg syn-icon="settings_application"></svg>
+            </md-icon>
+            <md-tooltip md-direction="top" md-delay="200">
+                Project Settings
+            </md-tooltip>
+        </md-button>
+    </div>
+</md-toolbar>

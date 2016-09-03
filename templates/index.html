@@ -23,38 +23,8 @@
 	<link rel="icon" type="image/x-icon" href="assets/synthea_flat.ico" />
 </head>
 <body ng-controller="SyntheaController as sVm" class="nostealth"
-layout="column" layout-fill>
+>
 
-
-	<div id="page-bannersection"
-	ng-style="{'background-image':sVm.project.bannerImage_}"
-	ng-class="{'hasBanner': sVm.project.bannerImage_}"
-	>
-
-		<md-toolbar id="page-header" class="md-hue-2" layout="row"
-		flex="none">
-			<div flex="none" id="logo"></div>
-
-			<div id="title" flex layout="column">
-				<div id="title-text"
-				ng-bind="sVm.project.name || 'Synthea'"></div>
-				<div class="title-option">
-					<span ng-click="sVm.project.config.isFadeIn = !sVm.project.config.isFadeIn">
-						Fade-In: {{sVm.project.config.isFadeIn ? 'On' : 'Off'}}
-					</span>
-				</div>
-			</div>
-
-			<!-- Balance the centering with the logo -->
-			<div flex="none" id="logo-offset">
-			</div>
-
-		</md-toolbar>
-
-
-	</div>
-
-	<md-content flex layout="column" id="page-container" ng-view></md-content>
-
+	<div layout="column" layout-fill ng-view></div>
 
 </body>

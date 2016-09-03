@@ -43,7 +43,6 @@ SynEditorController.prototype.addCue = function(idx, section, $event) {
 
     var newCue = {
         sources: [],
-        name: 'new cue '+idx,
         section_ids: [section.id],
         display_order: idx,
     };
@@ -62,19 +61,41 @@ SynEditorController.prototype.addCue = function(idx, section, $event) {
 
 };
 
-SynEditorController.prototype.addSection = function(idx,$event) {
+SynEditorController.prototype.addPage = function($event) {
+
+    var prompt = this.$mdDialog_.prompt()
+        .title('Name for this Page')
+        .targetEvent($event)
+        .ok('Add Page')
+        .cancel('Cancel')
+        .theme('default');
+
+    this.$mdDialog_.show(prompt).then(function(result) {
+        this.project.pages.push({
+            id: this.idCount++,
+            name: result,
+            page_id: this.currentPage.id,
+            display_order: this.project.pages.length,
+            cue_ids: [],
+        });
+    }.bind(this));
+
+};
+
+SynEditorController.prototype.addSection = function(idx,page_id,$event) {
 
     var prompt = this.$mdDialog_.prompt()
         .title('Name for this Section')
         .targetEvent($event)
         .ok('Add Section')
-        .cancel('Cancel');
+        .cancel('Cancel')
+        .theme('pink');
 
     this.$mdDialog_.show(prompt).then(function(result) {
         this.project.sections.push({
             id: this.idCount++,
-            name: 'new section '+idx,
-            page_id: this.currentPage.id,
+            name: result,
+            page_id: page_id,
             display_order: idx,
             cue_ids: [],
         });
@@ -116,16 +137,17 @@ SynEditorController.prototype.editCue = function(cue,$event) {
         controller: 'SynEditCueController',
         controllerAs: 'secVm',
         locals: {
-            cue: cue,
+            // Send a copy
+            cue: angular.copy(cue),
             // $mdDialog will automatically bind the result
             // of the promise to this local variable
             mediaList: mediaProm,
         },
         templateUrl: 'templates/modals/edit-cue.html',
         targetEv: $event,
-    }).then(function(reason) {
+    }).then(function(response) {
         // A 'null' response means DELETE THIS CUE! :-O
-        if (reason===null) {
+        if (response===null) {
             // Splice from the list of cues
             this.project.cues.splice(
                 this.project.cues.indexOf(cue),1);
@@ -141,7 +163,9 @@ SynEditorController.prototype.editCue = function(cue,$event) {
         }
         // If it's not null, then it's our new cue!
         else {
-            defer.resolve(reason);
+            // Merge the copy's changes back on
+            angular.merge(cue,response);
+            defer.resolve(cue);
         }
 
     }.bind(this), defer.reject);

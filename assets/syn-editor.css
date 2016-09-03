@@ -6,3 +6,9 @@
     opacity: 1; }
   to {
     opacity: 0; } }
+
+#edit-toolbar .syn-icon {
+  fill: #fff; }
+
+.editor-addbutton {
+  margin: 0 auto; }

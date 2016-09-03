@@ -1,28 +1,25 @@
 
+<div id="page-headergroup"
+ng-style="{'background-image':sVm.project.bannerImage_}"
+ng-class="{'hasBanner': sVm.project.bannerImage_}"
+ng-include="'templates/partials/header-player.html'"
+>
 
-<div id="page-tabs"
-style="position:fixed;top:90px;left:0;right:0;background-color:rgba(0,0,0,0.4);z-index:10;"
-flex="none" layout="row">
-    <span flex></span>
-    <div class="page-tab-container" flex="none"
-    ng-repeat="page in spVm.project.pages">
-        <div class="page-tab"
-        ng-bind="page.name"
-        ng-click="spVm.selectPage(page)"
-        ng-class="{'current': page == spVm.currentPage}"></div>
-    </div>
-    <span flex></span>
 </div>
+
+
+
+<md-content flex layout="column" id="page-container">
 
 <div  layout="row" flex layout-wrap id="page-container-content">
     <div class="section md-card" flex
     md-padding="2"
-    ng-repeat="section in spVm.project.sections | filter: {'page_id': spVm.currentPage.id}">
+    ng-repeat="section in sVm.project.sections | filter: {'page_id': sVm.currentPage.id} : true">
         <div class="section-header" ng-bind="section.name"></div>
         <div class="section-container" layout="column">
             <div class="cueButton-container"
             flex="none" layout="row"
-            ng-repeat="cue in ::spVm.project.cues | cuesInSection: section.id">
+            ng-repeat="cue in ::sVm.project.cues | cuesInSection: section.id">
                 <md-button class="cueButton"
                 aria-label="{{::cue.name}}"
                 ng-disabled="!cue.sources.length"
@@ -51,6 +48,7 @@ flex="none" layout="row">
     </div>
 </div>
 
+</md-content>
 
 <div id="queuedTracks">
     <div class="track-container-title" ng-if="queuedTracks.length">Queued</div>

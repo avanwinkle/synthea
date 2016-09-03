@@ -1,0 +1,33 @@
+
+    <md-toolbar id="page-header-container" class="md-hue-2" layout="row"
+    flex="none">
+        <div flex="none" id="page-header-logo"></div>
+
+        <div id="page-header" flex layout="column">
+            <div class="page-title"
+            ng-bind="sVm.project.name || 'Synthea'"></div>
+            <div class="page-option-container">
+                <span class="page-option"
+                ng-click="sVm.project.config.isFadeIn = !sVm.project.config.isFadeIn">
+                    Fade-In: {{sVm.project.config.isFadeIn ? 'On' : 'Off'}}
+                </span>
+            </div>
+        </div>
+
+        <!-- Balance the centering with the logo -->
+        <div flex="none" id="logo-offset">
+        </div>
+
+    </md-toolbar>
+
+    <div id="page-tabs" flex="none" layout="row">
+        <span flex></span>
+        <div class="page-tab-container" flex="none"
+        ng-repeat="page in sVm.project.pages">
+            <div class="page-tab"
+            ng-bind="page.name"
+            ng-click="sVm.selectPage(page)"
+            ng-class="{'current': page == sVm.currentPage}"></div>
+        </div>
+        <span flex></span>
+    </div>

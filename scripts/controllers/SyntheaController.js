@@ -69,6 +69,13 @@ SyntheaController.prototype.loadProject = function(projectDef) {
 
         this.project = this.SynProject_.getProject();
         console.log("Project loaded!",this.project)
+
+    // Get a page object and select it for our initial display
+        this.selectPage( this.SynProject_.getPage() );
+
+        // And a nice title
+        document.title = 'Synthea: ' + this.project.name;
+
         // Trigger a route change!
         this.$location_.path('/player/'+projectDef.key);
 
@@ -76,6 +83,38 @@ SyntheaController.prototype.loadProject = function(projectDef) {
 
 };
 
+/**
+ * A method to select a page of sections/cues in the project. This is part of
+ * the main controller because it's shared between SynPlayerController and
+ * SynEditorController.
+ *
+ * @param  {Page} page A page object from the Project layout
+ * @return {Page} The same page, set as `sVm.currentPage`
+ */
+SyntheaController.prototype.selectPage = function(page) {
+    var pages = this.project.pages;
+    var currentIdx = pages.indexOf(this.currentPage);
+
+    // We can scroll
+    if (page==='next') {
+        if (currentIdx < pages.length-1) {
+            page = pages[currentIdx + 1];
+        } else {
+            page = pages[0];
+        }
+    }
+    else if (page==='prev') {
+        if (currentIdx === 0) {
+            page = pages[pages.length-1];
+        } else {
+            page = pages[currentIdx - 1];
+        }
+    }
+
+    // Store this page so we can show it on the view
+    this.currentPage = page;
+    return page;
+};
 
 // IIFE
 })();

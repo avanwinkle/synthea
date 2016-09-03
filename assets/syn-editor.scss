@@ -1,2 +1,16 @@
 @import 'syn-common.scss';
 
+#edit-toolbar {
+    // color: #fff;
+    // background-color: $syn-danger;
+
+    .syn-icon {
+        fill: #fff;
+    }
+
+}
+
+// Buttons in sections to add a cue
+.editor-addbutton {
+    margin: 0 auto;
+}

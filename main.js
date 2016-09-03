@@ -31,6 +31,9 @@ function addMediaToProject(evt,pkey) {
         properties: ['openFile', 'multiSelections'],
     }, function(selection) {
 
+        // Maybe nothing?
+        if (!selection) { return; }
+
         for (var i=0;i<selection.length;i++) {
             try {
 

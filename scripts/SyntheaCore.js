@@ -18,6 +18,11 @@ function SyntheaCoreConfig($locationProvider,$mdThemingProvider) {
         .primaryPalette('grey')
         .accentPalette('pink');
 
+    $mdThemingProvider.theme('pink')
+        .primaryPalette('pink')
+        .accentPalette('blue');
+
+
 }
 
 require('howler');

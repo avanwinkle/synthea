@@ -121,14 +121,7 @@ SynPlayerController.prototype.activate =  function() {
 
     // Get our project and mixer and bind here for convenience
     this.project = this.SynProject_.getProject();
-
     this.mixer = this.SynMixer_.createMixer();
-
-    // Get a page object and select it for our initial display
-    this.selectPage( this.SynProject_.getPage() );
-
-    // And a nice title
-    document.title = 'Synthea: ' + this.project.name;
 
 };
 
@@ -199,30 +192,6 @@ SynPlayerController.prototype.enableDJMode = function() {
 
     playThatFunkyMusic();
 
-};
-
-SynPlayerController.prototype.selectPage = function(page) {
-    var pages = this.project.pages;
-    var currentIdx = pages.indexOf(this.currentPage);
-
-    // We can scroll
-    if (page==='next') {
-        if (currentIdx < pages.length-1) {
-            page = pages[currentIdx + 1];
-        } else {
-            page = pages[0];
-        }
-    }
-    else if (page==='prev') {
-        if (currentIdx === 0) {
-            page = pages[pages.length-1];
-        } else {
-            page = pages[currentIdx - 1];
-        }
-    }
-
-    // Store this page so we can show it on the view
-    this.currentPage = page;
 };
 
 SynPlayerController.prototype.selectCue = function(cue,event) {
