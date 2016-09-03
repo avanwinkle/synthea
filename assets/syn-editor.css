@@ -1,0 +1,8 @@
+.blink {
+  animation: blink-animation 0.5s steps(8, start) infinite alternate; }
+
+@keyframes blink-animation {
+  from {
+    opacity: 1; }
+  to {
+    opacity: 0; } }

@@ -1,0 +1,16 @@
+$syn-accent: #368BE6;
+$syn-accent-faded: desaturate($syn-accent, 50%);
+$syn-background: #eee;
+$track-background: #ddd;
+
+.blink {
+  animation: blink-animation 0.5s steps(8, start) infinite alternate;
+}
+@keyframes blink-animation {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}

@@ -22,7 +22,7 @@ let PROJECTS = [];
 // Keep a reference on what we're doing in the main window
 
 // HEY LISTEN! Developers, wanna see what's going on? TURN THIS ON!!
-let DEBUG_MODE = false;
+let DEBUG_MODE = true;
 
 function addMediaToProject(evt,pkey) {
 
