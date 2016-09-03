@@ -302,6 +302,8 @@ button:active, button:focus {
   transition-timing-function: ease-in-out; }
   .cueButton-badge.channelState- {
     opacity: 0; }
+  .cueButton-badge.channelState-ERROR {
+    background-color: transparent; }
   .cueButton-badge.channelState-PLAYING {
     background-color: #368BE6; }
   .cueButton-badge.channelState-STOPPING, .cueButton-badge.channelState-STOPPED {
@@ -316,6 +318,11 @@ button:active, button:focus {
     .cueButton-badge .badge.badge-queue {
       top: 0;
       left: 1px; }
+    .cueButton-badge .badge.badge-error {
+      left: -3px;
+      top: -2px; }
+      .cueButton-badge .badge.badge-error .syn-icon {
+        fill: #c50836; }
     .cueButton-badge .badge .syn-icon {
       fill: #fff; }
   .cueButton-badge.channelState-PAUSED .badge-pause,
@@ -324,7 +331,8 @@ button:active, button:focus {
   .cueButton-badge.channelState-QUEUED .badge-queue,
   .cueButton-badge.channelState-QUEUING .badge-queue,
   .cueButton-badge.channelState-STOPPING .badge-stop,
-  .cueButton-badge.channelState-STOPPED .badge-stop {
+  .cueButton-badge.channelState-STOPPED .badge-stop,
+  .cueButton-badge.channelState-ERROR .badge-error {
     visibility: visible; }
 
 .cueButton-container {

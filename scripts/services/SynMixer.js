@@ -1,9 +1,3 @@
-/**
- * SynMixer factory for instantiating SynMixer objects, which are the singleton
- * master controllers of all Subgroups and Channels in the Project.
- *
- */
-
 (function() {
 'use strict';
 
@@ -24,67 +18,52 @@ function SynMixer(SynSubgroup,SynProject) {
     var mixer;
 
     /**
-     *  * Creates an instance of SynMixer
+     * Creates an instance of **SynMixer**, which is the Mixer singleton, the
+     * master controller of all Subgroups and Channels in the Project.
      *
-     * The MIXER manages the queuing, fading, and replacing
+     * The Mixer manages the queuing, fading, and replacing
      * of cues according to global and cue-specific configs.
-     * For each SUBGROUP, the Mixer maintains an array of CHANNELS
+     * For each Subgroup, the Mixer maintains an array of Channels
      * that handle individual cues. Each Channel can be assigned
      * only one cue at a time.
      *
-     * @constructor
-     * @this {SynMixer}
+     * @property {array} channels An array of *every* Channel that
+     *   exists in the Mixer
+     * @property {number} fadeInDuration The global default for
+     *   fade-in time on new cues (used only when fade-in is active)
+     * @property {number} fadeOutDuration The global default for fade-out
+     *   time on new cue (used in all cases of pausing/stopping playback)
+     * @property {boolean} isCloudProject A flag to identify whether
+     *   the current Project is stored locally or in the cloud, which
+     *   has ramifications on how playback is handled.
+     * @property {object} subgroups A mapping of all
+     *   the available Subgroups in the Mixer. This is
+     *   populated on-demand as cues are loaded.
      */
     function Mixer() {
 
-
-        /**
-         * An array of EVERY Channel that exists in the Mixer
-         * @type {Array}
-         */
         this.channels = [];
-
-        /**
-         * A mapping of all the available Subgroups in the Mixer. By default
-         * the names "__MUSIC__" and "__COMMON__" are reserved.
-         * @type {Object}
-         */
         this.subgroups = {};
 
         // Global settings from the project
         var p = SynProject.getProject();
         var d = SynProject.getProjectDef();
 
-        /**
-         * The global default for fade-in time on new cues
-         * (used only when fade-in is active)
-         * @type {integer}
-         */
         this.fadeInDuration = p.config.fadeInDuration || 2000;
-        /**
-         * The global default for fade-out time on new cues
-         * (used in all cases of pausing/stopping playback)
-         * @type {integer}
-         */
         this.fadeOutDuration = p.config.fadeOutDuration || 2000;
-        /**
-         * A flag to identify whether the current Project is stored locally
-         * or in the cloud, which has ramifications on how playback is handled.
-         * @type {boolean}
-         */
         this.isCloudProject = !!d.documentRoot.match('https?://');
 
         return this;
     }
 
     /**
-     * Universal method to play a cue
-     * (which essentially passes the command down
-     * the line from Subgroup to Channel to Player)
+     * Universal method to play a cue, really just a convenience method to call
+     * `Mixer.queue` with `opts.autoplay = true`.
      *
-     * @param  {Cue} cue - the Cue object to be played
-     * @param {object} opts options to define playback
-     * @return {SynChannel}
+     * @name Mixer.play()
+     * @param {Cue} cue - the Cue object to be played
+     * @param {object} [opts] options to define playback
+     * @return {Channel}
      */
     Mixer.prototype.play = function(cue, opts) {
 
@@ -95,9 +74,13 @@ function SynMixer(SynSubgroup,SynProject) {
     };
 
     /**
-     * @param  {Cue} cue - the Cue object to be queued
-     * @param  {boolean} autoplay - whether to begin playback immediately
-     * @return {SynChannel}
+     * Universal method to queue a cue for playback (which essentially passes
+     * the command down the line to Subgroup to Channel to Player)
+     *
+     * @name Mixer.queue()
+     * @param {Cue} cue - the Cue object to be queued
+     * @param {object} [opts] - options for the cue playback
+     * @return {Channel}
      */
     Mixer.prototype.queue = function(cue,opts) {
 
@@ -118,7 +101,6 @@ function SynMixer(SynSubgroup,SynProject) {
 
     /**
      * Global method to stop playback on ALL Channels.
-     * @return {undefined}
      */
     Mixer.prototype.stop = function() {
 
@@ -130,7 +112,6 @@ function SynMixer(SynSubgroup,SynProject) {
 
     /**
      * Flush the queue and playback all cues that are queued
-     * @return {undefined}
      */
     Mixer.prototype.toggleLock = function() {
 

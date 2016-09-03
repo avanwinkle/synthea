@@ -25,7 +25,7 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
      * The CHANNEL manages the playback of a cue, including queueing,
      * playing, pausing, stopping, fading in/out, and clearing memory.
      * There is a 1:1 correlation between Synthea Channel objects and
-     * html <audio> elements used to produce audio playback.
+     * html `<audio>` elements used to produce audio playback.
 
      * Channels are the direct interface to a sound CUE, and the channel's
      * public methods are used to interact with a cue. Channels are
@@ -35,8 +35,8 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
      * This is where MOST OF THE MAGIC HAPPENS in Synthea. Have fun!
      *
      * @constructor
-     * @param {SynSubgroup} subgroup - the Subgroup that will control this channel
-     * @param {object} options - values for fadeIn, fadeOut, useWebAudio
+     * @param {Subgroup} subgroup - the Subgroup that will control this channel
+     * @param {object} opts - values for fadeIn, fadeOut, useWebAudio
      */
     function Channel(subgroup,opts) {
        // Store a channel id, for reference. Simple incremental will do.
@@ -61,10 +61,10 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
      *
      * @private
      * @param  {string} direction One of 'in' or 'out'
-     * @param  {integer} startingLevel Volume at which to start the fade-in
+     * @param  {number} startingLevel Volume at which to start the fade-in
      * @return {promise} A promise, resolved when the fade is complete
      */
-    Channel.prototype.fade_ = function(direction,startingLevel) {
+    Channel.prototype._fade = function(direction,startingLevel) {
 
         var start, end, duration;
         var defer = $q.defer();
@@ -100,6 +100,7 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
      * Fade in the Channel and return a promise that is resolved when the
      * fade-in is complete.
      *
+     * @private
      * @return {promise}
      */
     Channel.prototype._fadeIn = function() {
@@ -135,8 +136,8 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
             this._player.volume(0);
             // Start playing before we start the fade, to ensure smoothness
             this._player.play();
-            // Return the promise from the fade_() method
-            return this.fade_('in');
+            // Return the promise from the _fade() method
+            return this._fade('in');
         }
         else {
             // Create a promise to resolve ourselves
@@ -157,15 +158,16 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
      * Convenience method to fade out this channel. Returns a promise when
      * the channel is fully faded out (this.state has changed).
      *
+     * @private
      * @return {promise}
      */
     Channel.prototype._fadeOut = function() {
-        return this.fade_('out');
+        return this._fade('out');
     };
 
     /**
      * Wrapper method for getting the media duration
-     * @return {Float} Seconds of duration
+     * @return {number} Seconds of duration
      */
     Channel.prototype.getDuration = function() {
         return this._player.duration();
@@ -173,7 +175,7 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
 
     /**
      * Wrapper method for getting the current playback position of the media
-     * @return {Float} Seconds elapsed
+     * @return {number} Seconds elapsed
      */
     Channel.prototype.getTime = function() {
         return this._player.seek();
@@ -196,7 +198,7 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
      * The big kahuna: create a player object (currently a Howl) for a cue object
      * and establish various listeners and callbacks based on the cues options.
      *
-     * @param  {cue} cue The cue object to be loaded
+     * @param  {Cue} cue The cue object to be loaded
      * @param  {object} opts An optional object with additional configurations
      * @return {promise} A promise resolved when the cue is ready for playback
      */

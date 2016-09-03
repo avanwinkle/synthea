@@ -391,7 +391,7 @@ function renderProjectsMenu() {
         // Look for a layout file
         try {
             var f = fs.readFileSync(
-                CONFIGS.projectFolder+'/'+projs[i]+'/layout',
+                CONFIGS.projectFolder+'/'+projs[i]+'/layout.json',
                 { encoding:'UTF-8'}
             );
 
@@ -556,8 +556,8 @@ function saveProject(evt, project) {
 
     stripProps(project);
 
-    fs.writeFile(CONFIGS.projectFolder+'/'+project.key+'/layout',
-        JSON.stringify(project));
+    fs.writeFile(CONFIGS.projectFolder+'/'+project.key+'/layout.json',
+        JSON.stringify(project,null,2));
 
 }
 

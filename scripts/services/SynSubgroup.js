@@ -10,38 +10,46 @@ SynSubgroup.$inject = ['SynChannel','SynProject'];
 function SynSubgroup(SynChannel,SynProject) {
 
     /*
-    The SUBGROUP controls an arbitrary number of CHANNELS and manages any
-    exclusivity/sequential/parallel playback of cues in that group.
 
-    There are three TYPES of Subgroup:
-
-    SOLO SUBGROUPS have two channels but playback is serialized.
-    These subgroups effectively have one channel, the second exists
-    only as a buffer to improve performance. Solo Subgroup can
-    be used to build effects sequences on-the-fly, but are
-    primarily designed for dialogue assembly.
-        -- NOT CURRENTLY IMPLEMENTED --
-
-    EXCLUSIVE SUBGROUPS have two channels and playback appears
-    serialized because only one cue can be "active" at a time,
-    but two channels allow for queues and cross-fades. One
-    channel holds the currently-playing cue and the other holds
-    the upcoming cue. Exclusive Subgroup can be used for dominant
-    ambient effects (e.g. rain, jungle, machinery) but is most
-    heavily utilized for music. Each Mixer has one exclusive
-    Music Group by default ( { "group": "MUSIC_" } ).
-        -- TO IMPLEMENT: add a 'group' attribute to button json --
-        -- TO DO: migrate the attr from 'group' to 'subgroup'
-
-    The COMMON SUBGROUP has an arbitrary number of channels and plays
-    cues in parallel. If a cue is delivered to the mixer and
-    no channels are available, a new one will be created. Each
-    Mixer has one Common Group by default. Any cue without a
-    specified subgroup will be handled by the common subgroup.
-        -- TO IMPLEMENT: this is default for all buttons without 'group' attr --
 
     */
 
+    /**
+     * The Subgroup controls an arbitrary number of Channels and manages any
+     * exclusivity/sequential/parallel playback of cues in that group.
+     *
+     * There are three types of Subgroup:
+     *
+     * **Solo Subgroups** have two channels but playback is serialized.
+     * These subgroups effectively have one channel, the second exists
+     * only as a buffer to improve performance. Solo Subgroup can
+     * be used to build effects sequences on-the-fly, but are
+     * primarily designed for dialogue assembly.
+     *  -- NOT CURRENTLY IMPLEMENTED --
+     *
+     * **Standard Subgroups** have two channels and playback appears
+     * serialized because only one cue can be "active" at a time,
+     * but two channels allow for queues and cross-fades. One
+     * channel holds the currently-playing cue and the other holds
+     * the upcoming cue. The standard Subgroup can be used for dominant
+     * ambient effects (e.g. rain, jungle, machinery) but is most
+     * heavily utilized for music.
+     *  -- Usage: add a 'subgroup' attribute to any cue json --
+     *
+     *  The **Common Subgroup** has an arbitrary number of channels and plays
+     *  cues in parallel. If a cue is delivered to the subgroup and
+     *  no channels are available, a new one will be created. Each
+     *  Mixer has one Common Subgroup, and any cue without a
+     *  specified subgroup will be handled by the common subgroup.
+     *
+     * @property {string} name The name of this Subgroup
+     * @property {array} channels All of the Channels this Subgroup controls
+     * @property {Mixer} _mixer A private reference to the master mixer, for binding channels
+     * @property {Object} opts Configuration options pulled from the project `layout.json`
+     *
+     * @param {String} subgroupname The name of the subgroup
+     * @param {Mixer} mixer The master mixer controlling this subgroup
+     */
     function Subgroup(subgroupname,mixer) {
         this.name = subgroupname;
         // Keep a list of all the channels this subgroup controls
@@ -59,6 +67,11 @@ function SynSubgroup(SynChannel,SynProject) {
         return this;
     }
 
+    /**
+     * Create a new channel in this Subgroup.
+     *
+     * @returns {Channel} The newly-created Channel object
+     */
     Subgroup.prototype.addChannel = function() {
         // Create a new channel object using the mixer defaults
         var ch = new SynChannel(this, {
@@ -75,6 +88,15 @@ function SynSubgroup(SynChannel,SynProject) {
         return ch;
     };
 
+    /**
+     * Find an available channel in this Subgroup that can play the provided
+     * cue. The cue is passed so that if a channel already has this cue, that
+     * channel is returned. If no channels are available, one is created and
+     * returned.
+     *
+     * @param  {Cue} cue The cue object for which a channel is sought
+     * @return {Channel} A channel that is available (or has the cue already)
+     */
     Subgroup.prototype.findAvailableChannel = function(cue) {
 
         // We have to return a channel no matter what
@@ -104,6 +126,14 @@ function SynSubgroup(SynChannel,SynProject) {
         return ch;
     };
 
+    /**
+     * Play a cue immediately on this Subgroup. Really, a convenience method
+     * to call `Subgroup.queue()` with forced `opts.autoplay = true`.
+     *
+     * @param  {Cue} cue The cue to play on this Subgroup
+     * @param {Object} [opts] A cue playback options object
+     * @return {Channel} The Channel on which the cue is being played
+     */
     Subgroup.prototype.play = function(cue,opts) {
         // Force autoplay, again
         var options = angular.merge({autoplay:true},opts);
@@ -111,6 +141,17 @@ function SynSubgroup(SynChannel,SynProject) {
         return this.queue(cue,options);
     };
 
+    /**
+     * Queue the provided cue in the Subgroup, or handle appropriately if the
+     * cue is already active:
+     *  - Queued: Remove from queue
+     *  - Playing: Stop playback
+     *  - Paused: Resume playback
+     *
+     * @param  {Cue} cue The cue to play on this Subgroup
+     * @param {Object} [opts] A cue playback options object
+     * @return {Channel} The Channel on which the cue is being played
+     */
     Subgroup.prototype.queue = function(cue,opts) {
 
         // Force opts
@@ -168,6 +209,12 @@ function SynSubgroup(SynChannel,SynProject) {
         return channel;
     };
 
+    /**
+     * A sweeping method to stop playback on all cues currently active
+     * in this Subgroup, possibly excepting one.
+     *
+     * @param {Cue} [cue] A cue to allow remaining in the Subgroup
+     */
     Subgroup.prototype.stopExcept = function(cue) {
         // Stop all the channels, except if there's
         // one with a cue provided

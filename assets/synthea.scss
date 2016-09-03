@@ -493,6 +493,10 @@ button:active, button:focus {
 		opacity: 0;
 	}
 
+	&.channelState-ERROR {
+		background-color: transparent;
+	}
+
 	&.channelState-PLAYING {
 		background-color: $syn-accent;
 	}
@@ -520,6 +524,14 @@ button:active, button:focus {
 			left: 1px;
 		}
 
+		&.badge-error {
+			left: -3px;
+			top: -2px;
+			.syn-icon {
+				fill: #c50836;
+			}
+		}
+
 		.syn-icon {
 			fill: #fff;
 		}
@@ -534,9 +546,9 @@ button:active, button:focus {
 	&.channelState-QUEUED .badge-queue,
 	&.channelState-QUEUING .badge-queue,
 	&.channelState-STOPPING .badge-stop,
-	&.channelState-STOPPED .badge-stop
+	&.channelState-STOPPED .badge-stop,
+	&.channelState-ERROR .badge-error
 	 {
-		// opacity: 1;
 		visibility: visible;
 	}
 
