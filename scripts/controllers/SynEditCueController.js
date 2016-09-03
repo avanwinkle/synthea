@@ -12,9 +12,6 @@ function SynEditCueController($mdDialog) {
     var secVm = this;
     this.$mdDialog_ = $mdDialog;
 
-    window.edit = this;
-
-
 }
 
 SynEditCueController.prototype.activate = function() {
@@ -26,6 +23,10 @@ SynEditCueController.prototype.$cancel = function() {
 
 SynEditCueController.prototype.$close = function() {
     this.$mdDialog_.hide(this.cue);
+};
+
+SynEditCueController.prototype.deleteCue = function() {
+    this.$mdDialog_.hide(null);
 };
 
 // IIFE

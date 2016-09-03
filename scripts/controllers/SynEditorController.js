@@ -42,7 +42,6 @@ function SynEditorController(SynMixer,SynProject,$log,$mdDialog,$q) {
 SynEditorController.prototype.addCue = function(idx, section, $event) {
 
     var newCue = {
-        id: this.idCount++,
         sources: [],
         name: 'new cue '+idx,
         section_ids: [section.id],
@@ -51,6 +50,8 @@ SynEditorController.prototype.addCue = function(idx, section, $event) {
 
     // Make a cue in the cue editing modal
     this.editCue(newCue,$event).then(function(response) {
+        // If success? Give it an id!
+        newCue.id = this.idCount++;
         this.project.cues.push(newCue);
         // Try it this way: store the cue ids on the sections, rather than vice versa
         if (!section.cue_ids) {
@@ -122,9 +123,28 @@ SynEditorController.prototype.editCue = function(cue,$event) {
         },
         templateUrl: 'templates/modals/edit-cue.html',
         targetEv: $event,
-    }).then(
-        // We don't actually have any interceptions yet...
-        defer.resolve, defer.reject);
+    }).then(function(reason) {
+        // A 'null' response means DELETE THIS CUE! :-O
+        if (reason===null) {
+            // Splice from the list of cues
+            this.project.cues.splice(
+                this.project.cues.indexOf(cue),1);
+            // Remove from any sections
+            angular.forEach(this.project.sections, function(s) {
+                if (s.cue_ids && s.cue_ids.indexOf(cue.id)!== -1) {
+                    s.cue_ids.splice(
+                        s.cue_ids.indexOf(cue.id),1);
+                }
+            });
+
+            defer.resolve(null);
+        }
+        // If it's not null, then it's our new cue!
+        else {
+            defer.resolve(reason);
+        }
+
+    }.bind(this), defer.reject);
 
     return defer.promise;
 };

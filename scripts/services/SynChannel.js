@@ -15,10 +15,6 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
     // Store what "full" volume is, so we can consistently fade in/out of it
     const MAX_VOLUME = 0.5;
 
-    // Store our project configs so we can reference fading preferences
-    const PROJECT_CONFIG = SynProject.getProject().config;
-
-
     /**
      * The Channel object
      *
@@ -75,7 +71,7 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
                     // Constrain the start between zero and maximum volume
                     Math.min(Math.max(startingLevel,0),MAX_VOLUME) : 0;
                 end = MAX_VOLUME;
-                duration = PROJECT_CONFIG.fadeInDuration;
+                duration = SynProject.getProject().config.fadeInDuration;
                 break;
             case 'out':
                 // AVW: If a double-fade is somehow triggered, this could
@@ -83,7 +79,7 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
                 // downside to starting at this._player.volume() ?
                 start = MAX_VOLUME;
                 end = 0;
-                duration = PROJECT_CONFIG.fadeOutDuration;
+                duration = SynProject.getProject().config.fadeOutDuration;
         }
 
         // Make the fade
@@ -126,7 +122,7 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
         }
         // FOURTH PRIORITY: The project default
         else {
-            isFadeIn = PROJECT_CONFIG.isFadeIn;
+            isFadeIn = SynProject.getProject().config.isFadeIn;
             // console.log('--project');
         }
 
@@ -205,7 +201,6 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
     Channel.prototype.loadCue = function(cue,opts) {
         // Force opts
         opts = opts || {};
-        console.log("loading cue with options",opts)
         // Loading a cue returns a promise, to be resolved when the cue is ready
         var defer = $q.defer();
 

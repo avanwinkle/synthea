@@ -5,12 +5,52 @@
         <label>Name</label>
         <input ng-model="secVm.cue.name">
     </md-input-container>
-    <md-button ng-click="secVm.activate()">Fetch Media</md-button>
+
+    <md-input-container>
+        <md-switch ng-model="secVm.cue.isLoop">
+            Loop
+        </md-switch>
+    </md-input-container>
+    <md-input-container>
+        <label>Fade In</label>
+        <md-select ng-model="secVm.cue.isFadeIn">
+            <md-option ng-value="undefined"><em>Automatic</em></md-option>
+            <md-option ng-value="false">Never</md-option>
+            <md-option ng-value="true">Always</md-option>
+        </md-select>
+        <div class="hint" ng-switch="secVm.cue.isFadeIn">
+            <span ng-switch-when="true">
+                This cue will always fade in.
+            </span>
+            <span ng-switch-when="false">
+                This cue will always start at full volume.
+            </span>
+            <span ng-switch-default>
+                This cue will use the board's fade-in setting.
+            </span>
+        </div>
+    </md-input-container>
+
     <select multiple
         ng-model="secVm.cue.sources"
         ng-options="file for file in secVm.mediaList">
     </select>
 </form>
+
+<div layout="row" ng-if="secVm.cue.id">
+    <div>
+        <md-button ng-click="showDelete=!showDelete">
+            Delete Cue
+        </md-button>
+    </div>
+    <span flex></span>
+    <div ng-show="showDelete">
+        Sure?
+        <md-button ng-click="secVm.deleteCue()">
+            Delete!
+        </md-button>
+    </div>
+</div>
 
 <div layout="row">
     <div>

@@ -41,7 +41,7 @@ function SynMixer(SynSubgroup,SynProject) {
      *   populated on-demand as cues are loaded.
      */
     function Mixer() {
-
+        console.log("making mixer!!!")
         this.channels = [];
         this.subgroups = {};
 

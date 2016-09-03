@@ -51,6 +51,7 @@ function SyntheaController(SynProject,$location,$log,$scope,$timeout) {
     activate();
 
     function activate() {
+        $location.path('/');
     }
 
 }
@@ -67,7 +68,7 @@ SyntheaController.prototype.loadProject = function(projectDef) {
     this.SynProject_.load(projectDef).then(function() {
 
         this.project = this.SynProject_.getProject();
-
+        console.log("Project loaded!",this.project)
         // Trigger a route change!
         this.$location_.path('/player/'+projectDef.key);
 
