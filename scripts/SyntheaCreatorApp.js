@@ -37,11 +37,10 @@ SyntheaCreatorController.prototype.activate = function() {
                 display_order: 0,
                 name: undefined,
                 id: 1,
-
             }
         ],
-        columns: [],
-        buttons: [],
+        cues: [],
+        sections: [],
         hotKeys: {},
     };
 
@@ -50,7 +49,7 @@ SyntheaCreatorController.prototype.activate = function() {
 SyntheaCreatorController.prototype.createProject = function() {
     // Broadcast to the main process that we have a project
     ipcRenderer.send('create-project', this.project );
-    this.$window_.close();
+    // this.$window_.close();
 };
 
 // IIFE

@@ -94,8 +94,6 @@ ng-class="{'hasBanner': sVm.project.bannerImage_}"
 <md-toolbar id="edit-toolbar" layout="row"
 class="md-accent md-hue-2">
     <div class="md-toolbar-tools" layout="row">
-        <h2>Edit Project</h2>
-        <span flex></span>
         <md-button class="md-icon-button"
         ng-click="seVm.copyMediaToProject()"
         aria-label="Add Media">
@@ -114,6 +112,12 @@ class="md-accent md-hue-2">
             <md-tooltip md-direction="top" md-delay="200">
                 Project Settings
             </md-tooltip>
+        </md-button>
+        <span flex></span>
+        <!-- <h2>Edit Project</h2> -->
+        <!-- <span flex></span> -->
+        <md-button ng-click="seVm.saveAndClose()">
+            Done Editing
         </md-button>
     </div>
 </md-toolbar>

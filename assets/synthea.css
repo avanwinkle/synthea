@@ -25,9 +25,16 @@ button:active, button:focus {
   outline: none;
   border: none; }
 
+md-input-container.nobottom {
+  margin-bottom: 0; }
+
 .modal-body {
+  background-color: #eee;
   padding: 24px;
   text-align: left; }
+
+.modal-buttons {
+  margin: 8px -16px -16px -16px; }
 
 .modal-content {
   margin: 0 auto; }

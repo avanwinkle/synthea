@@ -6,15 +6,16 @@ angular
     .module('SyntheaApp')
     .controller("SyntheaController", SyntheaController);
 
-SyntheaController.$inject = ['SynProject','$location','$log','$scope','$timeout'];
+SyntheaController.$inject = ['SynProject','$location','$log','$q','$scope','$timeout'];
 
-function SyntheaController(SynProject,$location,$log,$scope,$timeout) {
+function SyntheaController(SynProject,$location,$log,$q,$scope,$timeout) {
 
     var sVm = this;
     window.sVm = sVm;
-    this.SynProject_ = SynProject
+    this.SynProject_ = SynProject;
     this.$location_ = $location;
     this.$log_ = $log;
+    this.$q_ = $q;
     this.$timeout_ = $timeout;
 
     // We need a mixer
@@ -24,18 +25,33 @@ function SyntheaController(SynProject,$location,$log,$scope,$timeout) {
         is_dj_mode: false,
     };
 
-    ipcRenderer.on('edit-project', function(evt) {
-        $location.path('/edit/'+this.SynProject_.getProject().key);
-        $scope.$apply();
+    ipcRenderer.on('edit-project', function(evt,projectDef) {
+
+        // Are we passing in a new project to edit?
+        if (projectDef) {
+            sVm.loadProject(projectDef).then(function(project) {
+                $location.path('/edit/'+project.key);
+            });
+        }
+        // No? Then use the current project
+        else {
+            $location.path('/edit/'+
+                this.SynProject_.getProject().key);
+            $scope.$apply();
+
+        }
+
     }.bind(this));
 
     // Listen for the main application to broadcast a project change
     ipcRenderer.on('open-project', function(event,projectDef) {
 
-        // Did we get a null?
+        // Did we get a project?
         if (projectDef) {
+            // Open it!
             sVm.loadProject(projectDef);
         }
+        // If we didn't get a project, clear out
         else {
             // Hearing this broadcast means we're ready
             sVm.ready = true;
@@ -58,11 +74,13 @@ function SyntheaController(SynProject,$location,$log,$scope,$timeout) {
 
 
 SyntheaController.prototype.createProject = function() {
-    ipcRenderer.send('create-project');
+    ipcRenderer.send('open-create-project');
 };
 
 
 SyntheaController.prototype.loadProject = function(projectDef) {
+
+    var defer = this.$q_.defer();
 
     // Tell the project service to do its business
     this.SynProject_.load(projectDef).then(function() {
@@ -79,7 +97,11 @@ SyntheaController.prototype.loadProject = function(projectDef) {
         // Trigger a route change!
         this.$location_.path('/player/'+projectDef.key);
 
+        defer.resolve(this.project);
+
     }.bind(this));
+
+    return defer.promise;
 
 };
 

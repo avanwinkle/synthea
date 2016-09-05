@@ -1,6 +1,8 @@
 (function() {
 'use strict';
 
+const {ipcRenderer} = require('electron');
+
 angular
     .module('SyntheaApp')
     .service('SynProject',SynProject);
@@ -13,6 +15,20 @@ function SynProject($http,$q,$log) {
     var project = {};
     var def = {};
     window.p = project;
+
+    function copyMediaToProject() {
+
+        var defer = $q.defer();
+
+        ipcRenderer.once('project-media', function(evt, media) {
+            defer.resolve(media);
+        });
+
+        ipcRenderer.send('add-media-to-project',def.key);
+
+        return defer.promise;
+
+    }
 
     function load(projectDef) {
 
@@ -82,14 +98,34 @@ function SynProject($http,$q,$log) {
         return project.pages[idx];
     }
 
+    function getProjectMediaList() {
 
-    return {
+        // Create a promise to async fetch the listing
+        var defer = $q.defer();
+
+        // Create a listener for the impending broadcast
+        ipcRenderer.once('project-media', function(evt, media) {
+            defer.resolve(media);
+        });
+
+        ipcRenderer.send('get-project-media', {key: def.key});
+
+        return defer.promise;
+    }
+
+
+    var SynProjectService = {
+        copyMediaToProject: copyMediaToProject,
         load: load,
         // getConfig: getConfig,
         getPage: getPage,
         getProject: function() { return project; },
-        getProjectDef: function() { return def; }
+        getProjectDef: function() { return def; },
+        getProjectMediaList: getProjectMediaList,
     };
+
+    window.SynProject = SynProjectService;
+    return SynProjectService;
 
 }
 

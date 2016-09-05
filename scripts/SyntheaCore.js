@@ -20,7 +20,7 @@ function SyntheaCoreConfig($locationProvider,$mdThemingProvider) {
 
     $mdThemingProvider.theme('pink')
         .primaryPalette('pink')
-        .accentPalette('blue');
+        .accentPalette('grey');
 
 
 }

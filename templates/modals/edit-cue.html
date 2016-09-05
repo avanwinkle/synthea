@@ -1,16 +1,35 @@
-<div>Edit This Cue!</div>
+<form class="modal-body" layout="column" md-theme="pink">
+    <div layout="row">
+        <div class="modal-title"
+        ng-bind="::secVm.cue.id ? 'Edit Cue' : 'New Cue'"></div>
+        <span flex></span>
+        <div ng-if="secVm.cue.id">
+            <md-button class="md-icon-button"
+                ng-hide="showDelete"
+                ng-click="showDelete=!showDelete">
+                <md-icon><svg syn-icon="delete"></svg></md-icon>
+            </md-button>
+            <md-button class="md-primary md-raised" ng-show="showDelete"
+            ng-click="secVm.deleteCue()">
+                Delete!
+            </md-button>
+        </div>
+    </div>
 
-<form>
-    <md-input-container>
+    <div class="modal-desc"></div>
+
+    <md-input-container class="nobottom">
         <label>Name</label>
-        <input ng-model="secVm.cue.name">
+        <input ng-model="secVm.cue.name" autofocus>
     </md-input-container>
 
-    <md-input-container>
-        <md-switch ng-model="secVm.cue.isLoop">
-            Loop
-        </md-switch>
-    </md-input-container>
+    <div>
+        <div class="faux-label">Loop Cue</div>
+        <md-checkbox ng-model="secVm.cue.isLoop" class="md-primary">
+            Looping {{secVm.cue.isLoop ? 'On':'Off'}}
+        </md-checkbox>
+    </div>
+
     <md-input-container>
         <label>Fade In</label>
         <md-select ng-model="secVm.cue.isFadeIn">
@@ -31,37 +50,36 @@
         </div>
     </md-input-container>
 
-    <select multiple
-        ng-model="secVm.cue.sources"
-        ng-options="file for file in secVm.mediaList">
-    </select>
+    <div>
+        <div class="faux-label" layout="row">
+            <div>Audio File(s)</div>
+            <span flex></span>
+            <div>
+                <a class="md-primary" ng-click="secVm.copyMediaToProject()">
+                + Add Media
+                </a>
+            </div>
+        </div>
+        <select multiple class="md-primary"
+            style="min-width: 280px;"
+            ng-model="secVm.cue.sources"
+            ng-options="file for file in secVm.mediaList">
+        </select>
+    </div>
+
+    <div layout="row" class="modal-buttons">
+        <div>
+            <md-button class="md-accent md-hue-3" ng-click="secVm.$cancel()">
+                Cancel
+            </md-button>
+        </div>
+        <span flex></span>
+        <div>
+            <md-button class="md-primary"
+            type="submit" ng-click="secVm.$close(secVm.cue)">
+                Save
+            </md-button>
+        </div>
+    </div>
+
 </form>
-
-<div layout="row" ng-if="secVm.cue.id">
-    <div>
-        <md-button ng-click="showDelete=!showDelete">
-            Delete Cue
-        </md-button>
-    </div>
-    <span flex></span>
-    <div ng-show="showDelete">
-        Sure?
-        <md-button ng-click="secVm.deleteCue()">
-            Delete!
-        </md-button>
-    </div>
-</div>
-
-<div layout="row">
-    <div>
-        <md-button ng-click="secVm.$cancel()">
-            Cancel
-        </md-button>
-    </div>
-    <span flex></span>
-    <div>
-        <md-button ng-click="secVm.$close(secVm.cue)">
-            Save
-        </md-button>
-    </div>
-</div>

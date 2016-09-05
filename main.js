@@ -19,10 +19,11 @@ const CONFIG_PATH = app.getPath('userData')+'/config';
 // Keep a pointer to the project menu so we can add/remove
 let PROJECTS = [];
 
-// Keep a reference on what we're doing in the main window
+// Keep our menu accessible
+let menu;
 
 // HEY LISTEN! Developers, wanna see what's going on? TURN THIS ON!!
-let DEBUG_MODE = true;
+let DEBUG_MODE = false;
 
 function addMediaToProject(evt,pkey) {
 
@@ -76,6 +77,15 @@ function createMenus() {
                 {
                     label: 'Open Project...',
                     role: 'open',
+                    click: function() {
+                        dialog.showOpenDialog({properties:['openDirectory']}, function(d) {
+                            // Does openDialog always return an array?
+                            if (!d || !d.length) { return; }
+
+                            openProject({documentRoot: d[0]});
+
+                        });
+                    }
                 },
                 {
                     label: 'Close Project',
@@ -176,7 +186,7 @@ function createMenus() {
     }
 
     // This is async, so NOW build the menu
-    let menu = Menu.buildFromTemplate(template);
+    menu = Menu.buildFromTemplate(template);
     Menu.setApplicationMenu(menu);
 
 }
@@ -228,12 +238,19 @@ function createProject(project) {
         fs.mkdirSync(targetFolder);
         fs.mkdirSync(targetFolder+'/audio');
 
-        fs.writeFile(targetFolder+'/layout',
+        fs.writeFile(targetFolder+'/layout.json',
             JSON.stringify(project), function(err) {
                 if (err) {
                     console.error(err);
                     return;
                 }
+                // Open the project!
+                var projectDef = {
+                    key: project.key,
+                    name: project.name,
+                    documentRoot: targetFolder,
+                };
+                editProject(projectDef);
             });
 
     }
@@ -279,17 +296,35 @@ function createWindow () {
 
 }
 
-function editProject(menuItem) {
-    // menuItem.enabled = false;
-    menuItem.label = 'Done Editing Project';
-    for (var i=0;i<menuItem.menu.items.length;i++) {
-        // Enable the "Save Project" menu option
-        if (menuItem.menu.items[i].label === 'Save Project') {
-            menuItem.menu.items[i].enabled = true;
+function editProject(projectDef) {
+    console.log("MENU:")
+    console.log(menu)
+
+    let submenu;
+    // Find the file menu
+    for (var i=0;i<menu.items.length;i++) {
+        if (menu.items[i].label === 'File') {
+            submenu = menu.items[i].submenu;
             break;
         }
     }
-    mainWindow.webContents.send('edit-project');
+
+    // Parse the file menu to change some toggles
+    for (i=0;i<submenu.items.length;i++) {
+        if (submenu.items[i].label === 'Edit Project') {
+            submenu.items[i].enabled = false;
+        }
+        // Enable the "Save Project" submenu option
+        else if (submenu.items[i].label === 'Save Project') {
+            submenu.items[i].enabled = true;
+        }
+    }
+
+    // We can pass a projectDef if it's passed
+    if (!projectDef.documentRoot || !projectDef.key) {
+        projectDef = undefined;
+    }
+    mainWindow.webContents.send('edit-project',projectDef);
 }
 
 function enableDebugMode() {
@@ -365,12 +400,10 @@ function initializeSynthea() {
     /*** GENERAL SYNTHEA LISTENERS ***/
 
     ipcMain.on('add-media-to-project', addMediaToProject);
-
-    ipcMain.on('create-project', openProjectCreator);
-
     ipcMain.on('get-project-media', getProjectMedia);
-
     ipcMain.on('save-project', saveProject);
+    ipcMain.on('save-and-open-project', saveAndOpenProject);
+    ipcMain.on('open-create-project', openProjectCreator);
 
 }
 
@@ -431,10 +464,10 @@ function renderProjectsMenu() {
     // Sort the projects alphabetically by name (for lack of a better plan)
     // But REVERSE so we can insert them
     output.sort(function(a,b) {
-        if (a.name < b.name) {
+        if (a.name.toLowerCase() < b.name.toLowerCase()) {
             return -1;
           }
-          if (a.name > b.name) {
+          if (a.name.toLowerCase() > b.name.toLowerCase()) {
             return 1;
           }
 
@@ -498,20 +531,50 @@ function renderProjectsMenu() {
     return output;
 }
 
-function openProject(proj) {
+function openProject(projectDef) {
     // Check the config for a documentRoot, which is all we need
     // Or null, to clear out any projects
-    if (proj.documentRoot || proj===null) {
-        mainWindow.webContents.send('open-project',proj);
+    if (!projectDef || projectDef.documentRoot) {
+        mainWindow.webContents.send('open-project',projectDef);
     }
+    // This means we got a project without a documentRoot, which is bad
     else {
-        console.error('No project documentRoot, unable to process',proj);
+        console.error('No project documentRoot, unable to process',projectDef);
     }
 
     // Remember that we opened this!
-    if (proj.key && !proj.location && proj.key !== CONFIGS.lastProject) {
-        CONFIGS.lastProject = proj.key;
+    if (projectDef.key && !projectDef.location && projectDef.key !== CONFIGS.lastProject) {
+        CONFIGS.lastProject = projectDef.key;
         saveConfig();
+    }
+
+    // Set some menus
+    let filemenu, playbackmenu;
+    // Find the file menu
+    for (var i=0;i<menu.items.length;i++) {
+        if (menu.items[i].label === 'File') {
+            filemenu = menu.items[i].submenu;
+        }
+        else if (menu.items[i].label === 'Playback') {
+            playbackmenu = menu.items[i].submenu;
+        }
+    }
+
+    // Parse the file menu to change some toggles
+    for (i=0;i<filemenu.items.length;i++) {
+        if (filemenu.items[i].label === 'Edit Project') {
+            filemenu.items[i].enabled = true;
+        }
+        // Enable the "Save Project" filemenu option
+        else if (filemenu.items[i].label === 'Save Project') {
+            filemenu.items[i].enabled = false;
+        }
+    }
+    for (i=0;i<playbackmenu.items.length;i++) {
+        // Uncheck the 'DJ Mode' menu item
+        if (playbackmenu.items[i].label === 'DJ Mode') {
+            playbackmenu.items[i].checked = false;
+        }
     }
 }
 
@@ -532,7 +595,13 @@ function saveConfig() {
     });
 }
 
-function saveProject(evt, project) {
+function saveAndOpenProject(evt, project) {
+
+    // Save the project
+    saveProject(evt,project,openProject);
+}
+
+function saveProject(evt, project, callbackFn) {
     console.info('Saving project!', project);
 
     // TODO: Implement a JSON schema validation method to streamline this
@@ -559,8 +628,23 @@ function saveProject(evt, project) {
 
     stripProps(project);
 
-    fs.writeFile(CONFIGS.projectFolder+'/'+project.key+'/layout.json',
-        JSON.stringify(project,null,2));
+    // Create a project Def
+
+    var projectDef = {
+        documentRoot: CONFIGS.projectFolder+'/'+project.key,
+        key: project.key,
+        name: project.name
+    };
+
+    fs.writeFile(
+        projectDef.documentRoot + '/layout.json',
+        JSON.stringify(project,null,2),
+        function() {
+            if(typeof(callbackFn) === 'function') {
+                callbackFn(projectDef);
+            }
+        }
+    );
 
 }
 

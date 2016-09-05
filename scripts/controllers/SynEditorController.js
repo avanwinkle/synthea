@@ -105,32 +105,13 @@ SynEditorController.prototype.addSection = function(idx,page_id,$event) {
 
 SynEditorController.prototype.copyMediaToProject = function() {
 
-    // This is an ugly way to handle a promise nobody cares about...
-    // but I'm going to keep it until the full editing flow is done.
-
-    var copyFun = function() {
-
-        var defer = this.$q_.defer();
-
-        ipcRenderer.once('project-media', function(evt, media) {
-            defer.resolve(media);
-        }.bind(this));
-
-        ipcRenderer.send('add-media-to-project',this.projectDef.key);
-
-        return defer.promise;
-    }.bind(this);
-
-    copyFun().then(function(media) {
-        this.media = media;
-    }.bind(this));
+    SynProject.copyMediaToProject();
 };
 
 SynEditorController.prototype.editCue = function(cue,$event) {
 
     // Make our own promise so we can intercept the response if needed
     var defer = this.$q_.defer();
-    var mediaProm = this.getProjectMediaList();
 
     this.$mdDialog_.show({
         bindToController: true,
@@ -139,9 +120,6 @@ SynEditorController.prototype.editCue = function(cue,$event) {
         locals: {
             // Send a copy
             cue: angular.copy(cue),
-            // $mdDialog will automatically bind the result
-            // of the promise to this local variable
-            mediaList: mediaProm,
         },
         templateUrl: 'templates/modals/edit-cue.html',
         targetEv: $event,
@@ -173,21 +151,10 @@ SynEditorController.prototype.editCue = function(cue,$event) {
     return defer.promise;
 };
 
-SynEditorController.prototype.getProjectMediaList = function() {
 
-    // Create a promise to async fetch the listing
-    var defer = this.$q_.defer();
-
-    // Create a listener for the impending broadcast
-    ipcRenderer.once('project-media', function(evt, media) {
-        defer.resolve(media);
-    });
-
-    ipcRenderer.send('get-project-media', {key: this.projectDef.key});
-
-    return defer.promise;
+SynEditorController.prototype.saveAndClose = function() {
+    ipcRenderer.send('save-and-open-project', this.project);
 };
-
 
 // IIFE
 })();
