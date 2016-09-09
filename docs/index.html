@@ -1,11 +1,91 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="SyntheaDocsApp">
 <head>
     <title>Synthea</title>
+    <meta charset="UTF-8">
+    <base href="./" />
+    <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.1/angular-material.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
+    <link rel="stylesheet" href="docs.css">
 
+     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
+      <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular-animate.min.js"></script>
+      <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular-aria.min.js"></script>
+      <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular-messages.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular-route.min.js"></script>
+
+      <!-- Angular Material Library -->
+      <script src="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.1/angular-material.min.js"></script>
+
+      <script src="docs.js"></script>
 </head>
-<body>
-    <h1>Synthea</h1>
-    <p>Unscripted Theater Audio</p>
+<body ng-controller="SyntheaDocsController as vm" md-theme="synthea"
+ layout="column" layout-fill>
+
+    <md-toolbar layout="row" class="md-hue-1" md-whiteframe="1"
+    style="line-height: 40px;" hide-gt-sm>
+        <md-button class="md-icon-button"
+        ng-click="vm.openSidenav()">
+            <md-icon class="material-icons">menu</md-icon>
+        </md-button>
+        <div>Synthea</div>
+    </md-toolbar>
+
+    <div layout="row" flex>
+
+    <md-sidenav layout="column"
+        flex="none"
+        class="sidenav md-sidenav-left"
+        md-component-id="left"
+        md-is-locked-open="$mdMedia('gt-sm')"
+        md-whiteframe="4">
+
+         <header class="nav-header" flex="none">
+            <div class="sidenav-logo"></div>
+        </header>
+        <md-content class="nav-content">
+            <a class="md-button nav-button">
+                Introduction
+            </a>
+            <a class="md-button nav-button">
+                Playing a Project
+            </a>
+            <a class="md-button nav-button nav-button-sub">
+                Cue Playback
+            </a>
+            <a class="md-button nav-button nav-button-sub">
+                Use the Queue
+            </a>
+            <a class="md-button nav-button nav-button-sub">
+                Board Settings
+            </a>
+            <a class="md-button nav-button">
+                Editing a Project
+            </a>
+            <a class="md-button nav-button nav-button-sub">
+                Create a New Project
+            </a>
+            <a class="md-button nav-button nav-button-sub">
+                Customize the Layout
+            </a>
+            <a class="md-button nav-button nav-button-sub">
+                Add/Edit Cues
+            </a>
+            <a class="md-button nav-button nav-button-sub">
+                Manage Subgroups
+            </a>
+            <a class="md-button nav-button">
+                Help
+            </a>
+
+          </md-content>
+    </md-sidenav>
+
+    <md-content flex>
+        <div class="main-content" layout="column" ng-view></div>
+
+    </md-content>
+
 </body>
 </html>

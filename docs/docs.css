@@ -1,0 +1,60 @@
+* {
+  box-sizing: border-box; }
+
+body, html {
+  margin: 0;
+  padding: 0; }
+
+.intro {
+  background-image: url("images/background.png");
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-size: auto 100%;
+  text-align: center; }
+  .intro-download-sub {
+    font-size: 11px; }
+  .intro-header {
+    padding: 64px 32px 128px 32px; }
+    .intro-header-blurb {
+      color: #222;
+      margin: 32px auto;
+      max-width: 480px;
+      text-align: justify; }
+    .intro-header-subtitle {
+      font-size: 24px; }
+    .intro-header-title {
+      font-size: 56px;
+      text-transform: uppercase; }
+
+.main-content {
+  padding: 24px;
+  margin: 0;
+  max-width: 800px;
+  width: 100%; }
+
+.sidenav.md-synthea-theme {
+  background-color: #424242;
+  color: #eee; }
+  .sidenav.md-synthea-theme .nav-button {
+    border-radius: 0;
+    border-top: solid 1px rgba(224, 224, 224, 0.2);
+    color: #e0e0e0;
+    display: block;
+    margin: 0;
+    padding: 4px 16px;
+    text-align: left; }
+    .sidenav.md-synthea-theme .nav-button-sub {
+      border-top: none;
+      padding-left: 40px;
+      text-transform: none; }
+  .sidenav.md-synthea-theme .nav-header {
+    background: -webkit-linear-gradient(top, #212121 0%, #424242 100%); }
+  .sidenav.md-synthea-theme .nav-content {
+    background-color: transparent; }
+  .sidenav.md-synthea-theme .sidenav-logo {
+    background-image: url("images/logo.png");
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: 80%;
+    width: 100%;
+    padding-top: 90%; }

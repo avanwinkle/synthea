@@ -1,0 +1,89 @@
+* {
+    box-sizing: border-box;
+}
+
+body, html {
+    margin: 0;
+    padding:0;
+}
+
+.intro {
+    background-image: url('images/background.png');
+    background-position: center top;
+    background-repeat: no-repeat;
+    background-size: auto 100%;
+
+    text-align: center;
+
+    &-download {
+        &-sub {
+            font-size: 11px;
+        }
+    }
+
+    &-header {
+        padding: 64px 32px 128px 32px;
+
+        &-blurb {
+            color: #222;
+            margin: 32px auto;
+            max-width: 480px;
+            text-align: justify;
+        }
+
+        &-subtitle {
+            font-size: 24px;
+        }
+
+        &-title {
+            font-size: 56px;
+            text-transform: uppercase;
+        }
+    }
+}
+
+.main-content {
+    padding: 24px;
+    margin: 0;
+    max-width: 800px;
+    width: 100%;
+}
+
+.sidenav.md-synthea-theme {
+    background-color: rgb(66,66,66);
+    color: #eee;
+
+    .nav-button {
+        border-radius:0;
+        border-top: solid 1px rgba(224,224,224,0.2);
+        color: rgb(224,224,224);
+        display: block;
+        margin:0;
+        padding: 4px 16px;
+        text-align: left;
+
+        &-sub {
+            border-top: none;
+            padding-left: 40px;
+            text-transform: none;
+        }
+    }
+
+    .nav-header {
+        background: -webkit-linear-gradient(top, rgb(33,33,33) 0%, rgb(66,66,66) 100%)
+    }
+
+    .nav-content {
+        background-color: transparent;
+    }
+
+    .sidenav-logo {
+        background-image: url('images/logo.png');
+        background-position: center center;
+        background-repeat: no-repeat;
+        background-size: 80%;
+        width: 100%;
+        padding-top: 90%;
+
+    }
+}
