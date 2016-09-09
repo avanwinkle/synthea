@@ -73,6 +73,29 @@ md-input-container.nobottom {
 }
 
 
+.landing {
+
+	background-image: url('background.png');
+	background-position: center center;
+	background-repeat: no-repeat;
+
+	max-width: 600px;
+	margin: 0 auto;
+
+
+	&-cta {
+		flex-basis: 0;
+		text-align: center;
+	}
+
+	&-title {
+		font-size: 32px;
+		margin: 64px auto;
+	}
+
+
+}
+
 // Everything contained in the top bar
 #page-headergroup {
 	background-color: rgb(100,100,100);
@@ -314,4 +337,15 @@ md-input-container.nobottom {
 .cueButton-container {
 	padding: 8px 0;
 	position: relative;
+}
+
+
+.weblink {
+	color: $syn-danger;
+	cursor: pointer;
+
+	.syn-icon {
+		fill: $syn-danger;
+		vertical-align: bottom;
+	}
 }

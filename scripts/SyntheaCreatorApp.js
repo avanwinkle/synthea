@@ -2,9 +2,10 @@
 'use strict';
 
 const {ipcRenderer} = require('electron');
+require('./SyntheaCore');
 
 angular
-    .module('SyntheaCreatorApp',['ngAnimate','ngAria','ngMaterial'])
+    .module('SyntheaCreatorApp',['SyntheaCore'])
     .controller('SyntheaCreatorController', SyntheaCreatorController);
 
 SyntheaCreatorController.$inject = ['$window'];

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html ng-app="SyntheaApp" >
 <head>
-	<!-- <title>Synthea</title> -->
+	<title>Synthea</title>
 	<meta charset="UTF-8">
 	<base href="../" />
 	<!-- <script src="./lib/angular-1.3.4/angular.min.js"></script> -->
@@ -25,6 +25,12 @@
 <body ng-controller="SyntheaController as sVm" class="nostealth"
 >
 
-	<div layout="column" layout-fill ng-view></div>
+	<div layout="column" ng-if="sVm.ready" layout-fill ng-view ng-cloak></div>
+
+	<div layout="column" layout-fill ng-if="!sVm.ready">
+		<span flex></span>
+		Loading Synthea...
+		<span flex></span>
+	</div>
 
 </body>

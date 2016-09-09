@@ -45,7 +45,6 @@ function SyntheaController(SynProject,$location,$log,$q,$scope,$timeout) {
 
     // Listen for the main application to broadcast a project change
     ipcRenderer.on('open-project', function(event,projectDef) {
-
         // Did we get a project?
         if (projectDef) {
             // Open it!
@@ -57,7 +56,9 @@ function SyntheaController(SynProject,$location,$log,$q,$scope,$timeout) {
             sVm.ready = true;
             // Clear out any older project
             sVm.project = undefined;
-            $location.path('/');
+            $location.path('/landing');
+            // Nice title
+            document.title = "Synthea";
 
             // This is an external callback, so time to digest!
             $scope.$apply();
@@ -67,9 +68,13 @@ function SyntheaController(SynProject,$location,$log,$q,$scope,$timeout) {
     activate();
 
     function activate() {
-        $location.path('/');
+
     }
 
+}
+
+SyntheaController.prototype.browseCloudProjects = function() {
+    ipcRenderer.send('browse-cloud-projects');
 }
 
 
@@ -97,12 +102,23 @@ SyntheaController.prototype.loadProject = function(projectDef) {
         // Trigger a route change!
         this.$location_.path('/player/'+projectDef.key);
 
+        // Ready!
+        this.ready = true;
+
         defer.resolve(this.project);
 
     }.bind(this));
 
     return defer.promise;
 
+};
+
+SyntheaController.prototype.openProjectFromFolder = function() {
+    ipcRenderer.send('open-project-from-folder');
+};
+
+SyntheaController.prototype.openWeburl = function(url) {
+    ipcRenderer.send('open-weburl', url);
 };
 
 /**

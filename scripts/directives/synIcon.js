@@ -1,7 +1,7 @@
 (function() {
 
 angular
-  .module('SyntheaApp')
+  .module('SyntheaCore')
   .directive('synIcon', function() {
 
     /* PELLEGO ICON DIRECTIVE

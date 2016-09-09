@@ -60,6 +60,19 @@ md-input-container.nobottom {
   /* Set our own color */
   color: grey; }
 
+.landing {
+  background-image: url("background.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+  max-width: 600px;
+  margin: 0 auto; }
+  .landing-cta {
+    flex-basis: 0;
+    text-align: center; }
+  .landing-title {
+    font-size: 32px;
+    margin: 64px auto; }
+
 #page-headergroup {
   background-color: #646464;
   background-position: center center;
@@ -205,3 +218,10 @@ md-input-container.nobottom {
 .cueButton-container {
   padding: 8px 0;
   position: relative; }
+
+.weblink {
+  color: #c50836;
+  cursor: pointer; }
+  .weblink .syn-icon {
+    fill: #c50836;
+    vertical-align: bottom; }

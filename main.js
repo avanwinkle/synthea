@@ -18,6 +18,8 @@ const CONFIG_PATH = app.getPath('userData')+'/config';
 
 // Keep a pointer to the project menu so we can add/remove
 let PROJECTS = [];
+// And our current project
+let CURRENT_PROJECT;
 
 // Keep our menu accessible
 let menu;
@@ -55,8 +57,76 @@ function addMediaToProject(evt,pkey) {
     });
 }
 
+function browseCloudProjects() {
+
+    // Create a new window to show the loader
+    let child = new BrowserWindow({
+        modal: true,
+        show: false
+    });
+
+    // Create a node-formatted url for the loader window
+    let url = require('url').format({
+      protocol: 'file',
+      slashes: true,
+      pathname: require('path').join(__dirname, '/templates/loader.html')
+    });
+
+    child.loadURL(url);
+    child.once('ready-to-show', () => {
+      child.show();
+      if (DEBUG_MODE) { child.webContents.openDevTools(); }
+
+      // If the loader window broadcasts a project, handle it
+      ipcMain.once('open-project', function(evt,projectDef) {
+        openProject(projectDef);
+        child.close();
+      });
+    });
+}
+
 function closeProject(evt) {
     mainWindow.webContents.send('open-project',null);
+
+    // Set some menus
+    let filemenu, playbackmenu;
+    // Find the file menu
+    for (var i=0;i<menu.items.length;i++) {
+        if (menu.items[i].label === 'File') {
+            filemenu = menu.items[i].submenu;
+        }
+        else if (menu.items[i].label === 'Playback') {
+            playbackmenu = menu.items[i].submenu;
+        }
+    }
+
+    // Parse the file menu to change some toggles
+    for (i=0;i<filemenu.items.length;i++) {
+        if (filemenu.items[i].label === 'Edit Project') {
+            filemenu.items[i].enabled = false;
+        }
+        // Enable the "Save Project" filemenu option
+        else if (filemenu.items[i].label === 'Save Project') {
+            filemenu.items[i].enabled = false;
+        }
+        else if (filemenu.items[i].label === 'Delete Project') {
+            filemenu.items[i].enabled = false;
+        }
+    }
+    for (i=0;i<playbackmenu.items.length;i++) {
+        // Uncheck the 'DJ Mode' menu item
+        if (playbackmenu.items[i].label === 'DJ Mode') {
+            playbackmenu.items[i].checked = false;
+        }
+    }
+
+    // Remove from the configs?
+    if (CONFIGS.lastProject === CURRENT_PROJECT.key && !CURRENT_PROJECT.location) {
+        CONFIGS.lastProject = undefined;
+        saveConfig();
+    }
+
+    CURRENT_PROJECT = undefined;
 }
 
 function createMenus() {
@@ -77,15 +147,7 @@ function createMenus() {
                 {
                     label: 'Open Project...',
                     role: 'open',
-                    click: function() {
-                        dialog.showOpenDialog({properties:['openDirectory']}, function(d) {
-                            // Does openDialog always return an array?
-                            if (!d || !d.length) { return; }
-
-                            openProject({documentRoot: d[0]});
-
-                        });
-                    }
+                    click: openProjectFromFolder,
                 },
                 {
                     label: 'Close Project',
@@ -95,6 +157,7 @@ function createMenus() {
                 {
                     label: 'Edit Project',
                     role: 'edit',
+                    enabled: false,
                     click: editProject,
                 },
                 {
@@ -114,7 +177,8 @@ function createMenus() {
                 {   type: 'separator' },
                 {
                     label: 'Delete Project',
-                    role: 'delete',
+                    enabled: false,
+                    click: deleteProject,
                 }
             ]
         },
@@ -188,7 +252,6 @@ function createMenus() {
     // This is async, so NOW build the menu
     menu = Menu.buildFromTemplate(template);
     Menu.setApplicationMenu(menu);
-
 }
 
 function createModalWindow(name,callbackFn) {
@@ -232,6 +295,9 @@ function createProject(project) {
     try {
         fs.accessSync(targetFolder);
         console.error('Project folder already exists!');
+        dialog.showErrorBox('Unable to Create Project',
+            'Project folder "'+project.key+'" already exists.');
+
         return;
     }
     catch(err) {
@@ -241,6 +307,7 @@ function createProject(project) {
         fs.writeFile(targetFolder+'/layout.json',
             JSON.stringify(project), function(err) {
                 if (err) {
+                    dialog.showErrorBox('Unable to Create Project', err);
                     console.error(err);
                     return;
                 }
@@ -296,9 +363,44 @@ function createWindow () {
 
 }
 
+function deleteProject() {
+
+    const CANCEL_ID = 1;
+    dialog.showMessageBox({
+        buttons: ['Delete Project','Cancel'],
+        cancelId: CANCEL_ID,
+        defaultId: CANCEL_ID,
+        type: 'question',
+        title: 'Confirm Delete',
+        message: 'This project and all its media will be deleted. Are you sure?',
+    }, function(response) {
+
+        if (response!==CANCEL_ID) {
+            console.log("DELETE PROJECT:",CURRENT_PROJECT );
+
+            // Remove the audio
+            var fs = require('fs');
+
+            var layout = CURRENT_PROJECT.documentRoot+'/layout.json';
+            var audio = CURRENT_PROJECT.documentRoot+'/audio';
+            if( fs.existsSync(audio) && fs.existsSync(layout)) {
+                fs.readdirSync(audio).forEach(function(file,index){
+                    fs.unlinkSync(audio + '/' + file);
+                });
+                fs.rmdirSync(audio);
+                fs.unlinkSync(layout);
+                fs.rmdir(CURRENT_PROJECT.documentRoot);
+            }
+
+
+            // Close it
+            closeProject();
+        }
+
+    });
+}
+
 function editProject(projectDef) {
-    console.log("MENU:")
-    console.log(menu)
 
     let submenu;
     // Find the file menu
@@ -380,6 +482,9 @@ function initializeSynthea() {
 
     // If we have a last-used project, open that by default
     mainWindow.webContents.once('did-finish-load', function() {
+
+        var foundLastProject = false;
+
         // Now that the menus are built, let's try opening our last project
         if (CONFIGS.lastProject) {
             // Iterate over the projects we found in our Projects folder
@@ -387,12 +492,13 @@ function initializeSynthea() {
                 // Do any of those PROJECTS.items match the last one we opened?
                 if (PROJECTS[i].key === CONFIGS.lastProject) {
                     openProject(PROJECTS[i]);
+                    foundLastProject = true;
                     break;
                 }
             }
         }
         // If we don't have a project to lad?
-        else {
+        if (!foundLastProject) {
             openProject(null);
         }
     });
@@ -400,10 +506,13 @@ function initializeSynthea() {
     /*** GENERAL SYNTHEA LISTENERS ***/
 
     ipcMain.on('add-media-to-project', addMediaToProject);
+    ipcMain.on('browse-cloud-projects', browseCloudProjects);
     ipcMain.on('get-project-media', getProjectMedia);
     ipcMain.on('save-project', saveProject);
     ipcMain.on('save-and-open-project', saveAndOpenProject);
     ipcMain.on('open-create-project', openProjectCreator);
+    ipcMain.on('open-project-from-folder', openProjectFromFolder);
+    ipcMain.on('open-weburl', openWeburl);
 
 }
 
@@ -499,33 +608,7 @@ function renderProjectsMenu() {
     output.push( { type: 'separator' });
     output.push( {
         label: 'Browse Cloud Projects...',
-        click: function() {
-
-            // Create a new window to show the loader
-            let child = new BrowserWindow({
-                modal: true,
-                show: false
-            });
-
-            // Create a node-formatted url for the loader window
-            let url = require('url').format({
-              protocol: 'file',
-              slashes: true,
-              pathname: require('path').join(__dirname, '/templates/loader.html')
-            });
-
-            child.loadURL(url);
-            child.once('ready-to-show', () => {
-              child.show();
-              if (DEBUG_MODE) { child.webContents.openDevTools(); }
-
-              // If the loader window broadcasts a project, handle it
-              ipcMain.once('open-project', function(evt,projectDef) {
-                openProject(projectDef);
-                child.close();
-              });
-            });
-        }
+        click: browseCloudProjects,
     });
 
     return output;
@@ -542,8 +625,10 @@ function openProject(projectDef) {
         console.error('No project documentRoot, unable to process',projectDef);
     }
 
+    CURRENT_PROJECT = projectDef;
+
     // Remember that we opened this!
-    if (projectDef.key && !projectDef.location && projectDef.key !== CONFIGS.lastProject) {
+    if (projectDef && projectDef.key && !projectDef.location && projectDef.key !== CONFIGS.lastProject) {
         CONFIGS.lastProject = projectDef.key;
         saveConfig();
     }
@@ -569,6 +654,9 @@ function openProject(projectDef) {
         else if (filemenu.items[i].label === 'Save Project') {
             filemenu.items[i].enabled = false;
         }
+        else if (filemenu.items[i].label === 'Delete Project') {
+            filemenu.items[i].enabled = true;
+        }
     }
     for (i=0;i<playbackmenu.items.length;i++) {
         // Uncheck the 'DJ Mode' menu item
@@ -585,7 +673,22 @@ function openProjectCreator() {
         createProject(project);
         modal.close();
     });
+}
 
+function openProjectFromFolder() {
+    dialog.showOpenDialog({properties:['openDirectory']}, function(d) {
+        // Does openDialog always return an array?
+        if (!d || !d.length) { return; }
+
+        openProject({documentRoot: d[0]});
+
+    });
+}
+
+function openWeburl(evt,url) {
+    // Make sure it's a url or a mailto
+    if (!/^(https?:\/\/|mailto:)/.exec(url) ) { url = 'http://' + url; }
+    shell.openExternal(url);
 }
 
 function saveConfig() {

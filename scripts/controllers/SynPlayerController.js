@@ -103,7 +103,7 @@ function SynPlayerController(SynMixer,SynProject,$location,$log,$scope,$timeout)
         $scope.$apply();
     }.bind(this));
 
-
+    $scope.$on('$destroy', this.stopAll.bind(this));
 
 }
 

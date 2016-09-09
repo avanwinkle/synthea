@@ -1,85 +1,164 @@
-<form class="modal-body" layout="column" md-theme="pink">
+<div class="modal-body editcue-modal" md-theme="pink">
     <div layout="row">
         <div class="modal-title"
         ng-bind="::secVm.cue.id ? 'Edit Cue' : 'New Cue'"></div>
         <span flex></span>
         <div ng-if="secVm.cue.id">
             <md-button class="md-icon-button"
+                aria-label="Delete Cue"
                 ng-hide="showDelete"
                 ng-click="showDelete=!showDelete">
                 <md-icon><svg syn-icon="delete"></svg></md-icon>
             </md-button>
-            <md-button class="md-primary md-raised" ng-show="showDelete"
+            <md-button class="md-primary md-raised"
+            aria-label="Confirm Delete"
+            ng-show="showDelete"
             ng-click="secVm.deleteCue()">
-                Delete!
+                Delete Cue
             </md-button>
         </div>
     </div>
 
-    <div class="modal-desc"></div>
+    <form layout="row" >
 
-    <md-input-container class="nobottom">
-        <label>Name</label>
-        <input ng-model="secVm.cue.name" autofocus>
-    </md-input-container>
+        <div layout="column" flex="60" class="editcue-column">
 
-    <div>
-        <div class="faux-label">Loop Cue</div>
-        <md-checkbox ng-model="secVm.cue.isLoop" class="md-primary">
-            Looping {{secVm.cue.isLoop ? 'On':'Off'}}
-        </md-checkbox>
-    </div>
+            <md-input-container class="nobottom">
+                <label>Cue Title</label>
+                <input ng-model="secVm.cue.name" autofocus>
+            </md-input-container>
 
-    <md-input-container>
-        <label>Fade In</label>
-        <md-select ng-model="secVm.cue.isFadeIn">
-            <md-option ng-value="undefined"><em>Automatic</em></md-option>
-            <md-option ng-value="false">Never</md-option>
-            <md-option ng-value="true">Always</md-option>
-        </md-select>
-        <div class="hint" ng-switch="secVm.cue.isFadeIn">
-            <span ng-switch-when="true">
-                This cue will always fade in.
-            </span>
-            <span ng-switch-when="false">
-                This cue will always start at full volume.
-            </span>
-            <span ng-switch-default>
-                This cue will use the board's fade-in setting.
-            </span>
-        </div>
-    </md-input-container>
-
-    <div>
-        <div class="faux-label" layout="row">
-            <div>Audio File(s)</div>
-            <span flex></span>
             <div>
-                <a class="md-primary" ng-click="secVm.copyMediaToProject()">
-                + Add Media
-                </a>
+                <md-input-container>
+                    <label>Subgroup</label>
+                    <md-select ng-model="secVm.cue.subgroup">
+                        <md-option ng-value="null"><em>None</em></md-option>
+                        <md-option value="music">Music</md-option>
+                        <md-option value="ambient">Ambient</md-option>
+                        <md-option value="fire">Fire</md-option>
+                        <md-option value="rain">Rain</md-option>
+                    </md-select>
+                    <div class="hint" ng-switch="secVm.cue.subgroup">
+                        <span ng-switch-when="null">
+                            This cue will play independent of other cues.
+                        </span>
+                        <span ng-switch-default>
+                            This cue will replace any other in the
+                            {{secVm.cue.subgroup}} subgroup.
+                        </span>
+                    </div>
+                </md-input-container>
             </div>
+
+            <div layout="row">
+                <div flex>
+                    <div class="faux-label">Loop Cue</div>
+                    <md-checkbox style="padding:4px;"
+                    ng-model="secVm.cue.isLoop" class="md-primary">
+                        Looping {{secVm.cue.isLoop ? 'On':'Off'}}
+                    </md-checkbox>
+                </div>
+                <div flex>
+                    <md-input-container>
+                        <label>Fade In</label>
+                        <md-select ng-model="secVm.cue.isFadeIn">
+                            <md-option ng-value="undefined"><em>Automatic</em></md-option>
+                            <md-option ng-value="false">Never</md-option>
+                            <md-option ng-value="true">Always</md-option>
+                        </md-select>
+                        <div class="hint" ng-switch="secVm.cue.isFadeIn">
+                            <span ng-switch-when="true">
+                                Always fade in.
+                            </span>
+                            <span ng-switch-when="false">
+                                Always start at full volume.
+                            </span>
+                            <span ng-switch-default>
+                                Use the board's setting.
+                            </span>
+                        </div>
+                    </md-input-container>
+                </div>
+            </div>
+
+            <div>
+                <div class="faux-label" >Cue Audio File(s)</div>
+
+                <div class="editcue-sources">
+                    <div class="editcue-sources-item"
+                    ng-repeat="src in secVm.cue.sources"
+                    layout="row">
+                        <span class="editcue-sources-item-name" ng-bind="src"></span>
+                        <span flex></span>
+                        <span class="editcue-sources-item-remove" ng-click="secVm.removeFile(src)">&times;</span>
+                    </div>
+                    <span class="editcue-sources-item"
+                    style="opacity:0.6;"
+                    ng-if="!secVm.cue.sources.length">
+                        <i>No files attached to this cue</i>
+                    </span>
+                </div>
+
+
+            </div>
+
         </div>
-        <select multiple class="md-primary"
-            style="min-width: 280px;"
-            ng-model="secVm.cue.sources"
-            ng-options="file for file in secVm.mediaList">
-        </select>
-    </div>
+
+        <div flex="40" layout="column" class="editcue-column">
+
+            <div class="faux-label" layout="row">
+                <div>Project Media</div>
+                <span flex></span>
+                <div>
+                    <a class="md-primary" ng-click="secVm.copyMediaToProject()">
+                        + Add Files
+                    </a>
+                </div>
+            </div>
+            <div flex layout-fill>
+                <select multiple class="editcue-filelist md-primary"
+                        ng-model="secVm.selectedFiles"
+                        ng-disabled="secVm.cue.sources.indexOf(file)!==-1"
+                        ng-options="file for file in secVm.mediaList | filter: secVm.filterFiles">
+                </select>
+            </div>
+
+            <div flex="none" style="margin-top: -2px;">
+                <input class="editcue-filelist-filter"
+                ng-model="secVm.filterFiles" placeholder="Filter files">
+            </div>
+
+            <div flex="none" layout="row">
+                <md-button class="editcue-filelist-add md-primary"
+                ng-click="secVm.addFilesToCue()"
+                ng-disabled="!secVm.selectedFiles.length">
+                    &lt;&lt; Add File<span ng-if="secVm.selectedFiles.length>1">s</span> to Cue
+                </md-button>
+                <span flex></span>
+            </div>
+
+
+        </div>
+
+    </form>
+
 
     <div layout="row" class="modal-buttons">
-        <div>
-            <md-button class="md-accent md-hue-3" ng-click="secVm.$cancel()">
-                Cancel
-            </md-button>
-        </div>
-        <span flex></span>
-        <div>
-            <md-button class="md-primary"
-            type="submit" ng-click="secVm.$close(secVm.cue)">
-                Save
-            </md-button>
+        <div flex="60" layout="row">
+            <div>
+                <md-button class="md-accent md-hue-3" ng-click="secVm.$cancel()">
+                    Cancel
+                </md-button>
+            </div>
+            <span flex></span>
+            <div>
+                <md-button class="md-primary"
+                style="margin-right: -8px;"
+                type="submit" ng-click="secVm.$close(secVm.cue)">
+                    Save
+                </md-button>
+            </div>
         </div>
     </div>
 
-</form>
+</div>

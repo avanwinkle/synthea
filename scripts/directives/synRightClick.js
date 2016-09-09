@@ -1,7 +1,7 @@
 (function() {
 
 angular
-  .module('SyntheaApp')
+  .module('SyntheaCore')
   .directive('synRightClick', ['SynMixer', function(SynMixer) {
 
     return {

@@ -2,7 +2,7 @@
 'use strict';
 
 angular
-    .module('SyntheaApp')
+    .module('SyntheaCore')
     .filter('cuesInSection', cuesInSection)
     .filter('isActive', isActive)
     .filter('isQueued', isQueued)

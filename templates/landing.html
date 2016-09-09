@@ -1,11 +1,33 @@
 
-<div>
-    Welcome to Synthea!
-</div>
+<div class="landing" layout="column" layout-fill md-theme="pink">
+    <div class="landing-title" flex>
+        Welcome to Synthea
+    </div>
 
-<div>
+    <div class="landing-content" flex>
+        <p>
+            You can find local and cloud projects in the <b>Projects</b> menu.
+        </p>
+        <p>
+            Help and guides can be found at <a class="weblink"
+            ng-click="sVm.openWeburl('https://github.com/avanwinkle/synthea/wiki')">the Synthea wiki <svg syn-icon="open_in_browser" size="16"></svg></a>.
+        </p>
+        <p>
+            For direct assistance, contact <i>synthea@anthonyvanwinkle.com</i>.
+        </p>
+    </div>
 
-Select a project from the Projects menu, or
-<a ng-click="sVm.createProject()">create a new project</a>.
+    <div layout="row" flex>
+        <div flex="33" class="landing-cta">
+            <md-button ng-click="sVm.createProject()">New Project</md-button>
+        </div>
+        <div flex="33" class="landing-cta">
+            <md-button class="md-primary" ng-click="sVm.openProjectFromFolder()">Open Project</md-button><br/>
+        </div>
+        <div flex="33" class="landing-cta">
+            <md-button ng-click="sVm.browseCloudProjects()">Cloud Projects</md-button>
+        </div>
+
+    </div>
 
 </div>

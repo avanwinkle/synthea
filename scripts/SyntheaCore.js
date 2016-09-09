@@ -25,7 +25,6 @@ function SyntheaCoreConfig($locationProvider,$mdThemingProvider) {
 
 }
 
-require('howler');
 require('./filters.js');
 require('./directives/synIcon.js');
 require('./directives/synRightClick.js');

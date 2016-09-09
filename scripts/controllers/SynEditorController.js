@@ -47,6 +47,18 @@ SynEditorController.prototype.addCue = function(idx, section, $event) {
         display_order: idx,
     };
 
+    // Set a default subgroup?
+    switch (this.project.config.boardType) {
+        case "music":
+            newCue.subgroup = 'music';
+            break;
+        case "ambient":
+            newCue.subgroup = 'ambience';
+            break;
+        default:
+            newCue.subgroup = null;
+    }
+
     // Make a cue in the cue editing modal
     this.editCue(newCue,$event).then(function(response) {
         // If success? Give it an id!
@@ -115,8 +127,10 @@ SynEditorController.prototype.editCue = function(cue,$event) {
 
     this.$mdDialog_.show({
         bindToController: true,
+        clickOutsideToClose: false,
         controller: 'SynEditCueController',
         controllerAs: 'secVm',
+        escapeToClose: false,
         locals: {
             // Send a copy
             cue: angular.copy(cue),
@@ -143,6 +157,18 @@ SynEditorController.prototype.editCue = function(cue,$event) {
         else {
             // Merge the copy's changes back on
             angular.merge(cue,response);
+
+            // MIGRATION: Not all projects have subgroups
+            if (!this.project.subgroups) { this.project.subgroups = {}; }
+
+            // If this cue has a subgroup, make sure the project knows
+            if (cue.subgroup && !this.project.subgroups[cue.subgroup]) {
+                this.project.subgroups[cue.subgroup] = {
+                    // We can't change subgroup fades yet, so don't define it
+                    isFadeIn: undefined
+                };
+            }
+
             defer.resolve(cue);
         }
 

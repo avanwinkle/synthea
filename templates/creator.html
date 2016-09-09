@@ -11,12 +11,17 @@
     </script>
     <link rel="stylesheet" href="node_modules/angular-material/angular-material.min.css">
     <link rel="stylesheet" href="assets/synthea.css">
+    <link rel="stylesheet" href="assets/syn-editor.css">
 </head>
 <body id="synCreator" class="modal-body"
-ng-controller="SyntheaCreatorController as scVm">
+ ng-controller="SyntheaCreatorController as scVm">
 
 
-    <form name="synCreatorForm" class="modal-content">
+    <form name="synCreatorForm"
+    md-theme="pink"
+    ng-submit="scVm.createProject()"
+    class="projectcreator modal-content"
+    style="width: 100%;">
 
         <div class="modal-title">Create a New Project</div>
 
@@ -29,11 +34,13 @@ ng-controller="SyntheaCreatorController as scVm">
                 <md-input-container>
                     <label>Project Name</label>
                     <input ng-model="scVm.project.name"
+                    class="projectcreator-input"
                     md-no-asterisk="true"
                     placeholder="My New Soundboard"
                     autofocus
                     required="required"></input>
-                    <div class="hint">The displayed name of your project</div>
+                    <div class="hint">The name of your project
+                    </div>
                 </md-input-container>
             </div>
 
@@ -41,6 +48,7 @@ ng-controller="SyntheaCreatorController as scVm">
                 <md-input-container class="md-accent">
                     <label>Folder Name</label>
                     <input ng-model="scVm.project.key"
+                    class="projectcreator-input"
                     md-no-asterisk="true"
                     placeholder="myboard"
                     required="required"></input>
@@ -52,6 +60,7 @@ ng-controller="SyntheaCreatorController as scVm">
                 <md-input-container>
                     <label>First Page Name</label>
                     <input ng-model="scVm.project.pages[0].name"
+                    class="projectcreator-input"
                     md-no-asterisk="true"
                     placeholder="Page One"
                     required="required"></input>
@@ -59,15 +68,29 @@ ng-controller="SyntheaCreatorController as scVm">
                 </md-input-container>
             </div>
 
+            <div>
+                <md-input-container>
+                    <label>Board Type</label>
+                    <md-select ng-model="scVm.project.config.boardType">
+                        <md-option value="music">Music</md-option>
+                        <md-option value="ambience">Ambience</md-option>
+                        <md-option ng-value="null">Sound Effects</md-option>
+                    </md-select>
+                    <div class="hint">
+                        The primary function of this project
+                    </div>
+                </md-input-container>
+            </div>
+
         </div>
 
-        <div id="loader-footer">
-            <md-button class="cancelbutton"
+        <div id="loader-footer" layout="row">
+            <md-button class="cancelbutton md-accent"
             ng-click="scVm.close()">Cancel</md-button>
             <span flex></span>
-            <md-button class="md-accent"
+            <md-button class="md-primary"
             ng-disabled="synCreatorForm.$invalid"
-            ng-click="scVm.createProject()">
+            type="submit">
                 Create Project
             </md-button>
         </div>

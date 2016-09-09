@@ -2,7 +2,7 @@
 'use strict';
 
 angular
-    .module("SyntheaApp",['SyntheaCore','ngAnimate','ngAria','ngMaterial','ngRoute'])
+    .module("SyntheaApp",['SyntheaCore','ngRoute'])
     .config(SyntheaAppConfig)
     .run(SyntheaAppRun);
 
@@ -22,8 +22,11 @@ function SyntheaAppConfig($routeProvider) {
             controllerAs: 'spVm',
             templateUrl: 'templates/player.html',
         })
-        .otherwise({
+        .when('/landing', {
             templateUrl: 'templates/landing.html',
+        })
+        .otherwise({
+            template: '<div>Synthea Error: Something has gone wrong :(</div>',
         });
 }
 
