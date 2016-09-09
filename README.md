@@ -84,8 +84,8 @@ projects can be accessed in the menu at **Projects > Browse Cloud Projects...**.
 
 _Please note that when streaming projects from the cloud, loops may not be gapless._
 
-An in-progress feature is an internal project creator/editor, but in the meantime projects
-must be created manually. You can create a project by making a new folder in the projects folder, whach can be accessed by the menu **Projects > Go to Projects Folder** (by default, %APPLICATION DATA%/Synthea/Projects). The projects folder can be changed via the menu **Projects > Change Projects Folder...**.
+An in-progress feature is an internal project creator/editor, and it works pretty
+well but has a ways to go. You can create a project by making a new folder in the projects folder, whach can be accessed by the menu **Projects > Go to Projects Folder** (by default, %APPLICATION DATA%/Synthea/Projects). The projects folder can be changed via the menu **Projects > Change Projects Folder...**.
 
 A project is defined by a JSON-formatted `layout.json` file, an optional banner image file, and an `/audio` subfolder containing the cue files (accepting OGG, MP3, WAV, and other major formats).
 
@@ -108,6 +108,7 @@ myProject
     "name": "My Synthea Project",
     "bannerImage": "banner.jpg",         // Optional image
     "config": {
+        "boardType": "music",            // Optional, default subgroup for cues
         "fadeInDuration": 1000,          // Default fade-in for cues (ms)
         "fadeOutDuration": 2000          // Default fade-out for cues (ms)
     },
@@ -137,7 +138,7 @@ myProject
         {
             "section_ids": [ 1 ],
             "sources": ["music.mp3"],
-            "group": "music",            // The subgroup name for this cue
+            "subgroup": "music",            // The subgroup name for this cue
             "id": 1001,
             "isFadeIn": false,           // Override the project's fade settings
             "isLoop": false,

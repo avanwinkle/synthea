@@ -1,0 +1,147 @@
+<div class="section-title">Editing Synthea Projects</div>
+
+<ul class="section-toc">
+    <li><a class="internal-link" scroll-to="sec-create">Creating a Project</a></li>
+    <li><a class="internal-link" scroll-to="sec-layout">Page and Section Layout</a></li>
+    <li><a class="internal-link" scroll-to="sec-media">Adding Media</a></li>
+    <li><a class="internal-link" scroll-to="sec-cues">Editing Cues</a></li>
+</ul>
+
+
+<section id="sec-create" class="section">
+    <div class="section-header">Creating a Project</div>
+
+    <div class="section-body">
+        <p>To create a new project, select <b>File > New Project</b> to
+        bring up the Project Creation screen.</p>
+
+        <div class="section-screenshot">
+            <img class="section-screenshot-image"
+            style="max-width:400px;"
+            src="images/sshot-create.png">
+        </div>
+
+        <blockquote>
+            <p>
+                <div><strong>Project Name</strong></div>
+                The name of your project, which will appear in the title bar and
+                project menu. Short and sweet works best.
+            </p>
+            <p>
+                <div><strong>Folder Name</strong></div>
+                Synthea needs to make a folder to store all your project files in.
+                No special characters or anything fancy, just a few letters. You
+                won't ever see this in Synthea but you can see the folder on your
+                computer.
+            </p>
+            <p>
+                <div><strong>First Page</strong></div>
+                Every project needs one page to start with. You can always add
+                more pages and/or change this page&apos;s name later.
+            </p>
+            <p>
+                <div><strong>Board Type</strong></div>
+                The board type makes creating cues faster by setting a default
+                subgroup to new cues. You can always change a cue&apos;s subgroup
+                later.
+            </p>
+        </blockquote>
+
+        <p>When you've filled out the above, click <b>Create Project</b>. Synthea
+        will create the necessary files and folders for your new project and take
+        you directly to editing.
+        </p>
+
+    </div>
+</section>
+
+
+<section id="sec-layout" class="section">
+    <div class="section-header">Page and Section Layout</div>
+
+    <div class="section-body">
+        <p>You can add pages and sections to your project layout by clicking
+        on the <b>+ Add Page</b> and <b>+ Add Section</b> buttons. There is no
+        limit to how many pages or sections a project can have... but be reasonable.
+        </p>
+
+        <p>It is currently not possible to delete or re-order pages and sections,
+        but that will come along soon.
+        </p>
+
+    </div>
+</section>
+
+<section id="sec-media" class="section">
+    <div class="section-header">Adding Media</div>
+
+    <div class="section-body">
+        <p>In the bottom left, click on the add media icon (<md-icon class="material-icons">library_add</md-icon>) to
+        open a file selection window. Select as many files as you want and click okay
+        to add these files to the project.</p>
+        <p><i>NOTE: All files are <b>copied</b> to the project folder. Deleting this project
+        will delete the copies, not the originals.</i></p>
+    </div>
+</section>
+
+<section id="sec-cues" class="section">
+    <div class="section-header">Editing Cues</div>
+
+    <div class="section-body">
+        <p>Click on an existing cue button to edit it, or click on <b>+ Add Cue</b>
+        to create a new cue button.</p>
+
+        <div class="section-screenshot">
+            <img class="section-screenshot-image"
+            style="max-width:600px;"
+            src="images/sshot-editcue.png">
+        </div>
+
+        <blockquote>
+            <p>
+                <div><strong>Cue Title</strong></div>
+                The name of the cue, which will appear on the button and in
+                the queue/playback track name.
+            </p>
+            <p>
+                <div><strong>Subgroup</strong></div>
+                If you assign this cue to a subgroup, when played it will fade out
+                any other cues in the same subgroup. If this cue is playing and another
+                cue in the same subgroup is played, this cue will fade out.
+                <br/><br/>
+                If you do not assign a subgroup, this cue will play on its own
+                regardless of what else is playing.
+            </p>
+            <p>
+                <div><strong>Loop Cue</strong></div>
+                You can set this cue to loop by default. You can always change
+                the loop state of a playing cue on the playback interface.
+            </p>
+            <p>
+                <div><strong>Fade In</strong></div>
+                By default, cues will either fade in or start at full volume,
+                depending on the board&apos;s current setting. Instead, you can
+                specify that this specific cue should always (or never) fade in.
+            </p>
+            <p>
+                <div><strong>Cue Audio File(s)</strong></div>
+                This area lists the audio files attached to the cue. You can
+                remove an attached file by clicking on the removal icon (<b>&times;</b>), or attach a file using the <b>Project Media</b> section.
+            </p>
+            <p>
+                <div><strong>Project Media</strong></div>
+                Here you will see a list of all the media files in the project
+                that can be attached to the cue. Select a file and click <b>&lt;&lt; Add File to Cue</b> to attach it.
+                <br/><br/>
+                You can add new media files to the project by clicking on <b>+ Add Files</b>. <br><br/>
+                <i>NOTE: Any files added in this way will be automatically attached
+                to the cue.</i>
+            </p>
+            <p>
+                <div><strong>Delete Cue (<md-icon class="material-icons">delete</md-icon>)</strong></div>
+                You can click on the delete icon to remove a cue from the project.
+                This will not affect any media files attached to the cue.
+            </p>
+        </blockquote>
+    </div>
+</section>

@@ -1,9 +1,44 @@
+.blink {
+  animation: blink-animation 0.5s steps(8, start) infinite alternate; }
+
+@keyframes blink-animation {
+  from {
+    opacity: 1; }
+  to {
+    opacity: 0; } }
+
 * {
   box-sizing: border-box; }
 
 body, html {
   margin: 0;
   padding: 0; }
+
+footer {
+  color: #999;
+  font-size: 12px;
+  line-height: 14px;
+  padding: 16px 8px;
+  text-align: right; }
+  footer .license-link {
+    color: #999; }
+    footer .license-link:hover {
+      color: #ff4081; }
+
+p {
+  font-weight: 400;
+  letter-spacing: 0.010em;
+  line-height: 1.6em;
+  margin: 0.8em 0 1.6em; }
+
+instr {
+  font-family: monospace;
+  font-weight: 800;
+  font-size: 110%; }
+
+.internal-link {
+  color: #ff4081;
+  cursor: pointer; }
 
 .intro {
   background-image: url("images/background.png");
@@ -58,3 +93,32 @@ body, html {
     background-size: 80%;
     width: 100%;
     padding-top: 90%; }
+
+.section {
+  margin-bottom: 24px; }
+
+.section-header {
+  font-size: 24px;
+  font-weight: 500; }
+
+.section-body {
+  margin-top: -8px;
+  text-align: justify; }
+
+.section-screenshot {
+  text-align: center; }
+  .section-screenshot-image {
+    margin: 0 auto;
+    max-width: 100%; }
+
+.section-title {
+  border-bottom: solid 1px rgba(100, 100, 100, 0.2);
+  font-size: 40px;
+  font-weight: 700;
+  margin: 8px 0 16px 0;
+  padding-bottom: 8px; }
+
+.section-toc {
+  border-bottom: solid 1px rgba(100, 100, 100, 0.2);
+  padding-bottom: 24px;
+  margin-bottom: 16px; }
