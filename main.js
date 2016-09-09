@@ -1,11 +1,7 @@
 const electron = require('electron');
 const fs = require('fs');
 // Module to control application life.
-// const app = electron.app;
-const dialog = require('electron').dialog;
-const {app, ipcMain, Menu, MenuItem, shell} = electron;
-// Module to create native browser window.
-const BrowserWindow = electron.BrowserWindow;
+const {app, BrowserWindow, dialog, ipcMain, Menu, MenuItem, shell} = electron;
 const VERSION = require('./package.json').version;
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -321,7 +317,6 @@ function createProject(project) {
             });
 
     }
-
 }
 
 function createWindow () {
@@ -360,7 +355,6 @@ function createWindow () {
     // when you should delete the corresponding element.
     mainWindow = null;
   });
-
 }
 
 function deleteProject() {
@@ -446,7 +440,6 @@ function getProjectMedia(evt,proj) {
     }
 
     mainWindow.webContents.send('project-media',output);
-
 }
 
 function initializeSynthea() {
@@ -513,7 +506,83 @@ function initializeSynthea() {
     ipcMain.on('open-create-project', openProjectCreator);
     ipcMain.on('open-project-from-folder', openProjectFromFolder);
     ipcMain.on('open-weburl', openWeburl);
+}
 
+function openProject(projectDef) {
+    // Check the config for a documentRoot, which is all we need
+    // Or null, to clear out any projects
+    if (!projectDef || projectDef.documentRoot) {
+        mainWindow.webContents.send('open-project',projectDef);
+    }
+    // This means we got a project without a documentRoot, which is bad
+    else {
+        console.error('No project documentRoot, unable to process',projectDef);
+    }
+
+    CURRENT_PROJECT = projectDef;
+
+    // Remember that we opened this!
+    if (projectDef && projectDef.key && !projectDef.location && projectDef.key !== CONFIGS.lastProject) {
+        CONFIGS.lastProject = projectDef.key;
+        saveConfig();
+    }
+
+    // Set some menus
+    let filemenu, playbackmenu;
+    // Find the file menu
+    for (var i=0;i<menu.items.length;i++) {
+        if (menu.items[i].label === 'File') {
+            filemenu = menu.items[i].submenu;
+        }
+        else if (menu.items[i].label === 'Playback') {
+            playbackmenu = menu.items[i].submenu;
+        }
+    }
+
+    // Parse the file menu to change some toggles
+    for (i=0;i<filemenu.items.length;i++) {
+        if (filemenu.items[i].label === 'Edit Project') {
+            filemenu.items[i].enabled = true;
+        }
+        // Enable the "Save Project" filemenu option
+        else if (filemenu.items[i].label === 'Save Project') {
+            filemenu.items[i].enabled = false;
+        }
+        else if (filemenu.items[i].label === 'Delete Project') {
+            filemenu.items[i].enabled = true;
+        }
+    }
+    for (i=0;i<playbackmenu.items.length;i++) {
+        // Uncheck the 'DJ Mode' menu item
+        if (playbackmenu.items[i].label === 'DJ Mode') {
+            playbackmenu.items[i].checked = false;
+        }
+    }
+}
+
+function openProjectCreator() {
+    var modal = createModalWindow('creator');
+    // If the loader window broadcasts a project, handle it
+    ipcMain.once('create-project', function(evt,project) {
+        createProject(project);
+        modal.close();
+    });
+}
+
+function openProjectFromFolder() {
+    dialog.showOpenDialog({properties:['openDirectory']}, function(d) {
+        // Does openDialog always return an array?
+        if (!d || !d.length) { return; }
+
+        openProject({documentRoot: d[0]});
+
+    });
+}
+
+function openWeburl(evt,url) {
+    // Make sure it's a url or a mailto
+    if (!/^(https?:\/\/|mailto:)/.exec(url) ) { url = 'http://' + url; }
+    shell.openExternal(url);
 }
 
 function renderProjectsMenu() {
@@ -614,83 +683,6 @@ function renderProjectsMenu() {
     return output;
 }
 
-function openProject(projectDef) {
-    // Check the config for a documentRoot, which is all we need
-    // Or null, to clear out any projects
-    if (!projectDef || projectDef.documentRoot) {
-        mainWindow.webContents.send('open-project',projectDef);
-    }
-    // This means we got a project without a documentRoot, which is bad
-    else {
-        console.error('No project documentRoot, unable to process',projectDef);
-    }
-
-    CURRENT_PROJECT = projectDef;
-
-    // Remember that we opened this!
-    if (projectDef && projectDef.key && !projectDef.location && projectDef.key !== CONFIGS.lastProject) {
-        CONFIGS.lastProject = projectDef.key;
-        saveConfig();
-    }
-
-    // Set some menus
-    let filemenu, playbackmenu;
-    // Find the file menu
-    for (var i=0;i<menu.items.length;i++) {
-        if (menu.items[i].label === 'File') {
-            filemenu = menu.items[i].submenu;
-        }
-        else if (menu.items[i].label === 'Playback') {
-            playbackmenu = menu.items[i].submenu;
-        }
-    }
-
-    // Parse the file menu to change some toggles
-    for (i=0;i<filemenu.items.length;i++) {
-        if (filemenu.items[i].label === 'Edit Project') {
-            filemenu.items[i].enabled = true;
-        }
-        // Enable the "Save Project" filemenu option
-        else if (filemenu.items[i].label === 'Save Project') {
-            filemenu.items[i].enabled = false;
-        }
-        else if (filemenu.items[i].label === 'Delete Project') {
-            filemenu.items[i].enabled = true;
-        }
-    }
-    for (i=0;i<playbackmenu.items.length;i++) {
-        // Uncheck the 'DJ Mode' menu item
-        if (playbackmenu.items[i].label === 'DJ Mode') {
-            playbackmenu.items[i].checked = false;
-        }
-    }
-}
-
-function openProjectCreator() {
-    var modal = createModalWindow('creator');
-    // If the loader window broadcasts a project, handle it
-    ipcMain.once('create-project', function(evt,project) {
-        createProject(project);
-        modal.close();
-    });
-}
-
-function openProjectFromFolder() {
-    dialog.showOpenDialog({properties:['openDirectory']}, function(d) {
-        // Does openDialog always return an array?
-        if (!d || !d.length) { return; }
-
-        openProject({documentRoot: d[0]});
-
-    });
-}
-
-function openWeburl(evt,url) {
-    // Make sure it's a url or a mailto
-    if (!/^(https?:\/\/|mailto:)/.exec(url) ) { url = 'http://' + url; }
-    shell.openExternal(url);
-}
-
 function saveConfig() {
     console.info("Saving configuration", CONFIGS)
     fs.writeFile(CONFIG_PATH,JSON.stringify(CONFIGS), function(err) {
@@ -748,7 +740,6 @@ function saveProject(evt, project, callbackFn) {
             }
         }
     );
-
 }
 
 function toggleDJMode() {
