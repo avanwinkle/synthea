@@ -7,6 +7,11 @@ angular
 
 SynChannel.$inject = ['SynProject','$interval','$q','$timeout'];
 
+/**
+ * The SynChannel service returns the Channel constructor
+ * @constructor
+ *
+ */
 function SynChannel(SynProject,$interval,$q,$timeout) {
 
 
@@ -279,7 +284,7 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
         }
         */
 
-        // Notet that we're occupied!
+        // Note that we're occupied!
         this.state = 'QUEUING';
         // A queuing/queued channel is not "current", like a playing/paused is
         this.is_current = false;
@@ -291,19 +296,30 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
         return defer.promise;
     };
 
+    /**
+     * Begin pausing of the channel, which calls a fade out and then updates
+     * the various states and booleans.
+     *
+     * At some point we may want to make a promise to return, but no need yet.
+     */
     Channel.prototype.pause = function() {
 
         this.state = 'PAUSING';
 
+        // Wait for the fade out to complete before actually pausing
         this._fadeOut().then(function() {
             this._player.pause();
             this.state = 'PAUSED';
             this.is_playing = false;
+            // No need to maintain the overhead of a counter
             $interval.cancel(this.elapsedCounter);
         }.bind(this));
 
     };
 
+    /**
+     * Begin playing the channel, with a fade in (if necessary)
+     */
     Channel.prototype.play = function() {
 
         this.state = 'PLAYING';
@@ -312,13 +328,14 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
         this.is_playing = true;
         this.is_queued = false;
 
-        // Create an interval to update the playback time
+        // Create an interval to update the playback time while the cue plays
         this.elapsedCounter = $interval(function() {
 
-            // The track might have been faded out, or ended, by the time we get here
+            // Are we playing? Get the current time!
             if (this._player.playing()) {
                 this.currentTime = this._player.seek();
             }
+            // The track might have been faded out, or ended, by the time we get here
             else {
                 // If we're not playing, stop this infernal counter
                 // AVW: I believe this occurs due to mis-syncing of the angular
@@ -330,46 +347,61 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
 
         }.bind(this),100);
 
+        // Fade in the cue
         this._fadeIn().then(function(duration) {
             // AVW: Trying to track some fades that don't make it all the way
             console.log(' -- channel '+this._id+' fade in complete ('+duration+'ms)');
         }.bind(this));
 
-        // If we are playing an Exclusive Group, cancel the rest of the subgroup
-        if (this._subgroup.name !== 'COMMON_') {
+        // If we are playing in a Subgroup, cancel the rest of the subgroup
+        // AVW: Shouldn't this be handled higher up? Why isn't the "play" action
+        // trickling down from the subgroup and the subgroup clearing itself?
+        if (this._subgroup.name !== '__COMMON__') {
             this._subgroup.stopExcept(this.media);
         }
 
     };
 
-    Channel.prototype.repeat = function() {
-        // Toggle it on a media-by-media basis
-        this.media.isLoop = !this.media.isLoop;
-        // Update the channel to reflect the media's attribute
+    /**
+     * Toggle the loop state of the media in the channel
+     * @param {boolean} [force] A true/false value can be passed (rather than toggled)
+     */
+    Channel.prototype.repeat = function(force) {
+
+        // If we're not forcing a value, we're toggling
+        if (typeof(force)==='undefined') { force = !this.media.isLoop;}
+        // Loop state is on a media-by-media basis, so set the media attribute
+        this.media.isLoop = force;
+        // Update the player to reflect the media's attribute
         this._player.loop(this.media.isLoop);
     };
 
     /**
      * Wrapper method for setting the playback position of the media
-     * @param {float}
+     * @param {float} targetTime  The target timecode to seek
      */
     Channel.prototype.setTime = function(targetTime) {
         this._player.seek(targetTime || this.currentTime);
     };
 
+    /**
+     * Stop the playback of the media in this channel and cleanup
+     */
     Channel.prototype.stop = function() {
 
-        // We might not need to take action if we're already stopping it
+        // We might not need to take action if a stop is already in progress
         if (this.state==='STOPPING'|| this.state==='STOPPED') {
             return;
         }
 
         // What happens when we stop?
         var stopFn = function() {
+            // If that pesky counter is going, kill it
             if (this.elaspedCounter) {
                 $interval.cancel(this.elapsedCounter);
             }
 
+            // Clear out the flags so we're ready to use the channel again
             this.state = 'STOPPED';
             this.is_current = false;
             this.is_queued = false;
@@ -378,11 +410,13 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
             // Clear the cue
             this.media._channel = undefined;
 
+            // Flush the player to free up its memory allocation
             this._player.stop();
             this._player.unload();
             console.log(' -- channel '+this._id+' stopped');
         }.bind(this);
 
+        // Set an interim state to show that the stop is in progress
         this.state = 'STOPPING';
 
         // Are we playing? Fade out before we stop

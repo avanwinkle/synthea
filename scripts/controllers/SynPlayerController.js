@@ -8,6 +8,15 @@ angular
 
 SynPlayerController.$inject = ['SynMixer','SynProject','$location','$log','$scope','$timeout'];
 
+/**
+ * The main controller for the "player" view, aka the board when in playback mode.
+ * @constructor
+ *
+ * @property {Project} [project] The project object for the current project
+ * @property {Mixer} [mixer] The mixer object for the current project
+ * @property {SynMixer} [SynMixer_] Internal reference to the SynMixer service
+ * @property {SynProject} [SynProject_] Internal reference to the SynProject service
+ */
 function SynPlayerController(SynMixer,SynProject,$location,$log,$scope,$timeout) {
 
     var spVm = this;
@@ -110,10 +119,6 @@ function SynPlayerController(SynMixer,SynProject,$location,$log,$scope,$timeout)
 
 SynPlayerController.prototype.activate =  function() {
 
-    window.l = this.$location_;
-    var pkey = 'FinalFantasy';
-
-
     // If we have a mixer already, stop anything it's doing
     if (this.mixer) {
         this.stopAll();
@@ -125,12 +130,23 @@ SynPlayerController.prototype.activate =  function() {
 
 };
 
-// Define a "context" action (aka right-click) for a cue
+/**
+ * Define a "context" action (aka right-click) for a cue. Creating a
+ * contextCue() method allows us to bind to the OS-level event once
+ * and let each controller define the appropriate behavior.
+ *
+ * In this case, we call mixer.queue() on the cue that was right-clicked.
+ */
 SynPlayerController.prototype.contextCue = function(cue,event) {
     this.mixer.queue(cue);
 };
 
-
+/**
+ * With DJ Mode, you can enjoy all the cues a board has to offer. DJ Mode
+ * randomly plays cues from the board ad infinitum, including looped tracks.
+ * It has very little practial utility, but can be enjoyable for the board creator.
+ *
+ */
 SynPlayerController.prototype.enableDJMode = function() {
 
     // How many new tracks before repeat?
@@ -194,6 +210,19 @@ SynPlayerController.prototype.enableDJMode = function() {
 
 };
 
+/**
+ * Basic handling of a click on a cue object. Like this.contextCue, a basic
+ * binding allows us to separate the OS-level event handling from the
+ * controller-specific actions.
+ *
+ * The event for this method can include a modifier key to force the fadeIn
+ * state: click+shift will force fadeIn = true, while click+alt will force
+ * fadeIn = false.
+ *
+ * @param  {Cue} cue   The cue object that was clicked
+ * @param  {$event} event The click event
+ * @return {Channel}       The channel on which the cue is to be played
+ */
 SynPlayerController.prototype.selectCue = function(cue,event) {
 
     // We can pass in a "force" value for fadeIn
@@ -207,17 +236,43 @@ SynPlayerController.prototype.selectCue = function(cue,event) {
     return this.mixer.play(cue,{forceFadeIn: forceFadeIn});
 };
 
+/**
+ * Wrapper method for setting a channel to playback at the specific time
+ * based on the timeline hover position.
+ *
+ * The DOM could bind directly to the channel methods for this function, but
+ * that may change so for now we'll stay here.
+ *
+ * @param  {$event} evt     Click event
+ * @param  {Channel} channel Channel object
+ */
 SynPlayerController.prototype.timelineSeek = function(evt, channel) {
 
     channel.setTime(channel.seekPreview_);
 };
 
+/**
+ * Hover-event method to calculate the timecode position of the cursor over the
+ * timeline. Store the value locally so we can seek to it if desired.
+ *
+ * @param  {$event} evt     Click event
+ * @param  {Channel} channel The channel being previewed
+ * @return {number}         The time position of the seek preview
+ */
 SynPlayerController.prototype.timelineSeekPreview = function(evt,channel) {
-    // Where are we?
+    // Where are we, physically, relative to the timeline DOM?
     var seekTarget = evt.offsetX / evt.target.offsetWidth;
+    // Take the above calculation (as a percentage) and multiply by the duration
     channel.seekPreview_ = seekTarget * channel.getDuration();
+    // Return the value, in case somebody needs it?
+    return channel.seekPreview_;
 };
 
+/**
+ * Global stop method to gracefully kill playback on all channels. A wrapper for
+ * the mixer's method to do the same, plus remove any latent timers.
+ *
+ */
 SynPlayerController.prototype.stopAll = function() {
 
     // Use the mixer's stop() method to handle all audio stoppage

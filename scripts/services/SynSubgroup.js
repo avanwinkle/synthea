@@ -7,12 +7,14 @@ angular
 
 SynSubgroup.$inject = ['SynChannel','SynProject'];
 
+/**
+ * The SynSubgroup service returns the Subgroup constructor
+ * @constructor
+ *
+ * @param {SynChannel} SynChannel Dependency Injection
+ * @param {SynProject} SynProject Dependency Injection
+ */
 function SynSubgroup(SynChannel,SynProject) {
-
-    /*
-
-
-    */
 
     /**
      * The Subgroup controls an arbitrary number of Channels and manages any
