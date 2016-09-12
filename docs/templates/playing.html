@@ -12,10 +12,10 @@
 
     <div class="section-body">
         <ul>
-            <li><instr>&lt;Click&gt;</instr> a cue to play it</li>
-            <li><instr>&lt;Right-Click&gt;</instr> a cue to queue it</li>
-            <li>Press <instr>[Spacebar]</instr> to play all queued cues</li>
-            <li>Press <instr>[Backspace]</instr></b> to stop all playing cues</li>
+            <li><instr>&lt;Click&gt;</instr> a cue button to play it</li>
+            <li><instr>&lt;Right-Click&gt;</instr> a cue button to queue it</li>
+            <li><instr>[Spacebar]</instr> to play all queued cues</li>
+            <li><instr>[Backspace]</instr></b> to stop all playing cues</li>
         </ul>
     </div>
 </section>
@@ -29,9 +29,9 @@
         <p>Synthea keeps a Projects Folder for storing projects you
         create, and all projects in this folder can be seen in the <b>Projects</b>
         menu. Select any project from the menu to open it.</p>
-        <p><i>NOTE: newly-created and deleted projects will not be reflected
+        <p><i>NOTE: Newly-created and deleted projects will not be reflected
         in the Projects menu until after Synthea restarts.</i></p>
-        <p>You can browse the Projects Folder directly by selecting <b>Projects &gt; Go to Projects Folder</b>, and you can change the Projects Folder by selecting <b>Projects &gt; Change Projects Folder&hellip;</b>.</p>
+        <p>You can browse the Projects Folder directly by selecting <b>Projects &gt; Go to Projects Folder</b>, and you can change the Projects Folder by selecting <b>Projects &gt; Change Projects Folder&hellip;</b></p>
     </div>
 </section>
 
@@ -44,6 +44,7 @@
 
         <div class="section-screenshot">
             <img class="section-screenshot-image"
+            alt="Synthea sound board layout"
             src="images/sshot-board.png">
         </div>
 
@@ -95,14 +96,14 @@
             <p>
                 <div><strong>Queued Cues</strong></div>
                 All sound cues that have been queued are listed here. You can
-                begin immediate playback of any by pressing <b>play</b>, or remove
-                them from the queue by pressing <b>unqueue</b>. Press <instr>[spacebar]</instr> to begin playback of <u>all</u> cues in the queue.
+                begin immediate playback of any by pressing <b>play</b> (<md-icon class="material-icons">play_arrow</md-icon>), or remove
+                one from the queue by pressing <b>unqueue</b> (<md-icon class="material-icons">clear</md-icon>). Press <instr>[Spacebar]</instr> to begin playback of <u>all</u> cues in the queue.
             </p>
             <p>
                 <div><strong>Playback Cues</strong></div>
                 All sound cues that are currently playing (or paused) are listed
-                here. You can resume playback of any by pressing <b>play</b>, or
-                stop them by pressing <b>stop</b>. Press <instr>[backspace]</instr> to
+                here. You can pause or resume playback of any by pressing <b>pause</b> (<md-icon class="material-icons">pause</md-icon>) or <b>play</b> (<md-icon class="material-icons">play_arrow</md-icon>), or
+                stop them by pressing <b>stop</b> (<md-icon class="material-icons">stop</md-icon>). Press <instr>[Backspace]</instr> to
                 stop playback of <u>all</u> cues in playback.
                 <br><br><i>NOTE: Synthea will automatically fade out any cues
                 when pausing or stopping.</i>

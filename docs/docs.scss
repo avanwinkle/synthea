@@ -24,6 +24,19 @@ footer {
     }
 }
 
+a {
+    color: $docs-accent;
+    cursor: pointer;
+
+    &:hover {
+        color: darken($docs-accent, 20%);
+    }
+
+    &:visited {
+        color: desaturate($docs-accent, 40%);
+    }
+}
+
 p {
   font-weight: 400;
   letter-spacing: 0.010em;
@@ -68,10 +81,12 @@ instr {
 
         &-subtitle {
             font-size: 24px;
+            margin-top: 64px;
         }
 
         &-title {
-            font-size: 56px;
+            font-size: 64px;
+            font-weight: 500;
             text-transform: uppercase;
         }
     }

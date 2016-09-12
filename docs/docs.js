@@ -26,6 +26,9 @@ function SyntheaDocsConfig($locationProvider,$mdThemingProvider,$routeProvider) 
     .when('/editing', {
         templateUrl: 'templates/editing.html',
     })
+    .when('/help', {
+        templateUrl: 'templates/help.html',
+    })
     .when('/playing', {
         templateUrl: 'templates/playing.html',
     })

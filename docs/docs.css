@@ -25,6 +25,14 @@ footer {
     footer .license-link:hover {
       color: #ff4081; }
 
+a {
+  color: #ff4081;
+  cursor: pointer; }
+  a:hover {
+    color: #d9004a; }
+  a:visited {
+    color: #d9668d; }
+
 p {
   font-weight: 400;
   letter-spacing: 0.010em;
@@ -56,9 +64,11 @@ instr {
       max-width: 480px;
       text-align: justify; }
     .intro-header-subtitle {
-      font-size: 24px; }
+      font-size: 24px;
+      margin-top: 64px; }
     .intro-header-title {
-      font-size: 56px;
+      font-size: 64px;
+      font-weight: 500;
       text-transform: uppercase; }
 
 .main-content {
