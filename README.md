@@ -35,7 +35,7 @@ It is still in its infancy, but for those willing and able to learn it, I hope i
 
 ## Requirements
 
-To develop and build ***Synthea***, you will need [NPM](https://www.npmjs.com/) and git. The application is built on the following platforms and frameworks:
+To develop and build ***Synthea***, you will need [NPM](https://www.npmjs.com/package/npm) and git. The application is built on the following platforms and frameworks:
  - [AngularJS](https://angularjs.org/)
  - [Angular Material](https://material.angularjs.org/)
  - [Electron](http://electron.atom.io/)
@@ -54,18 +54,13 @@ or create your own builds.
 
 **Developer Installation**
 
-:anguished: _These instructions should work, but are untested!_
 ```
 $ git clone https://github.com/avanwinkle/synthea.git
 $ cd synthea
 $ npm install
-$ electron .
+$ npm start
 ```
-If ```$ electron .``` results in error messages, you may need to manually install Electron and symlink it to your PATH, which is easiest with a global electron install:
 
-```$ npm install -g electron```
-
-Full instructions are available [here](https://www.npmjs.com/package/electron).
 
 **Build Instructions**
 

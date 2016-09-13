@@ -14,7 +14,7 @@ ng-include="'templates/partials/header-player.html'"
 <div  layout="row" flex layout-wrap id="page-container-content">
     <div class="section md-card" flex
     md-padding="2"
-    ng-repeat="section in sVm.project.sections | filter: {'page_id': sVm.currentPage.id} : true">
+    ng-repeat="section in sVm.project.sections | filter: {'page_id': sVm.currentPage.id} : true| orderBy: '+display_order'">
         <div class="section-header" ng-bind="section.name"></div>
         <div class="section-container" layout="column">
             <div class="cueButton-container"

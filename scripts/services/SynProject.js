@@ -30,7 +30,10 @@ function SynProject($http,$q,$log) {
 
     }
 
-    function load(projectDef) {
+    function load(projectDef,projectLayout) {
+
+        // Copy the project def
+        def = angular.copy(projectDef);
 
         // Reset the project!
         for (var prop in project) {
@@ -42,88 +45,19 @@ function SynProject($http,$q,$log) {
         var defer = $q.defer();
 
         // Look for a layout file
-        if (projectDef.documentRoot) {
+        if (projectLayout) {
+            console.log('Loading project from passed layout file')
+            _processLayoutFile(projectLayout);
+            defer.resolve();
+        }
 
-            // Copy the project def
-            def = angular.copy(projectDef);
+        // Look for a definition file that has a layout
+        else if (projectDef.documentRoot) {
+            console.log("Loading project from projectDef file")
 
             $http.get(projectDef.documentRoot + '/layout.json')
             .then(function(response){
-                angular.extend(project, response.data);
-
-                // Make an id lookup for cues so we can bind hotkeys
-                var cue_ids = {};
-                console.log('starting with '+project.cues.length+' cues');
-                // Catch erroneous
-                for (var i=project.cues.length;i--;i>=0) {
-                    if (!project.cues[i]) {
-                        console.log("  removing ",project.cues[i])
-                        project.cues.splice(i,1);
-                    }
-                }
-
-                // MIGRATION: Store the cue ids in the sections, for order
-                var sections_to_add = undefined;
-                if (!project.sections[0].cue_ids) {
-                    sections_to_add = {};
-                    angular.forEach(project.sections, function(s) {
-                        if (!s.cue_ids) {
-                            s.cue_ids = [];
-                        }
-                        sections_to_add[s.id] = s.cue_ids;
-                    });
-                }
-
-                // Create our cue objects
-                angular.forEach(project.cues, function(c, idx) {
-
-                    // Note the full path to the audio file, including the
-                    // documentRoot (which is NOT saved in the project)
-                    c._fullPath = projectDef.documentRoot + '/audio/' +
-                        c.sources[0];
-                    // AVW: Phasing out in favor of cuesInSection
-                    // filter, but may regress if performance is hit too much
-                    // // Add to each column
-                    if (sections_to_add) {
-                        angular.forEach(c.section_ids, function(s) {
-                            sections_to_add[s].push(c.id);
-                        });
-                    }
-                    delete(c.section_ids);
-                    if (c.subgroup==='__MUSIC__') {
-                        c.subgroup = 'music';
-                    }
-                    if (!c.loopFile) {
-                        delete(c.loopFile);
-                    }
-                    if (!c.tooltip) {
-                        delete(c.tooltip);
-                    }
-                    if (typeof(c.display_order)!=='undefined') {
-                        delete(c.display_order);
-                    }
-                    // And the lookup
-                    cue_ids[c.id] = c;
-                });
-
-                // Save it?
-                if (sections_to_add) {
-                    console.warn("Updating sections with cue_ids array!")
-                    project.key = projectDef.key;
-                    ipcRenderer.send('save-project', project)
-                }
-
-                // Map the cues to the hotkeys as well
-                angular.forEach(project.hotKeys, function(h) {
-                    h.cue = cue_ids[h.target];
-                });
-
-                // Do we have a nice image?
-                if (project.bannerImage) {
-                    project.bannerImage_ = 'url(\''+
-                        projectDef.documentRoot + '/' +
-                        project.bannerImage + '\')';
-                }
+                _processLayoutFile(response.data);
                 defer.resolve();
             });
 
@@ -156,6 +90,84 @@ function SynProject($http,$q,$log) {
         return defer.promise;
     }
 
+
+    function _processLayoutFile(layoutfile) {
+        angular.extend(project, layoutfile);
+
+        // Make an id lookup for cues so we can bind hotkeys
+        var cue_ids = {};
+
+        // Catch erroneous bindings (i.e. hotkeys to cues that don't exist)
+        for (var i=project.cues.length;i--;i>=0) {
+            if (!project.cues[i]) {
+                console.log("  removing hotkey ",project.cues[i]);
+                project.cues.splice(i,1);
+            }
+        }
+
+        // MIGRATION: Store the cue ids in the sections, for order
+        var sections_to_add;
+        if (!project.sections[0].cue_ids) {
+            sections_to_add = {};
+            angular.forEach(project.sections, function(s) {
+                if (!s.cue_ids) {
+                    s.cue_ids = [];
+                }
+                sections_to_add[s.id] = s.cue_ids;
+            });
+        }
+
+        // Create our cue objects
+        angular.forEach(project.cues, function(c, idx) {
+
+            // Note the full path to the audio file, including the
+            // documentRoot (which is NOT saved in the project)
+            c._fullPath = def.documentRoot + '/audio/' +
+                c.sources[0];
+            // AVW: Phasing out in favor of cuesInSection
+            // filter, but may regress if performance is hit too much
+            // // Add to each column
+            if (sections_to_add) {
+                angular.forEach(c.section_ids, function(s) {
+                    sections_to_add[s].push(c.id);
+                });
+            }
+            delete(c.section_ids);
+            if (c.subgroup==='__MUSIC__') {
+                c.subgroup = 'music';
+            }
+            if (!c.loopFile) {
+                delete(c.loopFile);
+            }
+            if (!c.tooltip) {
+                delete(c.tooltip);
+            }
+            if (typeof(c.display_order)!=='undefined') {
+                delete(c.display_order);
+            }
+            // And the lookup
+            cue_ids[c.id] = c;
+        });
+
+        // Save it?
+        if (sections_to_add) {
+            console.warn("Updating sections with cue_ids array!")
+            project.key = def.key;
+            ipcRenderer.send('save-project', project)
+        }
+
+        // Map the cues to the hotkeys as well
+        angular.forEach(project.hotKeys, function(h) {
+            h.cue = cue_ids[h.target];
+        });
+
+        // Do we have a nice image?
+        if (project.bannerImage) {
+            project.bannerImage_ = 'url(\''+
+                def.documentRoot + '/' +
+                project.bannerImage + '\')';
+        }
+    }
 
     var SynProjectService = {
         copyMediaToProject: copyMediaToProject,

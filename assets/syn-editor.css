@@ -67,6 +67,32 @@ div[dnd-list] .dndDraggingSource {
       .editcue-sources-item-remove:hover {
         color: #c50836; }
 
+.editsection-container {
+  margin: 16px auto; }
+
+.editsection-section {
+  background-color: #eee;
+  border-style: solid;
+  border-color: rgba(0, 0, 0, 0.1);
+  border-width: 0 0 1px 0;
+  line-height: 14px;
+  padding: 4px; }
+  .editsection-section:first-child {
+    border-top-width: 1px; }
+  .editsection-section-delete {
+    cursor: pointer; }
+    .editsection-section-delete:hover .syn-icon {
+      fill: #c50836; }
+  .editsection-section-input {
+    border-color: transparent;
+    background-color: transparent; }
+    .editsection-section-input:focus {
+      outline: none;
+      border-bottom-color: #368BE6; }
+  .editsection-section-name {
+    font-weight: 300;
+    padding: 4px 8px; }
+
 li.dndPlaceholder {
   list-style: none;
   list-style-image: none;

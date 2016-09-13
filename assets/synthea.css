@@ -34,12 +34,14 @@ md-input-container.nobottom {
   text-align: left; }
 
 .modal-buttons {
+  background-color: #eee;
   margin: 8px -16px -16px -16px; }
 
 .modal-content {
   margin: 0 auto; }
 
 .modal-title {
+  background-color: #eee;
   font-size: 24px;
   font-weight: 400; }
 

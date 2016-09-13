@@ -6,9 +6,9 @@ angular
     .module('SyntheaApp')
     .controller("SynEditorController", SynEditorController);
 
-SynEditorController.$inject = ['SynMixer','SynProject','$log','$mdDialog','$q','$timeout'];
+SynEditorController.$inject = ['SynMixer','SynProject','$filter','$log','$mdDialog','$q','$timeout'];
 
-function SynEditorController(SynMixer,SynProject,$log,$mdDialog,$q,$timeout) {
+function SynEditorController(SynMixer,SynProject,$filter,$log,$mdDialog,$q,$timeout) {
 
     var seVm = this;
     window.seVm = this;
@@ -16,6 +16,7 @@ function SynEditorController(SynMixer,SynProject,$log,$mdDialog,$q,$timeout) {
     this.project = SynProject.getProject();
     this.projectDef = SynProject.getProjectDef();
 
+    this.$filter_ = $filter;
     this.$mdDialog_ = $mdDialog;
     this.$q_ = $q;
     this.$timeout_ = $timeout;
@@ -44,8 +45,6 @@ SynEditorController.prototype.addCue = function(idx, section, $event) {
 
     var newCue = {
         sources: [],
-        section_ids: [section.id],
-        display_order: idx,
     };
 
     // Set a default subgroup?
@@ -71,7 +70,6 @@ SynEditorController.prototype.addCue = function(idx, section, $event) {
         }
         section.cue_ids.push(newCue.id);
     }.bind(this));
-
 };
 
 SynEditorController.prototype.addPage = function($event) {
@@ -92,29 +90,8 @@ SynEditorController.prototype.addPage = function($event) {
             cue_ids: [],
         });
     }.bind(this));
-
 };
 
-SynEditorController.prototype.addSection = function(idx,page_id,$event) {
-
-    var prompt = this.$mdDialog_.prompt()
-        .title('Name for this Section')
-        .targetEvent($event)
-        .ok('Add Section')
-        .cancel('Cancel')
-        .theme('pink');
-
-    this.$mdDialog_.show(prompt).then(function(result) {
-        this.project.sections.push({
-            id: this.idCount++,
-            name: result,
-            page_id: page_id,
-            display_order: idx,
-            cue_ids: [],
-        });
-    }.bind(this));
-
-};
 
 SynEditorController.prototype.copyMediaToProject = function() {
 
@@ -184,6 +161,96 @@ SynEditorController.prototype.editCue = function(cue,$event) {
     }.bind(this), defer.reject);
 
     return defer.promise;
+};
+
+SynEditorController.prototype.manageSections = function(page_id, $event) {
+
+    var sections = this.$filter_('filter')(
+                    this.project.sections, {page_id: page_id}
+                );
+    // Send them to the modal in the order they currently appear
+    sections.sort(function(a,b) { return a.display_order >= b.display_order; });
+
+    this.$mdDialog_.show({
+        bindToController: true,
+        controller: [ function() {
+            var ssVm = this;
+
+            ssVm.addSection = function() {
+                ssVm.sections.push({
+                    display_order: ssVm.sections.length,
+                    page_id: page_id,
+                    name: undefined,
+                });
+            };
+
+            ssVm.deleteSection = function(idx) {
+                ssVm.sections.splice(idx,1);
+            };
+
+            ssVm.saveSections = function() {
+                // Drag and drop creates NEW COPIES of objects, so we can't
+                // just modify in place. Instead, make an array of section ids
+                var newOrder = ssVm.sections.map(function(s) {
+                    // New sections don't have ids, just names
+                    return s.id || s.name;
+                });
+                // Return this order of ids to the controller
+                ssVm.$hide({sections: ssVm.sections, order: newOrder});
+            };
+        }],
+        controllerAs: 'ssVm',
+        locals: {
+            $cancel: this.$mdDialog_.cancel,
+            $hide: this.$mdDialog_.hide,
+            sections: sections
+        },
+        templateUrl: 'templates/modals/manage-sections.html',
+        targetEv: $event,
+    }).then(function(response) {
+
+        // Use the array of ids to set the display order
+        for (var i=this.project.sections.length-1;i>=0;i--) {
+            var s = this.project.sections[i];
+            var idx = response.order.indexOf(s.id);
+
+            // Do we have a display order to set?
+            if (idx !== -1) {
+                s.display_order = idx;
+                // Do we have a new name?
+                if (response.sections[idx].name) {
+                    s.name = response.sections[idx].name;
+                }
+            }
+            // Was this section deleted?
+            else if (s.page_id === page_id) {
+                this.project.sections.splice(i,1);
+                // Also delete all the cues that used to live in this section?
+                for (var k=this.project.cues.length-1;k>=0;k--) {
+                    if (s.cue_ids.indexOf(this.project.cues[k].id)!== -1) {
+                        this.project.cues.splice(k,1);
+                    }
+                }
+            }
+        }
+
+        // Did we get any new sections?
+        for (var j=0;j<response.order.length;j++) {
+            if (typeof(response.order[j])==='string') {
+                // Make a section object with an id
+                 this.project.sections.push({
+                    id: this.idCount++,
+                    name: response.order[j],
+                    page_id: page_id,
+                    display_order: j,
+                    cue_ids: [],
+                });
+            }
+        }
+
+    }.bind(this));
+
+
 };
 
 SynEditorController.prototype.moveCue = function(cue_id, section, orig_idx) {

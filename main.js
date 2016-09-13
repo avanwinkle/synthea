@@ -4,54 +4,21 @@ const fs = require('fs');
 const {app, BrowserWindow, dialog, ipcMain, Menu, MenuItem, shell} = electron;
 const VERSION = require('./package.json').version;
 
+// All of our project and related code is separate, for cleanliness
+const synthea = require('./synthea-app/synthea');
+
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
 
-// Keep a global reference to the application configuration
-let CONFIGS;
-const CONFIG_PATH = app.getPath('userData')+'/config';
-
-// Keep a pointer to the project menu so we can add/remove
-let PROJECTS = [];
-// And our current project
-let CURRENT_PROJECT;
-
 // Keep our menu accessible
 let menu;
 
+
 // HEY LISTEN! Developers, wanna see what's going on? TURN THIS ON!!
-let DEBUG_MODE = false;
+let DEBUG_MODE = true;
 
-function addMediaToProject(evt,pkey) {
-
-    dialog.showOpenDialog( {
-        title: 'Select Media for Project',
-        properties: ['openFile', 'multiSelections'],
-    }, function(selection) {
-
-        // Maybe nothing?
-        if (!selection) { return; }
-
-        for (var i=0;i<selection.length;i++) {
-            try {
-
-                var filename = selection[i].split('/').pop();
-
-                fs.createReadStream(selection[i])
-                .pipe(fs.createWriteStream(
-                    CONFIGS.projectFolder+'/'+pkey+'/audio/'+filename));
-            }
-            catch(err) {
-
-            }
-        }
-
-        // Return the new list of files
-        getProjectMedia(null,{key:pkey});
-
-    });
-}
 
 function browseCloudProjects() {
 
@@ -75,54 +42,10 @@ function browseCloudProjects() {
 
       // If the loader window broadcasts a project, handle it
       ipcMain.once('open-project', function(evt,projectDef) {
-        openProject(projectDef);
+        synthea.openProject(projectDef);
         child.close();
       });
     });
-}
-
-function closeProject(evt) {
-    mainWindow.webContents.send('open-project',null);
-
-    // Set some menus
-    let filemenu, playbackmenu;
-    // Find the file menu
-    for (var i=0;i<menu.items.length;i++) {
-        if (menu.items[i].label === 'File') {
-            filemenu = menu.items[i].submenu;
-        }
-        else if (menu.items[i].label === 'Playback') {
-            playbackmenu = menu.items[i].submenu;
-        }
-    }
-
-    // Parse the file menu to change some toggles
-    for (i=0;i<filemenu.items.length;i++) {
-        if (filemenu.items[i].label === 'Edit Project') {
-            filemenu.items[i].enabled = false;
-        }
-        // Enable the "Save Project" filemenu option
-        else if (filemenu.items[i].label === 'Save Project') {
-            filemenu.items[i].enabled = false;
-        }
-        else if (filemenu.items[i].label === 'Delete Project') {
-            filemenu.items[i].enabled = false;
-        }
-    }
-    for (i=0;i<playbackmenu.items.length;i++) {
-        // Uncheck the 'DJ Mode' menu item
-        if (playbackmenu.items[i].label === 'DJ Mode') {
-            playbackmenu.items[i].checked = false;
-        }
-    }
-
-    // Remove from the configs?
-    if (CONFIGS.lastProject === CURRENT_PROJECT.key && !CURRENT_PROJECT.location) {
-        CONFIGS.lastProject = undefined;
-        saveConfig();
-    }
-
-    CURRENT_PROJECT = undefined;
 }
 
 function createMenus() {
@@ -147,14 +70,14 @@ function createMenus() {
                 },
                 {
                     label: 'Close Project',
-                    click: closeProject,
+                    click: synthea.closeProject,
                 },
                 { type: 'separator',},
                 {
                     label: 'Edit Project',
                     role: 'edit',
                     enabled: false,
-                    click: editProject,
+                    click: synthea.editProject,
                 },
                 {
                     label: 'Save Project',
@@ -165,16 +88,18 @@ function createMenus() {
                         mainWindow.webContents.send('get-project');
                     }
                 },
+                /*
                 {
                     label: 'Save Project As...',
                     role: 'saveAs',
                     enabled: false,
                 },
+                */
                 {   type: 'separator' },
                 {
                     label: 'Delete Project',
                     enabled: false,
-                    click: deleteProject,
+                    click: synthea.deleteProject,
                 }
             ]
         },
@@ -277,53 +202,9 @@ function createModalWindow(name,callbackFn) {
     return child;
 }
 
-function createProject(project) {
-
-    // Make sure we have everything
-    if (!project.name || !project.key || !project.pages ||
-    !project.pages.length || !project.pages[0].name) {
-        console.error('Invalid Project');
-        return;
-    }
-
-    // TODO: Validate all of these fields
-
-    // Does this folder already exist?
-    var targetFolder = CONFIGS.projectFolder+'/'+project.key;
-
-    // Make the folder, if need be
-    try {
-        fs.accessSync(targetFolder);
-        console.error('Project folder already exists!');
-        dialog.showErrorBox('Unable to Create Project',
-            'Project folder "'+project.key+'" already exists.');
-
-        return;
-    }
-    catch(err) {
-        fs.mkdirSync(targetFolder);
-        fs.mkdirSync(targetFolder+'/audio');
-
-        fs.writeFile(targetFolder+'/layout.json',
-            JSON.stringify(project), function(err) {
-                if (err) {
-                    dialog.showErrorBox('Unable to Create Project', err);
-                    console.error(err);
-                    return;
-                }
-                // Open the project!
-                var projectDef = {
-                    key: project.key,
-                    name: project.name,
-                    documentRoot: targetFolder,
-                };
-                editProject(projectDef);
-            });
-
-    }
-}
 
 function createWindow () {
+
   // Create the browser window.
   mainWindow = new BrowserWindow({
     backgroundColor: '#EEEEEE',
@@ -332,6 +213,7 @@ function createWindow () {
     title: 'Synthea ' + VERSION,
     width: 1200,
   });
+  synthea.mainWindow = mainWindow;
 
   // and load the index.html of the app.
   // AVW: This must be in GRAVES, not APOSTROPHES
@@ -361,121 +243,21 @@ function createWindow () {
   });
 }
 
-function deleteProject() {
-
-    const CANCEL_ID = 1;
-    dialog.showMessageBox({
-        buttons: ['Delete Project','Cancel'],
-        cancelId: CANCEL_ID,
-        defaultId: CANCEL_ID,
-        type: 'question',
-        title: 'Confirm Delete',
-        message: 'This project and all its media will be deleted. Are you sure?',
-    }, function(response) {
-
-        if (response!==CANCEL_ID) {
-            console.log("DELETE PROJECT:",CURRENT_PROJECT );
-
-            // Remove the audio
-            var fs = require('fs');
-
-            var layout = CURRENT_PROJECT.documentRoot+'/layout.json';
-            var audio = CURRENT_PROJECT.documentRoot+'/audio';
-            if( fs.existsSync(audio) && fs.existsSync(layout)) {
-                fs.readdirSync(audio).forEach(function(file,index){
-                    fs.unlinkSync(audio + '/' + file);
-                });
-                fs.rmdirSync(audio);
-                fs.unlinkSync(layout);
-                fs.rmdir(CURRENT_PROJECT.documentRoot);
-            }
-
-
-            // Close it
-            closeProject();
-        }
-
-    });
-}
-
-function editProject(projectDef) {
-
-    let submenu;
-    // Find the file menu
-    for (var i=0;i<menu.items.length;i++) {
-        if (menu.items[i].label === 'File') {
-            submenu = menu.items[i].submenu;
-            break;
-        }
-    }
-
-    // Parse the file menu to change some toggles
-    for (i=0;i<submenu.items.length;i++) {
-        if (submenu.items[i].label === 'Edit Project') {
-            submenu.items[i].enabled = false;
-        }
-        // Enable the "Save Project" submenu option
-        else if (submenu.items[i].label === 'Save Project') {
-            submenu.items[i].enabled = true;
-        }
-    }
-
-    // We can pass a projectDef if it's passed
-    if (!projectDef.documentRoot || !projectDef.key) {
-        projectDef = undefined;
-    }
-    mainWindow.webContents.send('edit-project',projectDef);
-}
 
 function enableDebugMode() {
     DEBUG_MODE = true;
     mainWindow.webContents.openDevTools();
 }
 
-function getProjectMedia(evt,proj) {
-    var output = [];
-
-    var media = fs.readdirSync(CONFIGS.projectFolder+'/'+proj.key+'/audio');
-    for (var i=0;i<media.length;i++) {
-        // Ignore hidden files and those without extensions
-        if (media[i].indexOf('.') > 0) {
-            output.push(media[i]);
-        }
-    }
-
-    mainWindow.webContents.send('project-media',output);
-}
 
 function initializeSynthea() {
 
-    // Does a config file exist?
-    try {
-        fs.statSync(CONFIG_PATH);
-        CONFIGS = JSON.parse(fs.readFileSync(CONFIG_PATH));
-    }
-    // If not, let's make a config file (it lives in %APP_DIR% or equivalent)
-    catch(err) {
-
-        var defaultFolder = app.getPath('userData')+'/Projects';
-
-        // Make the folder, if need be
-        try {
-            fs.accessSync(defaultFolder);
-        }
-        catch(err) {
-            fs.mkdirSync(defaultFolder);
-        }
-
-        // Make a default config file, which is just the default folder
-        CONFIGS = {
-            projectFolder: defaultFolder,
-        };
-        // Save it
-        saveConfig();
-    }
+    synthea.init( app.getPath('userData') );
 
     // Create our menus
     createMenus();
+    // Map our menu modification method so the synthea module can call it
+    synthea.setMenusEnabled = setMenusEnabled;
 
     // If we have a last-used project, open that by default
     mainWindow.webContents.once('did-finish-load', function() {
@@ -483,92 +265,47 @@ function initializeSynthea() {
         var foundLastProject = false;
 
         // Now that the menus are built, let's try opening our last project
-        if (CONFIGS.lastProject) {
-            // Iterate over the projects we found in our Projects folder
-            for (var i=0;i<PROJECTS.length;i++) {
-                // Do any of those PROJECTS.items match the last one we opened?
-                if (PROJECTS[i].key === CONFIGS.lastProject) {
-                    openProject(PROJECTS[i]);
-                    foundLastProject = true;
+        if (synthea.configs.lastProject) {
+            // Hop over to the Projects menu
+            for (var i=0;i<menu.items.length;i++) {
+                if (menu.items[i].label==='Projects') {
+                    // Iterate over the projects we found in our Projects folder
+                    for (var k=0;k<menu.items[i].submenu.items.length;k++) {
+                        var menuitem = menu.items[i].submenu.items[k];
+                        if (menuitem.key === synthea.configs.lastProject) {
+                            synthea.openProject(menuitem);
+                            foundLastProject = true;
+                            break;
+                        }
+                    }
                     break;
                 }
             }
         }
-        // If we don't have a project to lad?
+
+        // If we don't have a project to load?
         if (!foundLastProject) {
-            openProject(null);
+            synthea.openProject(null);
         }
     });
 
     /*** GENERAL SYNTHEA LISTENERS ***/
 
-    ipcMain.on('add-media-to-project', addMediaToProject);
+    ipcMain.on('add-media-to-project', synthea.addMediaToProject);
     ipcMain.on('browse-cloud-projects', browseCloudProjects);
-    ipcMain.on('get-project-media', getProjectMedia);
-    ipcMain.on('save-project', saveProject);
-    ipcMain.on('save-and-open-project', saveAndOpenProject);
+    ipcMain.on('get-project-media', synthea.getProjectMedia);
+    ipcMain.on('save-project', synthea.saveProject);
+    ipcMain.on('save-and-open-project', synthea.saveAndOpenProject);
     ipcMain.on('open-create-project', openProjectCreator);
     ipcMain.on('open-project-from-folder', openProjectFromFolder);
     ipcMain.on('open-weburl', openWeburl);
-}
-
-function openProject(projectDef) {
-    // Check the config for a documentRoot, which is all we need
-    // Or null, to clear out any projects
-    if (!projectDef || projectDef.documentRoot) {
-        mainWindow.webContents.send('open-project',projectDef);
-    }
-    // This means we got a project without a documentRoot, which is bad
-    else {
-        console.error('No project documentRoot, unable to process',projectDef);
-    }
-
-    CURRENT_PROJECT = projectDef;
-
-    // Remember that we opened this!
-    if (projectDef && projectDef.key && !projectDef.location && projectDef.key !== CONFIGS.lastProject) {
-        CONFIGS.lastProject = projectDef.key;
-        saveConfig();
-    }
-
-    // Set some menus
-    let filemenu, playbackmenu;
-    // Find the file menu
-    for (var i=0;i<menu.items.length;i++) {
-        if (menu.items[i].label === 'File') {
-            filemenu = menu.items[i].submenu;
-        }
-        else if (menu.items[i].label === 'Playback') {
-            playbackmenu = menu.items[i].submenu;
-        }
-    }
-
-    // Parse the file menu to change some toggles
-    for (i=0;i<filemenu.items.length;i++) {
-        if (filemenu.items[i].label === 'Edit Project') {
-            filemenu.items[i].enabled = true;
-        }
-        // Enable the "Save Project" filemenu option
-        else if (filemenu.items[i].label === 'Save Project') {
-            filemenu.items[i].enabled = false;
-        }
-        else if (filemenu.items[i].label === 'Delete Project') {
-            filemenu.items[i].enabled = true;
-        }
-    }
-    for (i=0;i<playbackmenu.items.length;i++) {
-        // Uncheck the 'DJ Mode' menu item
-        if (playbackmenu.items[i].label === 'DJ Mode') {
-            playbackmenu.items[i].checked = false;
-        }
-    }
 }
 
 function openProjectCreator() {
     var modal = createModalWindow('creator');
     // If the loader window broadcasts a project, handle it
     ipcMain.once('create-project', function(evt,project) {
-        createProject(project);
+        synthea.createProject(project);
         modal.close();
     });
 }
@@ -578,7 +315,7 @@ function openProjectFromFolder() {
         // Does openDialog always return an array?
         if (!d || !d.length) { return; }
 
-        openProject({documentRoot: d[0]});
+        synthea.openProject({documentRoot: d[0]});
 
     });
 }
@@ -592,10 +329,10 @@ function openWeburl(evt,url) {
 function renderProjectsMenu() {
 
 
-    PROJECTS = [];
+    var projects = [];
 
     // Look through everything in the Projects folder to see if it's a project
-    var projs = fs.readdirSync(CONFIGS.projectFolder);
+    var projs = fs.readdirSync(synthea.configs.projectFolder);
     var output = [];
 
     for(var i=0;i<projs.length;i++) {
@@ -609,17 +346,17 @@ function renderProjectsMenu() {
         // Look for a layout file
         try {
             var f = fs.readFileSync(
-                CONFIGS.projectFolder+'/'+projs[i]+'/layout.json',
+                synthea.configs.projectFolder+'/'+projs[i]+'/layout.json',
                 { encoding:'UTF-8'}
             );
 
             var pconfig = JSON.parse(f);
 
             // Store that this is a project
-            PROJECTS.push({
+            projects.push({
                 key: projs[i],
                 name: pconfig.name,
-                documentRoot: CONFIGS.projectFolder + '/' + projs[i],
+                documentRoot: synthea.configs.projectFolder + '/' + projs[i],
             });
 
             // Create a menu item
@@ -628,8 +365,8 @@ function renderProjectsMenu() {
                 key: projs[i],
                 name: pconfig.name,
                 // Special attributes for the OS menu
-                documentRoot: CONFIGS.projectFolder + '/' + projs[i],
-                click: openProject,
+                documentRoot: synthea.configs.projectFolder + '/' + projs[i],
+                click: synthea.openProject,
                 label: pconfig.name,
             });
         }
@@ -662,7 +399,7 @@ function renderProjectsMenu() {
     output.push({
         label: 'Go to Projects Folder',
         click: function() {
-            electron.shell.showItemInFolder(CONFIGS.projectFolder);
+            electron.shell.showItemInFolder(synthea.configs.projectFolder);
         },
     });
     output.push({
@@ -671,8 +408,8 @@ function renderProjectsMenu() {
             dialog.showOpenDialog({properties:['openDirectory']}, function(d) {
                 if (!d) { return; }
 
-                CONFIGS.projectFolder = d[0];
-                saveConfig();
+                synthea.configs.projectFolder = d[0];
+                synthea.saveConfig();
                 createMenus();
 
             });
@@ -691,63 +428,75 @@ function resetAudioEngine() {
     mainWindow.webContents.send('reset-audio-engine');
 }
 
-function saveConfig() {
-    console.info("Saving configuration", CONFIGS)
-    fs.writeFile(CONFIG_PATH,JSON.stringify(CONFIGS), function(err) {
-        console.error(err);
-    });
-}
 
-function saveAndOpenProject(evt, project) {
 
-    // Save the project
-    saveProject(evt,project,openProject);
-}
 
-function saveProject(evt, project, callbackFn) {
-    console.info('Saving project!', project);
+function setMenusEnabled(arg) {
+    // We can pass in a string for predefined menu states
+    var menustate;
+    switch(arg) {
+        case 'close-project':
+            menustate = {
+                'Edit Project': false,
+                'Save Project': false,
+                'Save Project As...': false,
+                'Delete Project': false,
+                'DJ Mode': { checked: false, enabled: false},
+            };
+            break;
+        case 'edit-project':
+            menustate = {
+                'Edit Project': false,
+                'Save Project': true,
+                'Save Project As...': true,
+                'DJ Mode': { checked: false, enabled: false},
+            };
+            break;
+        case 'open-project':
+            menustate = {
+                'Edit Project': true,
+                'Save Project': false,
+                'Save Project As...': true,
+                'Delete Project': true,
+                'DJ Mode': { enabled: true, checked: false, },
+            };
+            break;
+        // By default, the arg is the object of the states
+        default:
+            menustate = arg;
+    }
 
-    // TODO: Implement a JSON schema validation method to streamline this
+    // Iterate through
+    for (var i=0;i<menu.items.length;i++) {
 
-    function stripProps(obj) {
-        // STRIP INTERNALS
-        for (var prop in obj) {
-            if (obj.hasOwnProperty(prop)) {
-                if ( prop.indexOf('$')===0 || prop.indexOf('_')===0 || prop.indexOf('_')===prop.length-1) {
-                    delete(obj[prop]);
-                }
-                // Recursion?
-                else if (Array.isArray(obj[prop])) {
-                    for (var i in obj[prop]) {
-                        stripProps(obj[prop][i]);
+        for (var k=0;k<menu.items[i].submenu.items.length;k++) {
+
+            var item = menu.items[i].submenu.items[k];
+
+            // If nothing? Skip the rest
+            if (!menustate.hasOwnProperty(item.label)) { continue; }
+
+            var state = menustate[item.label];
+            // Do we have something to define?
+            switch( typeof(state)) {
+                case 'boolean':
+                    item.enabled = state;
+                    break;
+                case 'object':
+                    // Map all appropriate object attributes to the menu item
+                    for (var j in state) {
+                        if (item.hasOwnProperty(j)) {
+                            item[j] = state[j];
+                        }
                     }
-                }
-                else if (typeof(obj[prop])==='object') {
-                    stripProps(obj[prop])
-                }
+                    break;
+                default:
+                    console.log('Unknown menu state', state);
             }
         }
     }
 
-    stripProps(project);
 
-    // Create a project Def
-
-    var projectDef = {
-        documentRoot: CONFIGS.projectFolder+'/'+project.key,
-        key: project.key,
-        name: project.name
-    };
-
-    fs.writeFile(
-        projectDef.documentRoot + '/layout.json',
-        JSON.stringify(project,null,2),
-        function() {
-            if(typeof(callbackFn) === 'function') {
-                callbackFn(projectDef);
-            }
-        }
-    );
 }
 
 function toggleDJMode() {
@@ -780,4 +529,3 @@ app.on('activate', function () {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
-// console.log(init)

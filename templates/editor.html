@@ -50,11 +50,18 @@ ng-class="{'hasBanner': sVm.project.bannerImage_}"
 
 <md-content flex layout="column" id="page-container">
 
+    <div layout="row">
+        <span flex></span>
+        <md-button class="md-accent" ng-click="seVm.manageSections(seVm.currentPage.id, $event)">
+            <md-icon><svg syn-icon="settings"></svg></md-icon>
+            Manage Sections
+        </md-button>
+    </div>
 
     <div  layout="row" flex layout-wrap id="page-container-content">
         <div class="section md-card" flex
         md-padding="2"
-        ng-repeat="section in sVm.project.sections | filter: {'page_id': sVm.currentPage.id} :true as currentSections">
+        ng-repeat="section in sVm.project.sections | filter: {'page_id': sVm.currentPage.id} :true | orderBy: '+display_order' as currentSections">
             <div class="section-header" ng-bind="section.name"></div>
             <div class="section-container"
             >
@@ -101,12 +108,7 @@ ng-class="{'hasBanner': sVm.project.bannerImage_}"
                 </div>
             </div>
         </div>
-        <div class="section md-card" flex>
-            <md-button class="md-accent" ng-click="seVm.addSection(currentSections.length,sVm.currentPage.id,$event)">+ Add Section</md-button>
-        </div>
     </div>
-
-    <div ng-repeat="medium in seVm.media" ng-bind="medium"></div>
 
 </md-content>
 

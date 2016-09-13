@@ -37,6 +37,7 @@ md-input-container.nobottom {
 	}
 
 	&-buttons {
+		background-color: $syn-background;
 		margin: 8px -16px -16px -16px;
 	}
 
@@ -45,6 +46,7 @@ md-input-container.nobottom {
 	}
 
 	&-title {
+		background-color: $syn-background;
 		font-size: 24px;
 		font-weight:400;
 	}

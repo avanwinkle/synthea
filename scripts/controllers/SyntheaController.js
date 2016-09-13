@@ -44,11 +44,11 @@ function SyntheaController(SynProject,$location,$log,$q,$scope,$timeout) {
     }.bind(this));
 
     // Listen for the main application to broadcast a project change
-    ipcRenderer.on('open-project', function(event,projectDef) {
+    ipcRenderer.on('open-project', function(event,projectDef,projectLayout) {
         // Did we get a project?
         if (projectDef) {
             // Open it!
-            sVm.loadProject(projectDef);
+            sVm.loadProject(projectDef,projectLayout);
         }
         // If we didn't get a project, clear out
         else {
@@ -90,12 +90,12 @@ SyntheaController.prototype.createProject = function() {
 };
 
 
-SyntheaController.prototype.loadProject = function(projectDef) {
+SyntheaController.prototype.loadProject = function(projectDef,projectLayout) {
 
     var defer = this.$q_.defer();
 
     // Tell the project service to do its business
-    this.SynProject_.load(projectDef).then(function() {
+    this.SynProject_.load(projectDef,projectLayout).then(function() {
 
         this.project = this.SynProject_.getProject();
         console.log("Project loaded!",this.project)
