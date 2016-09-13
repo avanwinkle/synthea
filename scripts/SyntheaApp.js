@@ -2,7 +2,7 @@
 'use strict';
 
 angular
-    .module("SyntheaApp",['SyntheaCore','ngRoute'])
+    .module("SyntheaApp",['dndLists','SyntheaCore','ngRoute'])
     .config(SyntheaAppConfig)
     .run(SyntheaAppRun);
 

@@ -62,6 +62,18 @@ function SynProject($http,$q,$log) {
                     }
                 }
 
+                // MIGRATION: Store the cue ids in the sections, for order
+                var sections_to_add = undefined;
+                if (!project.sections[0].cue_ids) {
+                    sections_to_add = {};
+                    angular.forEach(project.sections, function(s) {
+                        if (!s.cue_ids) {
+                            s.cue_ids = [];
+                        }
+                        sections_to_add[s.id] = s.cue_ids;
+                    });
+                }
+
                 // Create our cue objects
                 angular.forEach(project.cues, function(c, idx) {
 
@@ -72,12 +84,34 @@ function SynProject($http,$q,$log) {
                     // AVW: Phasing out in favor of cuesInSection
                     // filter, but may regress if performance is hit too much
                     // // Add to each column
-                    // angular.forEach(c.section_ids, function(s) {
-                    //     secs[s]._cues.push(c);
-                    // });
+                    if (sections_to_add) {
+                        angular.forEach(c.section_ids, function(s) {
+                            sections_to_add[s].push(c.id);
+                        });
+                    }
+                    delete(c.section_ids);
+                    if (c.subgroup==='__MUSIC__') {
+                        c.subgroup = 'music';
+                    }
+                    if (!c.loopFile) {
+                        delete(c.loopFile);
+                    }
+                    if (!c.tooltip) {
+                        delete(c.tooltip);
+                    }
+                    if (typeof(c.display_order)!=='undefined') {
+                        delete(c.display_order);
+                    }
                     // And the lookup
                     cue_ids[c.id] = c;
                 });
+
+                // Save it?
+                if (sections_to_add) {
+                    console.warn("Updating sections with cue_ids array!")
+                    project.key = projectDef.key;
+                    ipcRenderer.send('save-project', project)
+                }
 
                 // Map the cues to the hotkeys as well
                 angular.forEach(project.hotKeys, function(h) {

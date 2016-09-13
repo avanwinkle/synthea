@@ -339,6 +339,13 @@ md-input-container.nobottom {
 	position: relative;
 }
 
+.cueButton-handle {
+	cursor: move;
+	&-container {
+		line-height: 2.2;
+	}
+
+}
 
 .weblink {
 	color: $syn-danger;

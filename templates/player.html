@@ -19,7 +19,9 @@ ng-include="'templates/partials/header-player.html'"
         <div class="section-container" layout="column">
             <div class="cueButton-container"
             flex="none" layout="row"
-            ng-repeat="cue in ::sVm.project.cues | cuesInSection: section.id">
+            syn-cue-id="cue.id"
+            ng-repeat="cue in ::section.cue_ids | cuesFromIds: sVm.project.cues track by cue.id"
+            >
                 <md-button class="cueButton"
                 aria-label="{{::cue.name}}"
                 ng-disabled="!cue.sources.length"

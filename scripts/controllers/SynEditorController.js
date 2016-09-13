@@ -6,9 +6,9 @@ angular
     .module('SyntheaApp')
     .controller("SynEditorController", SynEditorController);
 
-SynEditorController.$inject = ['SynMixer','SynProject','$log','$mdDialog','$q'];
+SynEditorController.$inject = ['SynMixer','SynProject','$log','$mdDialog','$q','$timeout'];
 
-function SynEditorController(SynMixer,SynProject,$log,$mdDialog,$q) {
+function SynEditorController(SynMixer,SynProject,$log,$mdDialog,$q,$timeout) {
 
     var seVm = this;
     window.seVm = this;
@@ -18,6 +18,7 @@ function SynEditorController(SynMixer,SynProject,$log,$mdDialog,$q) {
 
     this.$mdDialog_ = $mdDialog;
     this.$q_ = $q;
+    this.$timeout_ = $timeout;
 
     // Start at the zero page
     this.currentPage = this.project.pages[0];
@@ -120,6 +121,14 @@ SynEditorController.prototype.copyMediaToProject = function() {
     SynProject.copyMediaToProject();
 };
 
+SynEditorController.prototype.insertCue = function(cue) {
+    // console.log('dropCue '+cue+' at index '+idx);
+    // console.info(section.name, angular.copy(section.cue_ids))
+    // Splice this cue out of the original array
+    // section.cue_ids.splice(idx,0,1);
+    return cue;
+};
+
 SynEditorController.prototype.editCue = function(cue,$event) {
 
     // Make our own promise so we can intercept the response if needed
@@ -177,6 +186,31 @@ SynEditorController.prototype.editCue = function(cue,$event) {
     return defer.promise;
 };
 
+SynEditorController.prototype.moveCue = function(cue_id, section, orig_idx) {
+    // Because we track by $index, we cannot depend on the array position $index
+    // argument to accurately reflect the object being moved. We know the id of
+    // the cue that's moving though, because it appears twice in the array
+
+    // If the original idx is the first one, that's the one we splice
+    if (section.cue_ids.lastIndexOf(cue_id)!==orig_idx) {
+        section.cue_ids.splice(orig_idx,1);
+    }
+    // Otherwise, look to one AFTER the original idx. If that appears twice,
+    // splice out the first one
+    else if (section.cue_ids.indexOf(section.cue_ids[orig_idx+1])!==orig_idx+1 ||
+            // OR, if this cue is the last one already, there's none after
+            orig_idx+1 === section.cue_ids.length) {
+        // Whichever the latter is (orig_idx or last in list), splice out
+        section.cue_ids.splice( Math.min(orig_idx+1, section.cue_ids.length-1),1);
+    }
+    // Otherwise, we've moved the cue OUT of this section and just gotta remove
+    else {
+        section.cue_ids.splice(orig_idx,1);
+    }
+
+    return true;
+
+};
 
 SynEditorController.prototype.saveAndClose = function() {
     ipcRenderer.send('save-and-open-project', this.project);

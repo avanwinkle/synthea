@@ -219,6 +219,11 @@ md-input-container.nobottom {
   padding: 8px 0;
   position: relative; }
 
+.cueButton-handle {
+  cursor: move; }
+  .cueButton-handle-container {
+    line-height: 2.2; }
+
 .weblink {
   color: #c50836;
   cursor: pointer; }

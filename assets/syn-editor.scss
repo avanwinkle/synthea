@@ -1,5 +1,14 @@
 @import 'syn-common.scss';
 
+div[dnd-list],
+div[dnd-list] > dnd-nodrag {
+  position: relative;
+}
+div[dnd-list] .dndDraggingSource {
+  // display: none;
+  opacity: 0.5;
+}
+
 #edit-toolbar {
     // color: #fff;
     // background-color: $syn-danger;
@@ -86,6 +95,14 @@
     }
 }
 
+
+li.dndPlaceholder {
+    list-style: none;
+    list-style-image: none;
+
+    border-bottom: dotted 1px $syn-danger;
+    margin: 8px 0;
+}
 
 .projectcreator {
 

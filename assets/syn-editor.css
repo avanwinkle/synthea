@@ -7,6 +7,13 @@
   to {
     opacity: 0; } }
 
+div[dnd-list],
+div[dnd-list] > dnd-nodrag {
+  position: relative; }
+
+div[dnd-list] .dndDraggingSource {
+  opacity: 0.5; }
+
 #edit-toolbar .syn-icon {
   fill: #fff; }
 
@@ -59,6 +66,12 @@
       cursor: pointer; }
       .editcue-sources-item-remove:hover {
         color: #c50836; }
+
+li.dndPlaceholder {
+  list-style: none;
+  list-style-image: none;
+  border-bottom: dotted 1px #c50836;
+  margin: 8px 0; }
 
 .projectcreator-input {
   min-width: 12em; }
