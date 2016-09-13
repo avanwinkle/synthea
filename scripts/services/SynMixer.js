@@ -43,10 +43,14 @@ function SynMixer(SynSubgroup,SynProject) {
     function Mixer() {
         this.channels = [];
         this.subgroups = {};
+        window.channels = this.channels;
 
         // Global settings from the project
         var p = SynProject.getProject();
         var d = SynProject.getProjectDef();
+
+        // Set our global Howler options
+        require('howler').Howler.autoSuspend = false;
 
         this.fadeInDuration = p.config.fadeInDuration || 2000;
         this.fadeOutDuration = p.config.fadeOutDuration || 2000;

@@ -65,6 +65,13 @@ function SyntheaController(SynProject,$location,$log,$q,$scope,$timeout) {
         }
     });
 
+    ipcRenderer.on('reset-audio-engine', function() {
+        // TODO: Fix the bug where playback to the end breaks playback
+        var h = require('howler');
+        h.Howler.unload();
+        h.Howler.init();
+    });
+
     activate();
 
     function activate() {

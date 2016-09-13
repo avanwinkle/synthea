@@ -108,7 +108,7 @@ function SynSubgroup(SynChannel,SynProject) {
         for (var i=0;i<this.channels.length;i++) {
             // Do we have THIS CUE in a channel already? EXCEPT the common
             // channel, cause those can overplay the same cues concurrently
-            if (this.channels[i].media === cue && this.name!=='COMMON_') {
+            if (this.channels[i].media === cue && this.name!=='__COMMON__') {
                 ch = this.channels[i];
                 // And be done immediately
                 break;

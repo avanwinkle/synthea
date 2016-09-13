@@ -228,6 +228,10 @@ function createMenus() {
                     click: enableDebugMode,
                 },
                 {
+                    label: 'Reset Audio Engine',
+                    click: resetAudioEngine,
+                },
+                {
                     type: 'separator',
                 },
                 {
@@ -681,6 +685,10 @@ function renderProjectsMenu() {
     });
 
     return output;
+}
+
+function resetAudioEngine() {
+    mainWindow.webContents.send('reset-audio-engine');
 }
 
 function saveConfig() {

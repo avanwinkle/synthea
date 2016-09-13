@@ -339,6 +339,14 @@ md-input-container.nobottom {
 	position: relative;
 }
 
+// Mimic the button appearance while dragging, because the md-button
+// disappears for some reason
+.cueButton-dragger {
+	background-color: #fff;
+	border-radius: 8px;
+	border: solid 1px rgba(0,0,0,0.1);
+}
+
 .cueButton-handle {
 	cursor: move;
 	&-container {
