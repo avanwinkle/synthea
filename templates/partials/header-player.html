@@ -22,9 +22,9 @@
 
     <div id="page-tabs" flex="none" layout="row">
         <span flex></span>
-        <div class="page-tab-container" flex="none"
-        ng-repeat="page in sVm.project.pages">
+        <div class="page-tab-container" flex="none">
             <div class="page-tab"
+            ng-repeat="page in sVm.project.pages"
             ng-bind="page.name"
             ng-click="sVm.selectPage(page)"
             ng-class="{'current': page == sVm.currentPage}"></div>

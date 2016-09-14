@@ -5,7 +5,7 @@ angular
     .module('SyntheaApp')
     .factory('SynSubgroup', SynSubgroup);
 
-SynSubgroup.$inject = ['SynChannel','SynProject'];
+SynSubgroup.$inject = ['SynChannel','SynProject','$mdToast'];
 
 /**
  * The SynSubgroup service returns the Subgroup constructor
@@ -14,7 +14,7 @@ SynSubgroup.$inject = ['SynChannel','SynProject'];
  * @param {SynChannel} SynChannel Dependency Injection
  * @param {SynProject} SynProject Dependency Injection
  */
-function SynSubgroup(SynChannel,SynProject) {
+function SynSubgroup(SynChannel,SynProject,$mdToast) {
 
     /**
      * The Subgroup controls an arbitrary number of Channels and manages any
@@ -197,8 +197,14 @@ function SynSubgroup(SynChannel,SynProject) {
         channel.loadCue(cue,opts).then(function(response) {
             // No handling behavior for successful loading, right now
         }, function(reason) {
-            console.warn("Error loading cue ",cue.name);
+            console.warn("Error loading cue "+cue.name,reason);
             channel.stop();
+
+            // I don't know what all the reason codes are, but 4 is not found
+            if (reason===4) {
+                $mdToast.showSimple(
+                    'Error: File \''+cue.sources[0]+'\' not found');
+            }
 
             // HOWLER BLACK MAGICK:
             // A loading error triggers Howler to set a global

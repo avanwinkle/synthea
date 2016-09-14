@@ -2,6 +2,12 @@
 
     <div class="modal-title">Manage Sections</div>
 
+    <div layout="row" style="margin-top:8px;">
+        <span flex></span>
+        <md-button class="md-primary" style="font-size:12px;"
+         ng-click="ssVm.addSection()">+ Add Section</md-button>
+    </div>
+
     <div class="editsection-container"
     dnd-list="ssVm.sections" layout="column">
 
@@ -19,8 +25,8 @@
             <div flex class="editsection-section-name" >
                 <dnd-nodrag>
                     <input class="editsection-section-input"
-                    ng-model="section.name"
-                    placeholder="Name" required
+                    ng-model="section._newname"
+                    placeholder="Section Name"
                     aria-label="Section Name">
                 </dnd-nodrag>
             </div>
@@ -35,9 +41,6 @@
             </div>
         </div>
 
-    </div>
-    <div>
-        <a ng-click="ssVm.addSection()">+ Add Section</a>
     </div>
 
     <div layout="row" class="modal-buttons">

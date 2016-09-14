@@ -28,7 +28,12 @@ var synthea = {
 // This is what becomes accessible via require('synthea');
 module.exports = synthea;
 
-
+/**
+ * Open a native OS file-select dialog and copy any resulting files into
+ * the project's audio folder
+ * @param {event} evt  (Menu) Event
+ * @param {string} pkey Project key to which the media should be added
+ */
 function addMediaToProject(evt,pkey) {
 
     dialog.showOpenDialog( {
@@ -42,11 +47,10 @@ function addMediaToProject(evt,pkey) {
         for (var i=0;i<selection.length;i++) {
             try {
 
-                var filename;
                 // Windows slashes are backwards
                 var splitter = process.platform === 'win32' ? '\\' : '/';
                 var filename = selection[i].split(splitter).pop();
-                
+
                 // Open up the file and dump it to the project folder
                 fs.createReadStream(selection[i])
                 .pipe(fs.createWriteStream(
@@ -63,10 +67,14 @@ function addMediaToProject(evt,pkey) {
     });
 }
 
+/**
+ * Close the current project and return to the main Synthea screen
+ * @param  {event} evt (Menu) Event
+ */
 function closeProject(evt) {
 
-    mainWindow.webContents.send('open-project',null);
-    setMenusEnabled('close-project');
+    synthea.mainWindow.webContents.send('open-project',null);
+    synthea.setMenusEnabled('close-project');
 
     // Remove from the synthea.configs?
     if (synthea.configs.lastProject === synthea.currentProjectDef.key && !synthea.currentProjectDef.location) {
@@ -77,17 +85,19 @@ function closeProject(evt) {
     synthea.currentProjectDef = undefined;
 }
 
-
+/**
+ * Create a new project from a layout file and open for editing
+ * @param  {object} project Project layout JSON
+ */
 function createProject(project) {
 
     // Make sure we have everything
-    if (!project.name || !project.key || !project.pages ||
-    !project.pages.length || !project.pages[0].name) {
+    var validation = _validateProject(project);
+
+    if (validation.errors.length) {
         console.error('Invalid Project');
         return;
     }
-
-    // TODO: Validate all of these fields
 
     // Does this folder already exist?
     var targetFolder = synthea.configs.projectFolder+'/'+project.key;
@@ -125,6 +135,9 @@ function createProject(project) {
 }
 
 
+/**
+ * Delete the current project
+ */
 function deleteProject() {
 
     const CANCEL_ID = 1;
@@ -138,11 +151,10 @@ function deleteProject() {
     }, function(response) {
 
         if (response!==CANCEL_ID) {
-            console.log("DELETE PROJECT:",synthea.currentProjectDef );
 
-            // Remove the audio
             var fs = require('fs');
 
+            // Remove the audio and layout files
             var layout = synthea.currentProjectDef.documentRoot+'/layout.json';
             var audio = synthea.currentProjectDef.documentRoot+'/audio';
             if( fs.existsSync(audio) && fs.existsSync(layout)) {
@@ -162,6 +174,10 @@ function deleteProject() {
     });
 }
 
+/**
+ * Open a project in the edit view (through a broadcast)
+ * @param  {object} projectDef Project definition file (or menu object)
+ */
 function editProject(projectDef) {
 
     synthea.setMenusEnabled('edit-project');
@@ -173,6 +189,12 @@ function editProject(projectDef) {
     synthea.mainWindow.webContents.send('edit-project',projectDef);
 }
 
+/**
+ * Fetch a file listing from the project's audio folder and return it via broadcast
+ *
+ * @param  {event} evt  (Menu) Event
+ * @param  {object} proj Project layout OR definition
+ */
 function getProjectMedia(evt,proj) {
     var output = [];
 
@@ -187,12 +209,16 @@ function getProjectMedia(evt,proj) {
     synthea.mainWindow.webContents.send('project-media',output);
 }
 
+/**
+ * Initialize Synthea in the given user-data path.
+ * @param  {string} userDataPath Path for user data storage (Synthea configs)
+ */
 function init(userDataPath) {
     // Keep a global reference to the application configuration
     synthea.config_path = userDataPath + '/config';
 
 
-    // Does a config file exist?
+    // Does a config file exist in the user data folder?
     try {
         fs.statSync(synthea.config_path);
         synthea.configs = JSON.parse(fs.readFileSync(synthea.config_path));
@@ -219,16 +245,22 @@ function init(userDataPath) {
     }
 }
 
+/**
+ * Open a project by validating its layout and broadcasting to the render
+ * window. Passing a `null` value will render the main Synthea splash page.
+ * @param  {object} projectDef Project definition (or menu object)
+ */
 function openProject(projectDef) {
 
-    // Since we validate, might as well pass the layout file too
+    // Since we validate, might as well pass the layout file too,
+    // so let's store a reference to it
     var projectLayout;
 
     // Don't do any processing for cloud projects, yet
     if (projectDef && projectDef.location) {
-        
+        // Should we do anything different for clouds?
     }
-    // Check the config for a documentRoot, which is all we need
+    // Check the definition object for a documentRoot, which is all we need
     else if (projectDef && projectDef.documentRoot) {
 
         projectLayout =
@@ -240,32 +272,44 @@ function openProject(projectDef) {
             return;
         }
     }
-
     // This means we got a project without a documentRoot, which is bad
     else if (projectDef) {
         console.error('No project documentRoot, unable to process',projectDef);
         projectDef = null;
     }
 
+    // Keep track of what's currently open, so we can reference it easily
     synthea.currentProjectDef = projectDef;
     synthea.currentProjectLayout = projectLayout;
-    synthea.mainWindow.webContents.send('open-project',projectDef,projectLayout);
+
+    // Broadcast to the render window to open this project
+    synthea.mainWindow.webContents.send(
+        'open-project',projectDef,projectLayout);
+    // Set the appropriate menu items to be enabled/disabled
     synthea.setMenusEnabled(projectDef ? 'open-project' : 'no-project');
 
-    // Remember that we opened this!
-    if (projectDef && projectDef.key && !projectDef.location && projectDef.key !== synthea.configs.lastProject) {
-        synthea.configs.lastProject = projectDef.key;
-        synthea.saveConfig();
+    // Remember we opened this, if it's a local project and not our last opened
+    if (projectDef && projectDef.key && !projectDef.location &&
+        projectDef.key !== synthea.configs.lastProject) {
+            synthea.configs.lastProject = projectDef.key;
+            synthea.saveConfig();
     }
 }
 
-
-function saveAndOpenProject(evt, project) {
-
-    // Save the project
-    synthea.saveProject(evt,project, synthea.openProject);
+/**
+ * Save the current project and open it. This method is the primary means of
+ * "exiting" edit mode.
+ * @param  {event} evt     (Menu) Event
+ * @param  {object} projectLayout Project layout JSON
+ */
+function saveAndOpenProject(evt, projectLayout) {
+    // Save the project and pass openProject as the callback
+    synthea.saveProject(evt,projectLayout, synthea.openProject);
 }
 
+/**
+ * Save the current Synthea app configuration (project folder + most recent)
+ */
 function saveConfig() {
     console.info("Saving configuration", synthea.configs);
     fs.writeFile(synthea.config_path,JSON.stringify(synthea.configs), function(err) {
@@ -273,25 +317,35 @@ function saveConfig() {
     });
 }
 
+/**
+ * Save a new (or existing) project from its layout file
+ * @param  {event} evt           (Menu) Event
+ * @param  {object} projectLayout Project layout JSON
+ * @param  {function} callbackFn    Callback on project save success
+ */
+function saveProject(evt, projectLayout, callbackFn) {
+    console.info('Saving project!', projectLayout);
 
-function saveProject(evt, project, callbackFn) {
-    console.info('Saving project!', project);
-
-    // TODO: Implement a JSON schema validation method to streamline this
-
+    // A quick recursive method to strip out attributes we don't want to save
     function stripProps(obj) {
-        // STRIP INTERNALS
         for (var prop in obj) {
             if (obj.hasOwnProperty(prop)) {
-                if ( prop.indexOf('$')===0 || prop.indexOf('_')===0 || prop.indexOf('_')===prop.length-1) {
-                    delete(obj[prop]);
+                if (
+                     // Strip leading $ marks, from angular
+                     prop.indexOf('$')===0 ||
+                     // Strip leading underscores, for convenience attributes
+                     prop.indexOf('_')===0 ||
+                     // Strip trailing underscores, for instance-prototype binding
+                     prop.indexOf('_')===prop.length-1) {
+                        delete(obj[prop]);
                 }
-                // Recursion?
+                // Recursion: All the items in an array
                 else if (Array.isArray(obj[prop])) {
                     for (var i in obj[prop]) {
                         stripProps(obj[prop][i]);
                     }
                 }
+                // Recursion: All the properties of an object
                 else if (typeof(obj[prop])==='object') {
                     stripProps(obj[prop]);
                 }
@@ -299,27 +353,26 @@ function saveProject(evt, project, callbackFn) {
         }
     }
 
-    stripProps(project);
+    // Strip out the submitted project layout
+    stripProps(projectLayout);
 
     // Validate the resulting project
-    var validation = _validateProject(project);
+    var validation = _validateProject(projectLayout);
 
     // If it didn't validate, abort
-    if (validation.errors.length) {
-        return;
-    }
+    if (validation.errors.length) { return; }
 
-    // Create a project Def
-
+    // Create a project Def, which we'll return in the calback
     var projectDef = {
-        documentRoot: synthea.configs.projectFolder+'/'+project.key,
-        key: project.key,
-        name: project.name
+        documentRoot: synthea.configs.projectFolder+'/'+projectLayout.key,
+        key: projectLayout.key,
+        name: projectLayout.name
     };
 
+    // Write this project layout to json
     fs.writeFile(
         projectDef.documentRoot + '/layout.json',
-        JSON.stringify(project,null,2),
+        JSON.stringify(projectLayout,null,2),
         function() {
             if(typeof(callbackFn) === 'function') {
                 callbackFn(projectDef);
@@ -328,6 +381,14 @@ function saveProject(evt, project, callbackFn) {
     );
 }
 
+/**
+ * JSON validation method for checking a project layout. Will display an error
+ * if validation fails, and returns the results of the validation. It shall be
+ * the responsibility of the caller to take correct behavior if validation fails.
+ *
+ * @param  {object} projectLayout Project layout JSON
+ * @return {validation}               Validation object
+ */
 function _validateProject(projectLayout) {
 
     var v = new Validator();

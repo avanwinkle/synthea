@@ -82,15 +82,25 @@
             </div>
 
             <div>
-                <div class="faux-label" >Cue Audio File(s)</div>
-
+                <div class="faux-label" layout="row">
+                    <div>Cue Audio File(s)</div>
+                    <span flex></span>
+                    <div><small>
+                        <a class="md-primary" style="cursor: pointer;"
+                        ng-if="secVm.cue.sources.length"
+                        ng-click="secVm.clearSources()">
+                        Clear All
+                        </a></small>
+                    </div>
+                </div>
                 <div class="editcue-sources">
                     <div class="editcue-sources-item"
                     ng-repeat="src in secVm.cue.sources"
                     layout="row">
                         <span class="editcue-sources-item-name" ng-bind="src"></span>
                         <span flex></span>
-                        <span class="editcue-sources-item-remove" ng-click="secVm.removeFile(src)">&times;</span>
+                        <span class="editcue-sources-item-remove"
+                        ng-click="secVm.removeSource(src)">&times;</span>
                     </div>
                     <span class="editcue-sources-item"
                     style="opacity:0.6;"
@@ -111,12 +121,13 @@
                 <span flex></span>
                 <div>
                     <a class="md-primary" ng-click="secVm.copyMediaToProject()">
-                        + Add Files
+                        + Add Media
                     </a>
                 </div>
             </div>
             <div flex layout-fill>
                 <select multiple class="editcue-filelist md-primary"
+                        ng-dblclick="secVm.addFilesToCue(file)"
                         ng-model="secVm.selectedFiles"
                         ng-disabled="secVm.cue.sources.indexOf(file)!==-1"
                         ng-options="file for file in secVm.mediaList | filter: secVm.filterFiles">

@@ -95,22 +95,39 @@ div[dnd-list] .dndDraggingSource {
     }
 }
 
+// The link to edit a section
+.edit-sectionheader {
 
+    &-name {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    &-cta {
+        cursor: pointer;
+        &:hover {
+            color: $syn-danger;
+        }
+    }
+}
+
+// The edit section modal
 .editsection-container {
-    margin: 16px auto;
+    margin-bottom: 16px;
 }
 
 .editsection-section {
     background-color: $syn-background;
     border-style: solid;
     border-color: rgba(0,0,0,0.1);
-    border-width: 0 0 1px 0;
+    border-width: 1px 0 0 0;
 
     line-height: 14px;
     padding: 4px;
 
-    &:first-child {
-        border-top-width: 1px;
+    &:last-child {
+        border-bottom-width: 1px;
     }
 
     &-delete {
@@ -123,6 +140,7 @@ div[dnd-list] .dndDraggingSource {
     &-input {
         border-color: transparent;
         background-color: transparent;
+        font-size: 12px;
 
         &:focus {
             outline: none;
@@ -136,14 +154,48 @@ div[dnd-list] .dndDraggingSource {
     }
 }
 
+// Drag placeholders for pages
+.page-tab-container .dndPlaceholder {
+    list-style: none;
+    list-style-image: none;
+    display: inline-block;
+    border-left: dotted 2px #ddd;
+    height: 100%;
+    margin: 0 8px;
+    vertical-align:bottom;
+}
 
-li.dndPlaceholder {
+.page-tab-container .dndDragging {
+    opacity: 0.7;
+}
+
+// The dragged item, hide it
+.page-tab.dndDraggingSource, .cueButton-container.dndDraggingSource,
+.editsection-section.dndDraggingSource {
+    display: none !important;
+}
+
+// Drag placeholders for cues, sections
+.section-container .dndPlaceholder {
     list-style: none;
     list-style-image: none;
 
     border-bottom: dotted 1px $syn-danger;
     margin: 8px 0;
 }
+
+.editsection-container > .dndPlaceholder {
+    list-style: none;
+    list-style-image: none;
+
+    & + .editsection-section {
+        border-top: dotted 1px $syn-danger;
+    }
+    &:last-child {
+        border-bottom: dotted 1px $syn-danger;
+    }
+}
+
 
 .projectcreator {
 

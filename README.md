@@ -114,28 +114,12 @@ myProject
 
 ```javascript
 {
-    "name": "My Synthea Project",
     "bannerImage": "banner.jpg",         // Optional image
     "config": {
         "boardType": "music",            // Optional, default subgroup for cues
         "fadeInDuration": 1000,          // Default fade-in for cues (ms)
         "fadeOutDuration": 2000          // Default fade-out for cues (ms)
     },
-    "pages": [
-        {
-            "display_order": 0,          // The order of pages/sections/cues is user-configurable
-            "id": 1,                     // All pages, sections, and cues should have unique ids
-            "name": "First Tab"
-        }
-    ],
-    "sections": [
-        {
-            "display_order": 0,
-            "id": 100,
-            "name": "First Column",
-            "page_id": 1                 // A column exists only on a given page, tracked by id
-        }
-    ],
     "cues": [
         {
             "section_ids": [ 1, 4 ],     // A cue can appear in multiple sections, even pages
@@ -147,7 +131,7 @@ myProject
         {
             "section_ids": [ 1 ],
             "sources": ["music.mp3"],
-            "subgroup": "music",            // The subgroup name for this cue
+            "subgroup": "music",         // The subgroup name for this cue
             "id": 1001,
             "isFadeIn": false,           // Override the project's fade settings
             "isLoop": false,
@@ -164,6 +148,24 @@ myProject
             "target": 1000
         }
     },
+    "key": "sampleproject",
+    "name": "My Synthea Project",
+    "pages": [
+        {
+            "display_order": 0,          // The order of pages/sections/cues is user-configurable
+            "id": 1,                     // All pages, sections, and cues should have unique ids
+            "name": "First Tab"
+        }
+    ],
+    "sections": [
+        {
+            "cue_ids": [ 1000, 1001 ],   // The array of cue ids in this section
+            "display_order": 0,
+            "id": 100,
+            "name": "First Column",
+            "page_id": 1                 // A column exists only on a given page, tracked by id
+        }
+    ],
     "subgroups": {                       // Specific options for any subgroup
         "rain": {                        // Subgroups here are optional
             "isFadeIn": true             // Subgroup fades override project fades

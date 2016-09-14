@@ -1,6 +1,6 @@
 <div id="page-headergroup"
-ng-style="{'background-image':sVm.project.bannerImage_}"
-ng-class="{'hasBanner': sVm.project.bannerImage_}"
+ng-style="{'background-image':sVm.project._bannerImage}"
+ng-class="{'hasBanner': sVm.project._bannerImage}"
 >
 
 
@@ -28,14 +28,22 @@ ng-class="{'hasBanner': sVm.project.bannerImage_}"
     <div id="page-tabs" flex="none" layout="row">
         <span flex></span>
         <div class="page-tab-container" flex="none"
-        ng-repeat="page in sVm.project.pages">
+        dnd-list="sVm.project.pages"
+        dnd-allowed-types="['page']"
+        dnd-horizontal-list="true"
+        >
             <div class="page-tab"
+            ng-repeat="page in sVm.project.pages"
+            dnd-draggable="page"
+            dnd-type="'page'"
+            dnd-moved="sVm.project.pages.splice($index,1)"
             ng-bind="page.name"
             ng-click="sVm.selectPage(page)"
             ng-class="{'current': page == sVm.currentPage}"></div>
         </div>
 
         <md-button
+        class="page-tab-addbutton"
         style="margin:0 16px;"
         ng-click="seVm.addPage($event)">
             + Add Page
@@ -50,29 +58,36 @@ ng-class="{'hasBanner': sVm.project.bannerImage_}"
 
 <md-content flex layout="column" id="page-container">
 
-    <div layout="row">
+<!--     <div layout="row">
         <span flex></span>
-        <md-button class="md-accent" ng-click="seVm.manageSections(seVm.currentPage.id, $event)">
+        <md-button class="md-accent"
+        ng-click="seVm.manageSections(sVm.currentPage.id, $event)">
             <md-icon><svg syn-icon="settings"></svg></md-icon>
             Manage Sections
         </md-button>
-    </div>
+    </div> -->
 
     <div  layout="row" flex layout-wrap id="page-container-content">
         <div class="section md-card" flex
         md-padding="2"
         ng-repeat="section in sVm.project.sections | filter: {'page_id': sVm.currentPage.id} :true | orderBy: '+display_order' as currentSections">
-            <div class="section-header" ng-bind="section.name"></div>
+            <div class="section-header edit-sectionheader">
+                <a class="edit-sectionheader-cta"
+                ng-click="seVm.manageSections(sVm.currentPage.id, $event)"
+                ng-bind="section.name"></a>
+            </div>
             <div class="section-container"
             >
                 <div layout="column"
                 dnd-list="section.cue_ids"
+                dnd-allowed-types="['cue']"
                 dnd-drop="seVm.insertCue(item)">
                     <div class="cueButton-container"
                     flex="none"
                     ng-repeat="cue in section.cue_ids | cuesFromIds: sVm.project.cues as currentCues track by $index"
                     syn-cue-id="{{cue.id}}"
                     dnd-draggable="cue.id"
+                    dnd-type="'cue'"
                     dnd-moved="seVm.moveCue(cue.id, section, $index)"
                     dnd-effect-allowed="move">
                             <!--
@@ -115,6 +130,36 @@ ng-class="{'hasBanner': sVm.project.bannerImage_}"
 <md-toolbar id="edit-toolbar" layout="row"
 class="md-accent md-hue-2">
     <div class="md-toolbar-tools" layout="row">
+
+        <md-menu>
+          <md-button aria-label="Open phone interactions menu" class="md-icon-button"
+          ng-click="seVm.openMenu($mdOpenMenu, $event)">
+            <md-icon md-menu-origin><svg syn-icon="settings"></svg></md-icon>
+          </md-button>
+          <md-menu-content width="4">
+            <md-menu-item>
+              <md-button ng-click="seVm.copyMediaToProject()">
+                <md-icon ><svg syn-icon="library_add"></svg></md-icon>
+                Add Media to Project
+              </md-button>
+            </md-menu-item>
+            <md-menu-divider></md-menu-divider>
+            <md-menu-item>
+              <md-button ng-click="seVm.addPage()">
+                <md-icon md-menu-align-target><svg syn-icon="note"></svg></md-icon>
+                Manage Pages
+              </md-button>
+            </md-menu-item>
+            <md-menu-item>
+              <md-button ng-click="seVm.manageSections()">
+                <md-icon><svg syn-icon="view_week"></svg></md-icon>
+                Manage Sections
+              </md-button>
+            </md-menu-item>
+
+
+          </md-menu-content>
+        </md-menu>
         <md-button class="md-icon-button"
         ng-click="seVm.copyMediaToProject()"
         aria-label="Add Media">
@@ -125,15 +170,7 @@ class="md-accent md-hue-2">
                 Add Media to Project
             </md-tooltip>
         </md-button>
-        <md-button class="md-icon-button"
-        aria-label="Project Settings">
-            <md-icon>
-                <svg syn-icon="settings_application"></svg>
-            </md-icon>
-            <md-tooltip md-direction="top" md-delay="200">
-                Project Settings
-            </md-tooltip>
-        </md-button>
+
         <span flex></span>
         <!-- <h2>Edit Project</h2> -->
         <!-- <span flex></span> -->

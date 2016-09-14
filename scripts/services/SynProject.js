@@ -9,13 +9,37 @@ angular
 
 SynProject.$inject = ['$http','$q','$log'];
 
+/**
+ * A service for handling projects and project-related tasks.
+ */
 function SynProject($http,$q,$log) {
 
     // This is a singleton so every service/controller can access
     var project = {};
     var def = {};
+
+    // For debugging, direct access to the project is convenient
     window.p = project;
 
+    var SynProjectService = {
+        copyMediaToProject: copyMediaToProject,
+        load: load,
+        getPage: getPage,
+        getProject: function() { return project; },
+        getProjectDef: function() { return def; },
+        getProjectMediaList: getProjectMediaList,
+    };
+
+    return SynProjectService;
+
+    /**
+     * Promise handler for copying media to a project. Other controllers/services
+     * can request a media copy action from this service, which contacts the
+     * main process to handle the OS-level engagement. After the OS dialog is
+     * completed, this service will resolve the promise with the selected media.
+     *
+     * @return {promise} A promise, resolved with the list of media copied
+     */
     function copyMediaToProject() {
 
         var defer = $q.defer();
@@ -27,9 +51,17 @@ function SynProject($http,$q,$log) {
         ipcRenderer.send('add-media-to-project',def.key);
 
         return defer.promise;
-
     }
 
+    /**
+     * Main method for loading a project into the Synthea application. Accepts
+     * either a layout file or a definition file (if the latter, will fetch the
+     * layout itself).
+     *
+     * @param  {object} projectDef    Project definition file
+     * @param  {object} projectLayout Project layout file
+     * @return {promise}  A promise resolved when the project is fully loaded
+     */
     function load(projectDef,projectLayout) {
 
         // Copy the project def
@@ -69,12 +101,22 @@ function SynProject($http,$q,$log) {
         return defer.promise;
     }
 
-    // Return a page by index, or default to zero
+    /**
+     * Simple method to select a page of a project
+     * @param  {integer} idx Page number to select (default 0)
+     * @return {SynPage}     The page of the project
+     */
     function getPage(idx) {
         idx = parseInt(idx) || 0;
         return project.pages[idx];
     }
 
+    /**
+     * Method to retrieve an array of filenames, listing all of the media files
+     * in the projects `/audio/` folder. This service acts as the handler, while
+     * passing the actual filesystem query to the main process.
+     * @return {promise} A promise resolved with an array of filenames.
+     */
     function getProjectMediaList() {
 
         // Create a promise to async fetch the listing
@@ -91,6 +133,19 @@ function SynProject($http,$q,$log) {
     }
 
 
+    /**
+     * Private method for parsing a layout JSON file and hooking up convenience
+     * bindings. During these fragile dev days, this is also the optimal place
+     * to put migrations and schema changes for backwards-compatibility.
+     *
+     * The primary effects of this method currently are to:
+     *  * Drop cues pointing to non-existent source files
+     *  * Bind hotkeys to their target cue objects
+     *
+     * @private
+     * @param  {SynLayout} layoutfile A layout file
+     *
+     */
     function _processLayoutFile(layoutfile) {
         angular.extend(project, layoutfile);
 
@@ -98,6 +153,7 @@ function SynProject($http,$q,$log) {
         var cue_ids = {};
 
         // Catch erroneous bindings (i.e. hotkeys to cues that don't exist)
+        // AVW: Does this still do anything? I can't figure out what the point is
         for (var i=project.cues.length;i--;i>=0) {
             if (!project.cues[i]) {
                 console.log("  removing hotkey ",project.cues[i]);
@@ -105,7 +161,7 @@ function SynProject($http,$q,$log) {
             }
         }
 
-        // Create our cue objects
+        // Look over our cue objects and make some conveniences
         angular.forEach(project.cues, function(c, idx) {
 
             // Note the full path to the audio file, including the
@@ -113,35 +169,22 @@ function SynProject($http,$q,$log) {
             c._fullPath = def.documentRoot + '/audio/' +
                 c.sources[0];
 
-            // And the lookup
+            // And the lookup for hotkeys
             cue_ids[c.id] = c;
         });
 
-        // Map the cues to the hotkeys as well
+        // Map the cues to the hotkeys so we can call the cue directly
         angular.forEach(project.hotKeys, function(h) {
             h.cue = cue_ids[h.target];
         });
 
-        // Do we have a nice image?
+        // Do we have a nice image? Show it!
         if (project.bannerImage) {
-            project.bannerImage_ = 'url(\''+
+            project._bannerImage = 'url(\''+
                 def.documentRoot + '/' +
                 project.bannerImage + '\')';
         }
     }
-
-    var SynProjectService = {
-        copyMediaToProject: copyMediaToProject,
-        load: load,
-        // getConfig: getConfig,
-        getPage: getPage,
-        getProject: function() { return project; },
-        getProjectDef: function() { return def; },
-        getProjectMediaList: getProjectMediaList,
-    };
-
-    window.SynProject = SynProjectService;
-    return SynProjectService;
 
 }
 

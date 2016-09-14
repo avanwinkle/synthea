@@ -1,23 +1,22 @@
 const electron = require('electron');
 const fs = require('fs');
-// Module to control application life.
+// Modules within electron to control application life.
 const {app, BrowserWindow, dialog, ipcMain, Menu, MenuItem, shell} = electron;
-const VERSION = require('./package.json').version;
 
 // All of our project and related code is separate, for cleanliness
 const synthea = require('./synthea-app/synthea');
-
+// And store our version number, why not?
+const VERSION = require('./package.json').version;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
 
-// Keep our menu accessible
+// Keep our menu accessible, cause we iterate over it a bunch to enable/disable
 let menu;
 
-
-// HEY LISTEN! Developers, wanna see what's going on? TURN THIS ON!!
 let DEBUG_MODE;
+// HEY LISTEN! Developers, wanna see what's going on? TURN THIS ON!!
 DEBUG_MODE = true;
 
 
@@ -50,8 +49,6 @@ function browseCloudProjects() {
 }
 
 function createMenus() {
-
-    // renderProjectsMenu();
 
     // The standard menu templates. Most things are disabled, but placeholders
     // as reminders of what's yet to come!
@@ -141,38 +138,52 @@ function createMenus() {
         }
     ];
 
-    if (process.platform === 'darwin') {
-        // const name = require('electron').remote.app.getName();
-        template.unshift({
-            label: 'synthea-webapp',
-            submenu: [
-                {
-                    role: 'about',
-                },
-                {
-                    label: 'Enable Debug Mode',
-                    click: enableDebugMode,
-                },
-                {
-                    label: 'Reset Audio Engine',
-                    click: resetAudioEngine,
-                },
-                {
-                    type: 'separator',
-                },
-                {
-                    role: 'services',
-                    submenu: [],
-                },
-                {
-                    type: 'separator',
-                },
-                {
-                    role: 'quit',
-                }
+    // This menu position will vary depending on platform (see below)
+    var aboutMenu = {
+        label: 'synthea-webapp',
+        submenu: [
+            {
+                role: 'about',
+            },
+            {
+                label: 'Enable Debug Mode',
+                click: enableDebugMode,
+            },
+            {
+                label: 'Reset Audio Engine',
+                click: resetAudioEngine,
+            },
+            {
+                type: 'separator',
+            },
+            {
+                role: 'services',
+                submenu: [],
+            },
+            {
+                type: 'separator',
+            },
+            {
+                role: 'quit',
+            }
 
-            ]
-        });
+        ]
+    };
+
+    // OSX has the special application menu first, so populate that with about
+    if (process.platform === 'darwin') {
+        aboutMenu.label = 'synthea-webapp';
+        template.unshift(aboutMenu);
+    }
+    // Otherwise, put the about menu at the end
+    else {
+        // Remove 'Quit' from the about menu
+        aboutMenu.splice( aboutMenu.length-3,2);
+        // Add the about menu to the end of the menus
+        template.push(aboutMenu);
+        // But we want 'Quit' to be in the 'File' menu
+        template[0].submenu.push({ type: 'separator' });
+        template[0].submenu.push({ role: 'quit' });
     }
 
     // This is async, so NOW build the menu
@@ -315,7 +326,12 @@ function openProjectCreator() {
 }
 
 function openProjectFromFolder() {
-    dialog.showOpenDialog({properties:['openDirectory']}, function(d) {
+    dialog.showOpenDialog({
+        title: 'Open a Project',
+        // After much usage, I've decided that this is more convenient than not
+        defaultPath: synthea.configs.projectFolder,
+        properties:['openDirectory']
+    }, function(d) {
         // Does openDialog always return an array?
         if (!d || !d.length) { return; }
 
@@ -441,6 +457,7 @@ function setMenusEnabled(arg) {
     switch(arg) {
         case 'close-project':
             menustate = {
+                'Close Project': false,
                 'Edit Project': false,
                 'Save Project': false,
                 'Save Project As...': false,
@@ -450,6 +467,7 @@ function setMenusEnabled(arg) {
             break;
         case 'edit-project':
             menustate = {
+                'Close Project': true,
                 'Edit Project': false,
                 'Save Project': true,
                 'Save Project As...': true,
@@ -458,6 +476,7 @@ function setMenusEnabled(arg) {
             break;
         case 'open-project':
             menustate = {
+                'Close Project': true,
                 'Edit Project': true,
                 'Save Project': false,
                 'Save Project As...': true,

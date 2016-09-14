@@ -257,6 +257,7 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
                 }
             },
             onloaderror: function(soundId,reason) {
+                console.log("Load error!", reason)
                 defer.reject(reason);
             },
             // onpause: function() {},
