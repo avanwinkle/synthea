@@ -35,6 +35,7 @@
     "build": "npm run pack:osx",
     "docs": "jsdoc2md scripts/**/*.js > api.md",
     "pack:osx": "rm -r dist/Synthea-darwin-x64/ && electron-packager . $npm_package_productName --out=dist --platform=darwin --arch=x64 --icon=assets/synthea_icon_apple.icns --overwrite",
+    "pack:win": "electron-packager . --out=dist --platform=win32 --arch=x64 --overwrite",
     "start": "electron ."
   }
 }

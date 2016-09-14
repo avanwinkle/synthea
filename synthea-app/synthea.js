@@ -42,8 +42,12 @@ function addMediaToProject(evt,pkey) {
         for (var i=0;i<selection.length;i++) {
             try {
 
-                var filename = selection[i].split('/').pop();
-
+                var filename;
+                // Windows slashes are backwards
+                var splitter = process.platform === 'win32' ? '\\' : '/';
+                var filename = selection[i].split(splitter).pop();
+                
+                // Open up the file and dump it to the project folder
                 fs.createReadStream(selection[i])
                 .pipe(fs.createWriteStream(
                     synthea.configs.projectFolder+'/'+pkey+'/audio/'+filename));
@@ -220,8 +224,12 @@ function openProject(projectDef) {
     // Since we validate, might as well pass the layout file too
     var projectLayout;
 
+    // Don't do any processing for cloud projects, yet
+    if (projectDef && projectDef.location) {
+        
+    }
     // Check the config for a documentRoot, which is all we need
-    if (projectDef && projectDef.documentRoot) {
+    else if (projectDef && projectDef.documentRoot) {
 
         projectLayout =
             JSON.parse(fs.readFileSync(projectDef.documentRoot + '/layout.json'));

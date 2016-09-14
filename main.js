@@ -17,7 +17,8 @@ let menu;
 
 
 // HEY LISTEN! Developers, wanna see what's going on? TURN THIS ON!!
-let DEBUG_MODE = true;
+let DEBUG_MODE;
+DEBUG_MODE = true;
 
 
 function browseCloudProjects() {
@@ -224,11 +225,14 @@ function createWindow () {
 
 
   // OSX Icon
-  app.dock.setIcon(
-    electron.nativeImage.createFromPath('./assets/synthea_icon.png'));
-
-  // Tray Icon (Untested)
-  // const appIcon = new electron.Tray('./assets/synthea_icon.png');
+  if (app.dock) {
+    app.dock.setIcon(
+        electron.nativeImage.createFromPath('./assets/synthea_icon.png'));
+  }
+  // Tray Icon
+  else if (process.platform === 'win32') {
+    // const appIcon = new electron.Tray('./assets/synthea_icon.png');
+  }
 
   initializeSynthea(app);
       renderProjectsMenu();

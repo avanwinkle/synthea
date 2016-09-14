@@ -61,12 +61,26 @@ $ npm install
 $ npm start
 ```
 
+It is *slightly* faster to boot up Synthea using the Electron binary directly (rather than going through npm), so if you're developing seriously I recommend a global installation of Electron.
+```
+$ npm install -g electron
+```
+
+And then, from the repository folder:
+```
+$ electron .
+```
+
 
 **Build Instructions**
 
-Builds will be created in the `dist/` folder of the repo. Currently a build configuration is only available for Mac OSX, which can be run using the following command (inside the synthea repo directory):
+Builds will be created in the `dist/` folder of the repo. Currently a build configuration is only default for Mac OSX, which can be run using the following command (inside the synthea repo directory):
 
 ```$ npm run build```
+
+Windows builds can be run explicitly:
+
+```$ npm run pack:win```
 
 For instructions to build for other systems, see the help output by running:
 
