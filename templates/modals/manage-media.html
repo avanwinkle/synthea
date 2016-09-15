@@ -1,0 +1,148 @@
+<div class="modal-body editcue-modal editmedia-modal"
+layout="column" layout-fill md-theme="pink">
+
+    <div layout="row" flex="none">
+
+        <div class="modal-title">
+            Manage Media
+        </div>
+    </div>
+
+    <div layout="row" flex>
+
+        <!-- Left section -->
+        <div layout="column" flex layout-fill class="editcue-column">
+
+            <div layout="row" flex="none">
+                <div style="line-height: 48px;">
+                    {{smVm.mediaSize / 1048576 | number: 1}} MB
+                </div>
+                <span flex></span>
+                <md-button class="md-primary" style="font-size:12px;"
+                 ng-click="smVm.addMedia()">
+                    + Add Media
+                </md-button>
+            </div>
+
+            <div class="medialist-title" flex="none"
+            ng-if="smVm.unassignedMedia.length">
+                Unassigned Media
+                ({{smVm.unassignedMedia.length}})
+            </div>
+            <select flex multiple class="editcue-filelist md-primary"
+                ng-model="smVm.mediaSelector"
+                ng-change="smVm.selectMedia()"
+                ng-options="media as media.name for media in smVm.unassignedMedia">
+            </select>
+
+            <div class="medialist-title" flex="none"
+            ng-if="smVm.assignedMedia.length">
+                Assigned Media
+                ({{smVm.assignedMedia.length}})
+            </div>
+            <select flex multiple class="editcue-filelist md-primary"
+                ng-model="smVm.mediaSelector"
+                ng-change="smVm.selectMedia()"
+                ng-options="media as media.name for media in smVm.assignedMedia">
+            </select>
+
+        </div>
+
+        <!-- Right Section -->
+        <div layout="column" flex="none" class="editmedia-rightcolumn editcue-column">
+            <div class="editmedia-details" ng-if="smVm.selectedMedia">
+                <div layout="row" class="editmedia-details-title"
+                     ng-bind="smVm.selectedMedia.name">
+                </div>
+                <div layout="row" class="editmedia-details-meta">
+                    <div>
+                        {{smVm.selectedMedia.stats.mtime | date: 'dd MMM yyyy HH:mm:ss'}}
+                        <br/>
+                        {{smVm.selectedMedia.stats.size / 1024 | number:0}} KB
+                    </div>
+                    <span flex></span>
+                    <div>
+                        <md-icon class="weblink editmedia-details-showfile"
+                         ng-click="smVm.showFile()">
+                            <svg syn-icon="open_in_browser" size="20"></svg>
+                            <md-tooltip md-direction="top" md-delay="500">
+                                Go to File
+                            </md-tooltip>
+                        </md-icon>
+                    </div>
+                </div>
+
+                <div class="editmedia-player">
+                    <syn-channel-player channel="smVm.channel" ></syn-channel-player>
+                </div>
+
+                <div class="editmedia-cuelist">
+
+                    <div class="editmedia-cuelist-title">
+                        <div ng-if="smVm.selectedMedia._attachedCues">
+                            This media is attached to:
+                        </div>
+                        <div ng-if="!smVm.selectedMedia._attachedCues">
+                            <div>
+                                This media is not attached to any cues.
+                            </div>
+                            <div style="font-style:normal;text-align: right;">
+                                <md-button class=""
+                                ng-if="smVm.unassignedMedia.indexOf(smVm.selectedMedia)!==-1"
+                                ng-click="smVm.deleteMedia()">
+                                Delete Media
+                                </md-button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="editmedia-cuelist-item"
+                    ng-repeat="cue in smVm.selectedMedia._attachedCues">
+                        <div layout="row">
+                            <div class="editmedia-cuelist-item-name"
+                            ng-bind="cue.name"></div>
+
+                            <span flex></span>
+                            <div>
+                                <md-icon ng-if="!cue._confirmDelete"
+                                ng-click="cue._confirmDelete=true"
+                                class="editmedia-cuelist-item-remove icon">
+                                    <svg syn-icon="delete" size="16"></svg>
+                                    <md-tooltip md-position="bottom">Delete Cue</md-tooltip>
+                                </md-icon>
+                                <span ng-if="cue._confirmDelete"
+                                class="editmedia-cuelist-item-remove"
+                                ng-click="smVm.goDeleteCue(cue)">
+                                    DELETE CUE
+                                </span>
+                            </div>
+                        </div>
+                        <div class="editmedia-cuelist-item-ancestry">
+                            <div ng-repeat="ans in cue._ancestry">{{ans.page}} &gt; {{ans.section}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div layout="row">
+                    <span flex></span>
+                    <small>
+
+                    </small>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div flex="none" layout="row" class="modal-buttons">
+        <span flex></span>
+        <div>
+            <md-button class="md-primary"
+            ng-click="smVm.$hide()">
+                Done
+            </md-button>
+        </div>
+    </div>
+</div>

@@ -17,7 +17,7 @@ let menu;
 
 let DEBUG_MODE;
 // HEY LISTEN! Developers, wanna see what's going on? TURN THIS ON!!
-DEBUG_MODE = true;
+// DEBUG_MODE = true;
 
 
 function browseCloudProjects() {
@@ -308,9 +308,11 @@ function initializeSynthea() {
 
     ipcMain.on('add-media-to-project', synthea.addMediaToProject);
     ipcMain.on('browse-cloud-projects', browseCloudProjects);
+    ipcMain.on('delete-media', synthea.deleteMedia);
     ipcMain.on('get-project-media', synthea.getProjectMedia);
     ipcMain.on('save-project', synthea.saveProject);
     ipcMain.on('save-and-open-project', synthea.saveAndOpenProject);
+    ipcMain.on('show-file', showFile);
     ipcMain.on('open-create-project', openProjectCreator);
     ipcMain.on('open-project-from-folder', openProjectFromFolder);
     ipcMain.on('open-weburl', openWeburl);
@@ -448,9 +450,6 @@ function resetAudioEngine() {
     mainWindow.webContents.send('reset-audio-engine');
 }
 
-
-
-
 function setMenusEnabled(arg) {
     // We can pass in a string for predefined menu states
     var menustate;
@@ -518,8 +517,11 @@ function setMenusEnabled(arg) {
             }
         }
     }
+}
 
-
+function showFile(evt, path) {
+    console.log(path)
+    electron.shell.showItemInFolder(path);
 }
 
 function toggleDJMode() {

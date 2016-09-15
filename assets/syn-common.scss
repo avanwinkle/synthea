@@ -1,7 +1,7 @@
 $syn-accent: #368BE6;
 $syn-accent-faded: desaturate($syn-accent, 50%);
 $syn-background: #eee;
-$syn-danger: #c50836;
+$syn-danger: rgb(233,30,99);
 $track-background: #ddd;
 
 .blink {
@@ -14,4 +14,22 @@ $track-background: #ddd;
   to {
     opacity: 0;
   }
+}
+
+.flashlight {
+  animation: flashlight-animation 0.5s ease-in-out 5 alternate;
+}
+@keyframes flashlight-animation {
+  from {
+    background-color: transparentize(pink,0.2);
+  }
+  to {
+    background-color: transparent;
+  }
+}
+
+%textellipse {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow-x: hidden;
 }

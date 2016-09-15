@@ -6,3 +6,12 @@
     opacity: 1; }
   to {
     opacity: 0; } }
+
+.flashlight {
+  animation: flashlight-animation 0.5s ease-in-out 5 alternate; }
+
+@keyframes flashlight-animation {
+  from {
+    background-color: rgba(255, 192, 203, 0.8); }
+  to {
+    background-color: transparent; } }

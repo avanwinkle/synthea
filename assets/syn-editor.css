@@ -7,12 +7,31 @@
   to {
     opacity: 0; } }
 
+.flashlight, .edit-toolbar-menuitem.highlight, .section-placeholder-pointer {
+  animation: flashlight-animation 0.5s ease-in-out 5 alternate; }
+
+@keyframes flashlight-animation {
+  from {
+    background-color: rgba(255, 192, 203, 0.8); }
+  to {
+    background-color: transparent; } }
+
+.editmedia-cuelist-item-ancestry, .editmedia-cuelist-item-name, .editmedia-details-title {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow-x: hidden; }
+
 div[dnd-list],
 div[dnd-list] > dnd-nodrag {
   position: relative; }
 
 div[dnd-list] .dndDraggingSource {
   opacity: 0.5; }
+
+.deletehover, .editcue-sources-item-remove, .editmedia-cuelist-item-remove {
+  cursor: pointer; }
+  .deletehover:hover, .editcue-sources-item-remove:hover, .editmedia-cuelist-item-remove:hover {
+    color: #e91e63; }
 
 #edit-toolbar .syn-icon {
   fill: #fff; }
@@ -47,7 +66,7 @@ div[dnd-list] .dndDraggingSource {
     padding: 8px 8px 4px 8px;
     width: 100%; }
     .editcue-filelist-filter:focus {
-      border-color: #c50836;
+      border-color: #e91e63;
       outline: none; }
 
 .editcue-modal.modal-body {
@@ -62,10 +81,56 @@ div[dnd-list] .dndDraggingSource {
       white-space: nowrap;
       text-overflow: ellipsis;
       overflow-x: hidden; }
-    .editcue-sources-item-remove {
-      cursor: pointer; }
-      .editcue-sources-item-remove:hover {
-        color: #c50836; }
+    .editcue-sources-item-remove:not(:hover) {
+      opacity: 0.5; }
+
+.editmedia-cuelist {
+  font-size: 14px;
+  margin: 8px 0; }
+  .editmedia-cuelist-item {
+    border-bottom: solid 1px rgba(0, 0, 0, 0.15);
+    padding-left: 4px; }
+    .editmedia-cuelist-item:last-child {
+      border-bottom: none; }
+    .editmedia-cuelist-item:hover {
+      background-color: rgba(0, 0, 0, 0.05); }
+    .editmedia-cuelist-item-ancestry {
+      font-size: 10px;
+      color: #888;
+      margin-top: -6px;
+      margin-bottom: 4px; }
+    .editmedia-cuelist-item-name {
+      line-height: 24px; }
+    .editmedia-cuelist-item-remove {
+      line-height: 24px;
+      white-space: nowrap; }
+      .editmedia-cuelist-item-remove.icon {
+        vertical-align: -webkit-baseline-middle; }
+  .editmedia-cuelist-title {
+    font-size: 12px;
+    font-style: italic;
+    color: #666;
+    margin-bottom: 4px; }
+
+.editmedia-details-title {
+  line-height: 48px; }
+
+.editmedia-details-meta {
+  color: #666;
+  font-size: 12px;
+  margin: -16px 0 16px 0; }
+
+.editmedia-details-showfile:not(:hover) {
+  opacity: 0.5; }
+
+.editmedia-modal {
+  height: 600px; }
+
+.editmedia-player {
+  margin: 8px 0; }
+
+.editmedia-rightcolumn {
+  width: 240px; }
 
 .edit-sectionheader-name {
   white-space: nowrap;
@@ -75,34 +140,47 @@ div[dnd-list] .dndDraggingSource {
 .edit-sectionheader-cta {
   cursor: pointer; }
   .edit-sectionheader-cta:hover {
-    color: #c50836; }
+    color: #e91e63; }
 
-.editsection-container {
-  margin-bottom: 16px; }
+.managelist {
+  min-width: 320px; }
 
-.editsection-section {
+.managelist-section {
   background-color: #eee;
   border-style: solid;
   border-color: rgba(0, 0, 0, 0.1);
   border-width: 1px 0 0 0;
   line-height: 14px;
-  padding: 4px; }
-  .editsection-section:last-child {
+  padding: 4px;
+  overflow-y: hidden;
+  transition: height 0.25s ease-in-out; }
+  .managelist-section:last-child {
     border-bottom-width: 1px; }
-  .editsection-section-delete {
+  .managelist-section-delete {
     cursor: pointer; }
-    .editsection-section-delete:hover .syn-icon {
-      fill: #c50836; }
-  .editsection-section-input {
+    .managelist-section-delete:hover .syn-icon {
+      fill: #e91e63; }
+  .managelist-section-input {
     border-color: transparent;
     background-color: transparent;
-    font-size: 12px; }
-    .editsection-section-input:focus {
+    font-size: 12px;
+    width: 100%; }
+    .managelist-section-input:focus {
       outline: none;
       border-bottom-color: #368BE6; }
-  .editsection-section-name {
+  .managelist-section-name {
     font-weight: 300;
     padding: 4px 8px; }
+  .managelist-section.ng-enter {
+    display: flex !important;
+    height: 0; }
+    .managelist-section.ng-enter-active {
+      height: 49px; }
+  .managelist-section.ng-leave {
+    display: flex !important;
+    height: 49px; }
+    .managelist-section.ng-leave-active {
+      height: 0; }
 
 .page-tab-container .dndPlaceholder {
   list-style: none;
@@ -117,22 +195,47 @@ div[dnd-list] .dndDraggingSource {
   opacity: 0.7; }
 
 .page-tab.dndDraggingSource, .cueButton-container.dndDraggingSource,
-.editsection-section.dndDraggingSource {
+.managelist-section.dndDraggingSource {
   display: none !important; }
 
 .section-container .dndPlaceholder {
   list-style: none;
   list-style-image: none;
-  border-bottom: dotted 1px #c50836;
+  border-bottom: dotted 1px #e91e63;
   margin: 8px 0; }
 
-.editsection-container > .dndPlaceholder {
+.managelist-container > .dndPlaceholder {
   list-style: none;
   list-style-image: none; }
-  .editsection-container > .dndPlaceholder + .editsection-section {
-    border-top: dotted 1px #c50836; }
-  .editsection-container > .dndPlaceholder:last-child {
-    border-bottom: dotted 1px #c50836; }
+  .managelist-container > .dndPlaceholder + .managelist-section {
+    border-top: dotted 1px #e91e63; }
+  .managelist-container > .dndPlaceholder:last-child {
+    border-bottom: dotted 1px #e91e63; }
 
 .projectcreator-input {
   min-width: 12em; }
+
+.section-placeholder {
+  background-image: url("background.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center center;
+  font-size: 16px;
+  font-style: italic;
+  color: #666;
+  margin: 0 auto;
+  padding: 64px; }
+  .section-placeholder-pointer {
+    border-radius: 32px;
+    bottom: 4px;
+    left: 16px;
+    line-height: 2.5;
+    padding: 4px 16px;
+    position: absolute; }
+    .section-placeholder-pointer-icon {
+      display: inline-block;
+      line-height: 0;
+      margin-top: 8px;
+      transform: rotate(90deg);
+      vertical-align: bottom;
+      opacity: 0.5; }

@@ -97,76 +97,9 @@ ng-include="'templates/partials/header-player.html'"
 </div>
 
 <div id="currentTracks">
-
     <div class="track-container-title" ng-if="currentTracks.length">Now Playing</div>
-    <div class="track-container {{channel.state}}"
-    ng-repeat="channel in spVm.mixer.channels | filter: {'is_current':true} as currentTracks"
-    ng-style="{'z-index':$index}">
-        <div class="track">
-            <div layout="row">
-                <div class="track-title" flex
-                ng-bind="channel.media.name"></div>
-                <div class="track-eta" flex="none" ng-bind="channel.duration - channel.currentTime | secondsToTimecode"
-                ng-hide="channel.seekPreview_">
-                </div>
-                <div class="track-eta track-eta-preview"
-                ng-bind="channel.seekPreview_ | secondsToTimecode:true"
-                ng-if="channel.seekPreview_"></div>
-            </div>
-
-
-            <div class="track-timeline" layout="row">
-                <div class="track-timeline-bar">
-                    <div class="track-timeline-progress" ng-style="{'transform':'scaleX('+(channel.currentTime/channel.duration)+')'}"></div>
-                    <div class="track-timeline-seeker"
-                    ng-mousemove="spVm.timelineSeekPreview($event,channel)"
-                    ng-mouseleave="channel.seekPreview_ = undefined"
-                    ng-click="spVm.timelineSeek($event,channel)"></div>
-                </div>
-            </div>
-
-            <div layout="row">
-                <div flex class="track-timecode">
-                    <span ng-bind="channel.currentTime | secondsToTimecode : true"></span>
-                </div>
-                <div flex class="track-timecode">
-                    <span ng-bind="channel.duration | secondsToTimecode : true"></span>
-                </div>
-            </div>
-
-            <div class="track-buttons" layout="row">
-                <div flex>
-                    <md-button class="md-icon-button track-button track-button-loop" aria-label="repeat"
-                    ng-click="channel.repeat()"
-                    ng-disabled="channel.state==='STOPPING'"
-                    ng-class="{'active': channel.media.isLoop}">
-                        <md-icon><svg syn-icon="repeat"></svg></md-icon>
-                    </md-button>
-                </div>
-                <div flex>
-                    <md-button class="md-icon-button track-button track-button-pause" aria-label="pause"
-                    ng-click="channel.pause()"
-                    ng-disabled="channel.state==='PAUSING'||channel.state==='STOPPING'"
-                    ng-if="channel.is_playing">
-                        <md-icon><svg syn-icon="pause"></svg></md-icon>
-                    </md-button>
-                    <md-button class="md-icon-button track-button track-button-play" aria-label="play"
-                    ng-click="channel.play()"
-                    ng-disabled="channel.state==='STOPPING'"
-                    ng-if="!channel.is_playing">
-                        <md-icon>
-                            <svg syn-icon="play"></svg>
-                        </md-icon>
-                    </md-button>
-                </div>
-                <div flex>
-                    <md-button class="md-icon-button track-button track-button-stop" aria-label="stop"
-                    ng-click="channel.stop()"
-                    ng-disabled="channel.state==='PAUSING'">
-                        <md-icon><svg syn-icon="stop"></svg></md-icon>
-                    </md-button>
-                </div>
-            </div>
-        </div>
+    <div class="track-container"
+    ng-repeat="channel in spVm.mixer.channels | filter: {'is_current':true} as currentTracks">
+        <syn-channel-player channel="channel"></syn-channel-player>
     </div>
 </div>

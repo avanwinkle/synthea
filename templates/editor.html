@@ -42,13 +42,6 @@ ng-class="{'hasBanner': sVm.project._bannerImage}"
             ng-class="{'current': page == sVm.currentPage}"></div>
         </div>
 
-        <md-button
-        class="page-tab-addbutton"
-        style="margin:0 16px;"
-        ng-click="seVm.addPage($event)">
-            + Add Page
-        </md-button>
-
         <span flex></span>
     </div>
 
@@ -68,6 +61,7 @@ ng-class="{'hasBanner': sVm.project._bannerImage}"
     </div> -->
 
     <div  layout="row" flex layout-wrap id="page-container-content">
+
         <div class="section md-card" flex
         md-padding="2"
         ng-repeat="section in sVm.project.sections | filter: {'page_id': sVm.currentPage.id} :true | orderBy: '+display_order' as currentSections">
@@ -100,7 +94,7 @@ ng-class="{'hasBanner': sVm.project._bannerImage}"
                             <div class="cueButton-dragger" flex>
                                 <md-button class="cueButton"
                                 aria-label="{{cue.name}}"
-                                ng-bind="cue.id + ': ' + cue.name"
+                                ng-bind="cue.name"
                                 ng-click="seVm.editCue(cue,$event)">
                                 </md-button>
                                 <div class="cueButton-badge channelState-ERROR"
@@ -123,6 +117,23 @@ ng-class="{'hasBanner': sVm.project._bannerImage}"
                 </div>
             </div>
         </div>
+
+        <div class="section-placeholder" ng-if="currentSections.length===0"
+            layout="column" layout-fill>
+            <span flex="2"></span>
+            <div flex="none">
+            Use the section manager to add sections <br/>
+            sections and start building this page.
+            </div>
+            <span flex="3"></span>
+
+            <div class="section-placeholder-pointer">
+                <span class="section-placeholder-pointer-icon">
+                    <svg syn-icon="subdirectory_arrow_right"></svg>
+                </span>
+                Click the gear to add/manage sections
+            </div>
+        </div>
     </div>
 
 </md-content>
@@ -131,32 +142,51 @@ ng-class="{'hasBanner': sVm.project._bannerImage}"
 class="md-accent md-hue-2">
     <div class="md-toolbar-tools" layout="row">
 
-        <md-menu>
+        <md-menu md-offset="0 48">
           <md-button aria-label="Open phone interactions menu" class="md-icon-button"
           ng-click="seVm.openMenu($mdOpenMenu, $event)">
             <md-icon md-menu-origin><svg syn-icon="settings"></svg></md-icon>
+            <md-tooltip md-direction="top" md-delay="200">
+                Manage Project
+            </md-tooltip>
           </md-button>
-          <md-menu-content width="4">
+          <md-menu-content width="4" style="padding:0;">
+
             <md-menu-item>
-              <md-button ng-click="seVm.copyMediaToProject()">
-                <md-icon ><svg syn-icon="library_add"></svg></md-icon>
-                Add Media to Project
+              <md-button ng-click="seVm.saveProject($event)">
+                <md-icon>
+                    <svg syn-icon="system_update_alt"></svg>
+                </md-icon>
+                Save Project
               </md-button>
             </md-menu-item>
+
             <md-menu-divider></md-menu-divider>
+
             <md-menu-item>
-              <md-button ng-click="seVm.addPage()">
-                <md-icon md-menu-align-target><svg syn-icon="note"></svg></md-icon>
+              <md-button ng-click="seVm.managePages($event)">
+                <md-icon >
+                    <svg syn-icon="insert_drive_file"></svg>
+                </md-icon>
                 Manage Pages
               </md-button>
             </md-menu-item>
             <md-menu-item>
-              <md-button ng-click="seVm.manageSections()">
+              <md-button ng-click="seVm.manageSections(sVm.currentPage.id,$event)"
+              class="edit-toolbar-menuitem"
+              ng-class="{'highlight': currentSections.length===0}"
+              >
                 <md-icon><svg syn-icon="view_week"></svg></md-icon>
                 Manage Sections
               </md-button>
             </md-menu-item>
-
+            <md-menu-item>
+              <md-button md-autofocus ng-click="seVm.manageMedia($event)">
+                <md-icon md-menu-align-target>
+                    <svg syn-icon="library_music"></svg></md-icon>
+                Manage Media
+              </md-button>
+            </md-menu-item>
 
           </md-menu-content>
         </md-menu>
@@ -175,7 +205,7 @@ class="md-accent md-hue-2">
         <!-- <h2>Edit Project</h2> -->
         <!-- <span flex></span> -->
         <md-button ng-click="seVm.saveAndClose()">
-            Done Editing
+            Save &amp; Close
         </md-button>
     </div>
 </md-toolbar>

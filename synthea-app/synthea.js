@@ -1,6 +1,6 @@
 (function() {
 
-var fs = require('fs');
+const fs = require('fs');
 const {dialog} = require('electron');
 const syntheaSchema = require('./schema');
 const Validator = require('jsonschema').Validator;
@@ -12,6 +12,7 @@ var synthea = {
     configs: {},
     config_path: undefined,
     currentProjectDef: {},
+    deleteMedia: deleteMedia,
     deleteProject: deleteProject,
     editProject: editProject,
     getProjectMedia: getProjectMedia,
@@ -135,6 +136,29 @@ function createProject(project) {
 }
 
 
+function deleteMedia(evt,filename) {
+
+    const CANCEL_ID = 1;
+    dialog.showMessageBox({
+        buttons: ['Delete Media','Cancel'],
+        cancelId: CANCEL_ID,
+        defaultId: CANCEL_ID,
+        type: 'question',
+        title: 'Confirm Delete',
+        message: 'This file will be deleted from the project folder. Are you sure?',
+    }, function(response) {
+
+        if (response!==CANCEL_ID) {
+            var audio = synthea.currentProjectDef.documentRoot+'/audio';
+            if( fs.existsSync(audio) && fs.existsSync(audio + '/' + filename)) {
+                fs.unlinkSync(audio + '/' + filename);
+            }
+            synthea.mainWindow.webContents.send('media-deleted',filename);
+        }
+
+    });
+}
+
 /**
  * Delete the current project
  */
@@ -151,8 +175,6 @@ function deleteProject() {
     }, function(response) {
 
         if (response!==CANCEL_ID) {
-
-            var fs = require('fs');
 
             // Remove the audio and layout files
             var layout = synthea.currentProjectDef.documentRoot+'/layout.json';
@@ -195,14 +217,24 @@ function editProject(projectDef) {
  * @param  {event} evt  (Menu) Event
  * @param  {object} proj Project layout OR definition
  */
-function getProjectMedia(evt,proj) {
+function getProjectMedia(evt,proj,detailed) {
     var output = [];
 
     var media = fs.readdirSync(synthea.configs.projectFolder+'/'+proj.key+'/audio');
     for (var i=0;i<media.length;i++) {
         // Ignore hidden files and those without extensions
         if (media[i].indexOf('.') > 0) {
-            output.push(media[i]);
+            var fd = synthea.configs.projectFolder+'/'+proj.key+'/audio/' + media[i];
+
+            // A detailed request?
+            if (detailed) {
+                // Return an object with the name and stats
+                output.push( {name: media[i], stats: fs.statSync(fd)});
+            }
+            // Otherwise, just the file name (as a string)
+            else {
+                output.push(media[i]);
+            }
         }
     }
 

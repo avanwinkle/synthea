@@ -51,6 +51,11 @@ function isQueued() {
 
 function secondsToTimecode() {
     return function(duration, showDecimals) {
+        // If we can't make a timecode, make it look nice
+        if (typeof(duration)!=='number') {
+            return '--:--';
+        }
+
         var sec_num = parseInt(duration, 10); // don't forget the second param
         var minutes = Math.floor(sec_num / 60);
         var seconds = sec_num - (minutes * 60);
@@ -58,6 +63,7 @@ function secondsToTimecode() {
 
         if (minutes < 10) {minutes = "0"+minutes;}
         if (seconds < 10) {seconds = "0"+seconds;}
+
         return minutes+':'+seconds+decs;
 
     };

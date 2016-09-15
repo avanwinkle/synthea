@@ -23,11 +23,14 @@ function SynProject($http,$q,$log) {
 
     var SynProjectService = {
         copyMediaToProject: copyMediaToProject,
+        deleteMedia: deleteMedia,
         load: load,
         getPage: getPage,
         getProject: function() { return project; },
         getProjectDef: function() { return def; },
         getProjectMediaList: getProjectMediaList,
+        saveProject: saveProject,
+        showFile: showFile,
     };
 
     return SynProjectService;
@@ -49,6 +52,20 @@ function SynProject($http,$q,$log) {
         });
 
         ipcRenderer.send('add-media-to-project',def.key);
+
+        return defer.promise;
+    }
+
+    function deleteMedia(filename) {
+
+        var defer = $q.defer();
+
+        ipcRenderer.once('media-deleted', function(evt, fname) {
+            defer.resolve(fname);
+        });
+
+        // Don't have a reason to do any promises yet, so just fire-and-forget
+        ipcRenderer.send('delete-media',filename);
 
         return defer.promise;
     }
@@ -78,14 +95,14 @@ function SynProject($http,$q,$log) {
 
         // Look for a layout file
         if (projectLayout) {
-            console.log('Loading project from passed layout file',projectLayout)
+            // console.log('Loading project from passed layout file',projectLayout)
             _processLayoutFile(projectLayout);
             defer.resolve();
         }
 
         // Look for a definition file that has a layout
         else if (projectDef.documentRoot) {
-            console.log("Loading project from projectDef file")
+            // console.log("Loading project from projectDef file")
 
             $http.get(projectDef.documentRoot + '/layout.json')
             .then(function(response){
@@ -115,9 +132,10 @@ function SynProject($http,$q,$log) {
      * Method to retrieve an array of filenames, listing all of the media files
      * in the projects `/audio/` folder. This service acts as the handler, while
      * passing the actual filesystem query to the main process.
+     * @param {boolean} detailed Whether to include full stats (default: false)
      * @return {promise} A promise resolved with an array of filenames.
      */
-    function getProjectMediaList() {
+    function getProjectMediaList(detailed) {
 
         // Create a promise to async fetch the listing
         var defer = $q.defer();
@@ -127,9 +145,19 @@ function SynProject($http,$q,$log) {
             defer.resolve(media);
         });
 
-        ipcRenderer.send('get-project-media', {key: def.key});
+        ipcRenderer.send('get-project-media', {key: def.key}, detailed);
 
         return defer.promise;
+    }
+
+    function saveProject() {
+        ipcRenderer.send('save-project', project);
+    }
+
+    function showFile(filename) {
+        console.log('showing file',filename)
+        ipcRenderer.send('show-file',
+            def.documentRoot + '/audio/' + filename);
     }
 
 

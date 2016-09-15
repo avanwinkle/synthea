@@ -98,9 +98,8 @@ SyntheaController.prototype.loadProject = function(projectDef,projectLayout) {
     this.SynProject_.load(projectDef,projectLayout).then(function() {
 
         this.project = this.SynProject_.getProject();
-        console.log("Project loaded!",this.project)
 
-    // Get a page object and select it for our initial display
+        // Get a page object and select it for our initial display
         this.selectPage( this.SynProject_.getPage() );
 
         // And a nice title

@@ -87,33 +87,6 @@ SynEditorController.prototype.addCue = function(idx, section, $event) {
 };
 
 /**
- * Add a new page to the project
- * @param {$event} $event Click event
- */
-SynEditorController.prototype.addPage = function($event) {
-
-    // Use the basic mdDialog prompt window for this
-    var prompt = this.$mdDialog_.prompt()
-        .title('Name for this Page')
-        .targetEvent($event)
-        .ok('Add Page')
-        .cancel('Cancel')
-        .theme('pink');
-
-    this.$mdDialog_.show(prompt).then(function(result) {
-        // Create a page object inline and push it
-        this.project.pages.push({
-            id: this.idCount++,
-            name: result,
-            // page_id: this.currentPage.id,
-            display_order: this.project.pages.length,
-            // cue_ids: [],
-        });
-    }.bind(this));
-};
-
-
-/**
  * Wrapper to call the SynProject copyMediaToProject() method. Not bound
  * directly because, in all likelihood, we'll want to do some interception
  *
@@ -122,6 +95,20 @@ SynEditorController.prototype.addPage = function($event) {
 SynEditorController.prototype.copyMediaToProject = function() {
 
     this.SynProject_.copyMediaToProject();
+};
+
+SynEditorController.prototype.deleteCue = function(cue) {
+
+    // Splice from the list of cues
+    this.project.cues.splice(
+        this.project.cues.indexOf(cue),1);
+    // Remove the id reference from any sections it was in
+    angular.forEach(this.project.sections, function(s) {
+        if (s.cue_ids && s.cue_ids.indexOf(cue.id)!== -1) {
+            s.cue_ids.splice(
+                s.cue_ids.indexOf(cue.id),1);
+        }
+    });
 };
 
 /**
@@ -162,16 +149,7 @@ SynEditorController.prototype.editCue = function(cue,$event) {
     }).then(function(response) {
         // A 'null' response means delete the cue
         if (response===null) {
-            // Splice from the list of cues
-            this.project.cues.splice(
-                this.project.cues.indexOf(cue),1);
-            // Remove the id reference from any sections it was in
-            angular.forEach(this.project.sections, function(s) {
-                if (s.cue_ids && s.cue_ids.indexOf(cue.id)!== -1) {
-                    s.cue_ids.splice(
-                        s.cue_ids.indexOf(cue.id),1);
-                }
-            });
+            this.deleteCue(cue);
             // Promise still resolves
             defer.resolve(null);
         }
@@ -200,114 +178,33 @@ SynEditorController.prototype.editCue = function(cue,$event) {
     return defer.promise;
 };
 
+SynEditorController.prototype.manageMedia = function($event) {
+    // Make a modal
+    this.$mdDialog_.show({
+        bindToController: true,
+        // When is a controller hefty enough to get its own file?
+        controller: 'SynMediaController',
+        controllerAs: 'smVm',
+        // We can delete cues from within
+        locals: {
+            // But bind to this!
+            deleteCue: this.deleteCue.bind(this),
+        },
+        templateUrl: 'templates/modals/manage-media.html',
+        targetEv: $event,
+    });
+};
+
+SynEditorController.prototype.managePages = function($event) {
+    this._manageList($event, 'pages');
+};
 /**
  * Method to open a section-manager modal for adding, removing, reordering
  * @param  {integer} page_id Id of the page to manage sections of
  * @param  {$event} $event  Click event (for modal positioning)
  */
 SynEditorController.prototype.manageSections = function(page_id, $event) {
-
-    // Pull out an array of just the sections in the requested page
-    var sections = this.$filter_('filter')(
-                    this.project.sections, {page_id: page_id}
-                ).map(function(s) {
-                    // Store a copy of the name for changing
-                    s._newname = s.name;
-                    return s;
-                });
-    // Sort them according to their display_order because the modal
-    // shows them in actual array index order
-    sections.sort(function(a,b) { return a.display_order >= b.display_order; });
-
-    // Make a modal
-    this.$mdDialog_.show({
-        bindToController: true,
-        // When is a controller hefty enough to get its own file?
-        controller: [ function() {
-            var ssVm = this;
-
-            ssVm.addSection = function() {
-                ssVm.sections.push({
-                    display_order: ssVm.sections.length,
-                    page_id: page_id,
-                    name: undefined,
-                });
-            };
-
-            ssVm.deleteSection = function(idx) {
-                ssVm.sections.splice(idx,1);
-            };
-
-            ssVm.saveSections = function() {
-                // Drag and drop creates NEW COPIES of objects, so we can't
-                // just modify in place. Instead, make an array of section ids
-                var newOrder = ssVm.sections.map(function(s) {
-                    // New sections don't have ids, just names
-                    return s.id || s._newname;
-                });
-                // Return this array of ids/names to the controller, which will
-                // match the ids against the original section objects and
-                // propagate modifications to those originals
-                ssVm.$hide({sections: ssVm.sections, order: newOrder});
-            };
-        }],
-        controllerAs: 'ssVm',
-        locals: {
-            // Pass in the dialog methods for closing
-            $cancel: this.$mdDialog_.cancel,
-            $hide: this.$mdDialog_.hide,
-            // Our sorted list of sections in the requested page
-            sections: sections
-        },
-        templateUrl: 'templates/modals/manage-sections.html',
-        targetEv: $event,
-    }).then(function(response) {
-        console.log(response)
-        // Use the array of ids to set the display order
-        for (var i=this.project.sections.length-1;i>=0;i--) {
-            // The section of this iteration
-            var s = this.project.sections[i];
-            // The index of THIS section in the new sort order
-            var idx = response.order.indexOf(s.id);
-
-            // Does this section exist in the new sort order?
-            if (idx !== -1) {
-                s.display_order = idx;
-                // Do we have a new name?
-                if (response.sections[idx]._newname) {
-                    s.name = response.sections[idx]._newname;
-                }
-            }
-            // Was this section deleted from the page?
-            else if (s.page_id === page_id) {
-                this.project.sections.splice(i,1);
-                // Also delete all the cues that used to live in this section?
-                // AVW: Will need to decide how to behave once cues can be put
-                // in multiple sections, i.e. when (if ever) are they collected?
-                for (var k=this.project.cues.length-1;k>=0;k--) {
-                    if (s.cue_ids.indexOf(this.project.cues[k].id)!== -1) {
-                        this.project.cues.splice(k,1);
-                    }
-                }
-            }
-        }
-
-        // Did we get any new sections?
-        for (var j=0;j<response.order.length;j++) {
-            // If it came back as a string, it's new
-            if (typeof(response.order[j])==='string') {
-                // Make a section object with an id
-                 this.project.sections.push({
-                    id: this.idCount++,
-                    name: response.order[j],
-                    page_id: page_id,
-                    display_order: j,
-                    cue_ids: [],
-                });
-            }
-        }
-
-    }.bind(this));
+    this._manageList($event, 'sections', page_id);
 };
 
 /**
@@ -361,6 +258,123 @@ SynEditorController.prototype.openMenu = function($mdOpenMenu, ev) {
  */
 SynEditorController.prototype.saveAndClose = function() {
     ipcRenderer.send('save-and-open-project', this.project);
+};
+
+// TODO: Combine the saveProject and saveAndClose
+SynEditorController.prototype.saveProject = function() {
+    this.SynProject_.saveProject();
+};
+
+SynEditorController.prototype._manageList = function($event, listtype, page_id) {
+
+    // Assemble the appropriate array of objects to manage
+    let list;
+    if (listtype === 'sections') {
+        // Pull out an array of just the sections in the requested page
+        list = this.$filter_('filter')(
+                        this.project.sections, {page_id: page_id}
+                    ).map(function(s) {
+                        // Store a copy of the name for changing
+                        s._newname = s.name;
+                        return s;
+                    });
+    }
+    else if (listtype === 'pages') {
+        // Make a a copy so changes can be cancelled
+        list = angular.copy(this.project.pages);
+    }
+    else {
+        console.error('Unknown list type \''+listtype+'\'');
+        return;
+    }
+
+    // Make a promise for the modal resolution
+    var defer = this.$q_.defer();
+
+    // Make a modal
+    this.$mdDialog_.show({
+        bindToController: true,
+        // When is a controller hefty enough to get its own file?
+        controller: 'SynListController',
+        controllerAs: 'slVm',
+        locals: {
+            // Our sorted list
+            list: list,
+            listtype: listtype,
+        },
+        templateUrl: 'templates/modals/manage-list.html',
+        targetEv: $event,
+        onComplete: function(scope) {
+            scope.slVm.activate();
+        }
+    }).then(function(response) {
+
+        // What do we target?
+        var target;
+        if (listtype==='sections') {
+            target = this.project.sections;
+        }
+        else {
+            target = this.project.pages;
+        }
+
+        // Use the array of ids to set the display order
+        for (var i=target.length-1;i>=0;i--) {
+            // The item of this iteration
+            var s = target[i];
+            // The index of the above item in the new sort order
+            var idx = response.order.indexOf(s.id);
+
+            // Does this item exist in the new sort order?
+            if (idx !== -1) {
+                // Set the display order according to the sort order
+                s.display_order = idx;
+                // Do we have a new name? Check the actual list that came back
+                if (response.list[idx]._newname) {
+                    s.name = response.list[idx]._newname;
+                }
+            }
+            // Was it deleted? Any page not in the order is deleted, or any
+            // section that belongs in the given page that's not there is too
+            else if (listtype==='pages' || s.page_id === page_id) {
+                target.splice(i,1);
+
+                if (listtype==='sections') {
+                    // Also delete all the cues that used to live in this section?
+                    // AVW: Will need to decide how to behave once cues can be put
+                    // in multiple sections, i.e. when (if ever) are they collected?
+                    for (var k=this.project.cues.length-1;k>=0;k--) {
+                        if (s.cue_ids.indexOf(this.project.cues[k].id)!== -1) {
+                            this.project.cues.splice(k,1);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Did we get any new items?
+        for (var j=0;j<response.order.length;j++) {
+            // If it came back as a string, it's new
+            if (typeof(response.order[j])==='string') {
+                // Make a new object with an id
+                var newitem = {
+                    id: this.idCount++,
+                    name: response.order[j],
+                    display_order: j,
+                };
+
+                // Sections need some additional properties
+                if (listtype === 'sections') {
+                    newitem.page_id = page_id;
+                    newitem.cue_ids = [];
+                }
+
+                target.push(newitem);
+            }
+        }
+
+    }.bind(this));
+
 };
 
 // IIFE

@@ -1,9 +1,16 @@
 @import 'syn-common.scss';
 
-.track {
+$track-container-height: 96px;
+
+syn-channel-player {
+    display: block;
+}
+
+.cplayer {
     background-color: $track-background;
     border: solid 1px rgba(0,0,0,0.4);
     font-size: 12px;
+    height: $track-container-height;
     // With the big md-icon-button margins, no bottom padding
     padding: 8px 8px 0 8px;
     opacity:1;
@@ -11,9 +18,45 @@
     // Stack these ABOVE the titles, so they overlap
     position: relative;
     z-index:2;
+
+    &.STOPPING {
+        cursor: default;
+        .cplayer-timeline-progress {
+            background-color: #666;
+        }
+        .cplayer-buttons {
+            .cplayer-button-loop, .cplayer-button-play, .cplayer-button-pause {
+
+            }
+            .cplayer-button-stop {
+                 @extend .blink;
+            }
+        }
+    }
+
+    &.PAUSING, &.PAUSED {
+        .cplayer-timeline-progress {
+            background-color: $syn-accent-faded;
+        }
+        .cplayer-button-pause {
+             @extend .blink;
+        }
+    }
+
+    .cplayer-button-queuing { display: none; }
+
+    &.QUEUING {
+        .cplayer-button-play, .cplayer-button-pause
+        {
+            display: none;
+        }
+        .cplayer-button-queuing {
+            display: inline;
+        }
+    }
 }
 
-.track-button {
+.cplayer-button {
 
     opacity: 1;
     transition: opacity 0.2s ease-in-out;
@@ -29,40 +72,14 @@
     }
 }
 
-.track-container {
-    position: relative;
-    transition: height 0.5s ease-in-out, opacity 0.5s ease-in-out;
-
-    &-title {
-        background-color: #696969;
-        border-radius: 4px 4px 0 0;
-        color: #eee;
-        font-size: 10px;
-        opacity: 1;
-        padding: 4px 8px;
-
-        // Use absolute positioning so the enter/leave doesn't jigger the animation
-        position:absolute;
-        left: 0; right: 0; bottom: 100%;
-        transition: opacity 0.5s ease-in-out;
-
-        &.ng-enter {
-            display: block !important;
-            opacity: 0;
-            &-active {
-                opacity: 1;
-            }
-        }
-        &.ng-leave {
-            display: block !important;
-            &-active {
-                opacity: 0;
-            }
-        }
-    }
+.cplayer-buttons-container {
+    // Align them for visual balance
+    text-align: center;
+    &:first-child { text-align: left;}
+    &:last-child { text-align: right;}
 }
 
-.track-eta {
+.cplayer-eta {
     font-size: 16px;
     font-weight:500;
     line-height:1;
@@ -72,7 +89,7 @@
     }
 }
 
-.track-timecode {
+.cplayer-timecode {
 
     font-size: 12px;
     margin-top: -16px;
@@ -82,7 +99,7 @@
     &:last-child { text-align: right;}
 }
 
-.track-timeline {
+.cplayer-timeline {
     height: 32px;
     padding-top: 8px;
 
@@ -118,7 +135,7 @@
     }
 }
 
-.track-title {
+.cplayer-title {
     overflow:hidden;
     text-align: left;
     text-overflow:ellipsis;
@@ -126,6 +143,43 @@
 }
 
 
+/**  SPECIFIC STYLES TO PLAYBACK VIEW **/
+
+// A container that holds a collection of channel players
+.track-container {
+    position: relative;
+    transition: height 0.5s ease-in-out, opacity 0.5s ease-in-out;
+
+    &-title {
+        background-color: #696969;
+        border-radius: 4px 4px 0 0;
+        color: #eee;
+        font-size: 10px;
+        opacity: 1;
+        padding: 4px 8px;
+
+        // Use absolute positioning so the enter/leave doesn't jigger the animation
+        position:absolute;
+        left: 0; right: 0; bottom: 100%;
+        transition: opacity 0.5s ease-in-out;
+
+        &.ng-enter {
+            display: block !important;
+            opacity: 0;
+            &-active {
+                opacity: 1;
+            }
+        }
+        &.ng-leave {
+            display: block !important;
+            &-active {
+                opacity: 0;
+            }
+        }
+    }
+}
+
+// The currently-playing container
 #currentTracks {
     background-color: #ddd;
     bottom:0;
@@ -135,8 +189,6 @@
     z-index: 20;
 
     .track-container {
-        $height: 96px;
-        height: $height;
         opacity:1;
         position: relative;
 
@@ -150,7 +202,7 @@
             z-index: 3;
             // opacity:0;
             &-active {
-                height: $height;
+                height: $track-container-height;
                 // opacity: 1;
             }
         }
@@ -158,40 +210,17 @@
         &.ng-leave {
             display: block !important;
             opacity:1;
-            height: $height;
+            height: $track-container-height;
             z-index: 1;
             &-active {
                 height:0;
                 // opacity:0;
             }
         }
-
-        &.STOPPING {
-            cursor: default;
-            .track-timeline-progress {
-                background-color: #666;
-            }
-            .track-buttons {
-                .track-button-loop, .track-button-play, .track-button-pause {
-
-                }
-                .track-button-stop {
-                     @extend .blink;
-                }
-            }
-        }
-
-        &.PAUSING, &.PAUSED {
-            .track-timeline-progress {
-                background-color: $syn-accent-faded;
-            }
-            .track-button-pause {
-                 @extend .blink;
-            }
-        }
     }
 }
 
+// The queued-channel container
 #queuedTracks {
     bottom:0;
     left:16px;
@@ -234,5 +263,12 @@
         &.expanded {
             height: 112px;
         }
+    }
+}
+
+// The edit media container
+.editmedia-player {
+    .cplayer-button-stop {
+        visibility: hidden;
     }
 }

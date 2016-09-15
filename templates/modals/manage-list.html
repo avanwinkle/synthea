@@ -1,0 +1,68 @@
+<div class="modal-body managelist" md-theme="pink" layout="column">
+
+    <div class="modal-title" flex="none">
+        Manage {{::slVm.listtype==='sections'?'Sections':'Pages'}}
+    </div>
+
+    <div layout="row" style="margin-top:8px;" flex="none">
+        <span flex></span>
+        <md-button class="md-primary" style="font-size:12px;"
+         ng-click="slVm.addListItem()">
+            + Add {{::slVm.listtype==='sections'?'Section':'Page'}}
+        </md-button>
+    </div>
+
+    <md-content flex>
+        <div
+        id="manageListItemsList"
+        class="managelist-container"
+        dnd-list="slVm.list" layout="column">
+
+            <div layout="row" layout-padding
+            class="managelist-section"
+            ng-repeat="listitem in slVm.list"
+                dnd-draggable="listitem"
+                dnd-moved="slVm.list.splice($index, 1)">
+                <div flex="none" >
+                    <md-icon dnd-handle>
+                        <svg syn-icon="drag_handle"></svg>
+                    </md-icon>
+                </div>
+
+                <div flex class="managelist-section-name" >
+                    <dnd-nodrag>
+                        <input class="managelist-section-input"
+                        ng-model="listitem._newname"
+                        placeholder="Name"
+                        aria-label="Name">
+                    </dnd-nodrag>
+                </div>
+
+                <div flex="none" >
+                    <dnd-nodrag>
+                        <md-icon class="managelist-section-delete"
+                        ng-click="slVm.deleteListItem($index)">
+                            <svg syn-icon="delete" size="18"></svg>
+                        </md-icon>
+                     </dnd-nodrag>
+                </div>
+            </div>
+        </div>
+
+    </md-content>
+
+    <div layout="row" class="modal-buttons" flex="none">
+        <div>
+            <md-button class="md-accent md-hue-3" ng-click="slVm.$cancel()">
+                Cancel
+            </md-button>
+        </div>
+        <span flex></span>
+        <div>
+            <md-button class="md-primary"
+            ng-click="slVm.saveListItems()">
+                Done
+            </md-button>
+        </div>
+    </div>
+</div>

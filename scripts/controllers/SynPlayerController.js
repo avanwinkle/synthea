@@ -236,37 +236,6 @@ SynPlayerController.prototype.selectCue = function(cue,event) {
     return this.mixer.play(cue,{forceFadeIn: forceFadeIn});
 };
 
-/**
- * Wrapper method for setting a channel to playback at the specific time
- * based on the timeline hover position.
- *
- * The DOM could bind directly to the channel methods for this function, but
- * that may change so for now we'll stay here.
- *
- * @param  {$event} evt     Click event
- * @param  {Channel} channel Channel object
- */
-SynPlayerController.prototype.timelineSeek = function(evt, channel) {
-
-    channel.setTime(channel.seekPreview_);
-};
-
-/**
- * Hover-event method to calculate the timecode position of the cursor over the
- * timeline. Store the value locally so we can seek to it if desired.
- *
- * @param  {$event} evt     Click event
- * @param  {Channel} channel The channel being previewed
- * @return {number}         The time position of the seek preview
- */
-SynPlayerController.prototype.timelineSeekPreview = function(evt,channel) {
-    // Where are we, physically, relative to the timeline DOM?
-    var seekTarget = evt.offsetX / evt.target.offsetWidth;
-    // Take the above calculation (as a percentage) and multiply by the duration
-    channel.seekPreview_ = seekTarget * channel.getDuration();
-    // Return the value, in case somebody needs it?
-    return channel.seekPreview_;
-};
 
 /**
  * Global stop method to gracefully kill playback on all channels. A wrapper for

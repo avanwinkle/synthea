@@ -40,6 +40,9 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
      * @param {object} opts - values for fadeIn, fadeOut, useWebAudio
      */
     function Channel(subgroup,opts) {
+
+        opts = opts || {};
+
        // Store a channel id, for reference. Simple incremental will do.
         this._id = cidx += 1;
         // Store a pointer to the subgroup that made this channel, so we can
@@ -48,6 +51,9 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
 
         // Web Audio for cloud-based projects, direct for local
         this.useWebAudio = opts.useWebAudio;
+
+        // In case we don't start playing immediately
+        this.currentTime = 0;
 
         return this;
     }
@@ -204,6 +210,7 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
      * @return {promise} A promise resolved when the cue is ready for playback
      */
     Channel.prototype.loadCue = function(cue,opts) {
+
         // Force opts
         opts = opts || {};
         // Loading a cue returns a promise, to be resolved when the cue is ready
@@ -253,11 +260,12 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
                         // Occupied!
                         channel.state = 'QUEUED';
                         channel.is_queued = true;
+                        channel.currentTime = 0;
                     },0);
                 }
             },
             onloaderror: function(soundId,reason) {
-                console.log("Load error!", reason)
+                console.log("Load error!", reason);
                 defer.reject(reason);
             },
             // onpause: function() {},
@@ -286,13 +294,16 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
         */
 
         // Note that we're occupied!
-        this.state = 'QUEUING';
+        channel.state = 'QUEUING';
         // A queuing/queued channel is not "current", like a playing/paused is
-        this.is_current = false;
+        channel.is_current = false;
+        // Until the promise is resolved
+        channel.currentTime = undefined;
+        channel.duration = undefined;
 
         // If we have a fadeIn override, now is the place to set it
         // Conveniently, this will reset every time a cue is loaded. Hurray!
-        this.forceFadeIn = opts.forceFadeIn;
+        channel.forceFadeIn = opts.forceFadeIn;
 
         return defer.promise;
     };
@@ -307,14 +318,21 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
 
         this.state = 'PAUSING';
 
-        // Wait for the fade out to complete before actually pausing
-        this._fadeOut().then(function() {
+        var pauseFn = function() {
             this._player.pause();
             this.state = 'PAUSED';
             this.is_playing = false;
             // No need to maintain the overhead of a counter
             $interval.cancel(this.elapsedCounter);
-        }.bind(this));
+        }.bind(this);
+
+        if (this.forceFadeOut!==false) {
+            // Wait for the fade out to complete before actually pausing
+            this._fadeOut().then(pauseFn);
+        }
+        else {
+            pauseFn();
+        }
 
     };
 
@@ -329,24 +347,27 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
         this.is_playing = true;
         this.is_queued = false;
 
-        // Create an interval to update the playback time while the cue plays
-        this.elapsedCounter = $interval(function() {
+        // Delay the timer interval to avoid an off-sync that looks bad
+        $timeout(function() {
+            // Create an interval to update the playback time while the cue plays
+            this.elapsedCounter = $interval(function() {
 
-            // Are we playing? Get the current time!
-            if (this._player.playing()) {
-                this.currentTime = this._player.seek();
-            }
-            // The track might have been faded out, or ended, by the time we get here
-            else {
-                // If we're not playing, stop this infernal counter
-                // AVW: I believe this occurs due to mis-syncing of the angular
-                // digest with the Howler events. Even though the channel stop()
-                // method explicitly cancels this counter, it still gets one last
-                // rendering in after the channel is stopped.
-                $interval.cancel(this.elapsedCounter);
-            }
+                // Are we playing? Get the current time!
+                if (this._player.playing()) {
+                    this.currentTime = this._player.seek();
+                }
+                // The track might have been faded out, or ended, by the time we get here
+                else {
+                    // If we're not playing, stop this infernal counter
+                    // AVW: I believe this occurs due to mis-syncing of the angular
+                    // digest with the Howler events. Even though the channel stop()
+                    // method explicitly cancels this counter, it still gets one last
+                    // rendering in after the channel is stopped.
+                    $interval.cancel(this.elapsedCounter);
+                }
 
-        }.bind(this),100);
+            }.bind(this),100);
+        }.bind(this), 0);
 
         // Fade in the cue
         this._fadeIn().then(function(duration) {
@@ -390,9 +411,12 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
      */
     Channel.prototype.stop = function() {
 
+        var defer = $q.defer();
+
         // We might not need to take action if a stop is already in progress
-        if (this.state==='STOPPING'|| this.state==='STOPPED') {
-            return;
+        if (!this.media || this.state==='STOPPING'|| this.state==='STOPPED') {
+            defer.resolve();
+            return defer.promise;
         }
 
         // What happens when we stop?
@@ -415,19 +439,23 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
             this._player.stop();
             this._player.unload();
             console.log(' -- channel '+this._id+' stopped');
+
+            defer.resolve();
         }.bind(this);
 
         // Set an interim state to show that the stop is in progress
         this.state = 'STOPPING';
 
         // Are we playing? Fade out before we stop
-        if (this.is_playing) {
+        if (this.is_playing && this.forceFadeOut!==false) {
             this._fadeOut().then(stopFn);
         }
         // If not? Death immediately!
         else {
             stopFn();
         }
+
+        return defer.promise;
 
     };
 
