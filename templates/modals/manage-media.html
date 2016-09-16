@@ -30,6 +30,7 @@ layout="column" layout-fill md-theme="pink">
                 ({{smVm.unassignedMedia.length}})
             </div>
             <select flex multiple class="editcue-filelist md-primary"
+                ng-if="smVm.unassignedMedia.length"
                 ng-model="smVm.mediaSelector"
                 ng-change="smVm.selectMedia()"
                 ng-options="media as media.name for media in smVm.unassignedMedia">
@@ -41,6 +42,7 @@ layout="column" layout-fill md-theme="pink">
                 ({{smVm.assignedMedia.length}})
             </div>
             <select flex multiple class="editcue-filelist md-primary"
+                ng-if="smVm.assignedMedia.length"
                 ng-model="smVm.mediaSelector"
                 ng-change="smVm.selectMedia()"
                 ng-options="media as media.name for media in smVm.assignedMedia">
