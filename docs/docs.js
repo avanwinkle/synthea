@@ -23,6 +23,9 @@ function SyntheaDocsConfig($locationProvider,$mdThemingProvider,$routeProvider) 
         .accentPalette('pink');
 
     $routeProvider
+    .when('/cues', {
+        templateUrl: 'templates/cues.html',
+    })
     .when('/editing', {
         templateUrl: 'templates/editing.html',
     })
@@ -31,6 +34,9 @@ function SyntheaDocsConfig($locationProvider,$mdThemingProvider,$routeProvider) 
     })
     .when('/playing', {
         templateUrl: 'templates/playing.html',
+    })
+    .when('/media', {
+        templateUrl: 'templates/media.html',
     })
     .otherwise({
         templateUrl: 'templates/intro.html'
@@ -46,10 +52,16 @@ function SyntheaDocsController($mdSidenav,$scope) {
 
     this.openSidenav = openSidenav;
 
-    $scope.$on('$routeChangeSuccess', function() {
-        console.log("route change!")
+    $scope.$on('$routeChangeSuccess', function(evt,route) {
+        console.log(route)
         document.getElementById('body-content').scrollTop = 0;
         $mdSidenav('left').close();
+        if (route.$$route && route.$$route.originalPath !== '/') {
+            $scope.currentPage = route.$$route.originalPath.replace('/','');
+        }
+        else {
+            $scope.currentPage = 'home';
+        }
     });
 
     function openSidenav() {

@@ -72,9 +72,9 @@ SynMediaController.prototype.deleteMedia = function() {
 SynMediaController.prototype.goDeleteCue = function(cue) {
 
     // Splice it out
-    var idx = this.selectedMedia._attachedCues.indexOf(cue);
+    var idx = this.selectedMedia._assignedCues.indexOf(cue);
     if (idx!==-1) {
-        this.selectedMedia._attachedCues.splice(idx,1);
+        this.selectedMedia._assignedCues.splice(idx,1);
     }
 
     // Call the delete method that was passed in from seVm
@@ -114,7 +114,7 @@ SynMediaController.prototype.selectMedia = function() {
         page_ids[p.id] = p.name;
     }.bind(this));
 
-    angular.forEach(this.selectedMedia._attachedCues, function(c) {
+    angular.forEach(this.selectedMedia._assignedCues, function(c) {
 
         // Reset the deletion
         c._confirmDelete = false;
@@ -155,8 +155,8 @@ SynMediaController.prototype._processMediaFiles = function() {
             else {
                 // Store the name as assigned
                 this.assignedMedia.push(m);
-                // Attached the list of cues
-                m._attachedCues = this.cueMedia[m.name];
+                // The list of assigned cues
+                m._assignedCues = this.cueMedia[m.name];
             }
             this.mediaSize += m.stats.size;
         }.bind(this));

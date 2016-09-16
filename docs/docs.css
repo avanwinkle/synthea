@@ -7,6 +7,15 @@
   to {
     opacity: 0; } }
 
+.flashlight {
+  animation: flashlight-animation 0.5s ease-in-out 5 alternate; }
+
+@keyframes flashlight-animation {
+  from {
+    background-color: rgba(255, 192, 203, 0.8); }
+  to {
+    background-color: transparent; } }
+
 * {
   box-sizing: border-box; }
 
@@ -77,6 +86,24 @@ instr {
   max-width: 800px;
   width: 100%; }
 
+.navlink-container.page-home #navlink-home {
+  background-color: rgba(255, 255, 255, 0.2); }
+
+.navlink-container.page-playing #navlink-playing {
+  background-color: rgba(255, 255, 255, 0.2); }
+
+.navlink-container.page-editing #navlink-editing {
+  background-color: rgba(255, 255, 255, 0.2); }
+
+.navlink-container.page-media #navlink-media {
+  background-color: rgba(255, 255, 255, 0.2); }
+
+.navlink-container.page-cues #navlink-cues {
+  background-color: rgba(255, 255, 255, 0.2); }
+
+.navlink-container.page-help #navlink-help {
+  background-color: rgba(255, 255, 255, 0.2); }
+
 .sidenav.md-synthea-theme {
   background-color: #424242;
   color: #eee; }
@@ -118,7 +145,7 @@ instr {
 .section-screenshot {
   text-align: center; }
   .section-screenshot-image {
-    margin: 0 auto;
+    margin: 0 auto 16px auto;
     max-width: 100%; }
 
 .section-title {

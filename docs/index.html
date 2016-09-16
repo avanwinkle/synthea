@@ -23,7 +23,8 @@
       <script src="ng-scrollto.js"></script>
       <script src="docs.js"></script>
 </head>
-<body ng-controller="SyntheaDocsController as vm" md-theme="synthea"
+<body ng-controller="SyntheaDocsController as vm"
+  md-theme="synthea"
  layout="column" layout-fill>
 
     <md-toolbar layout="row" class="md-hue-1" md-whiteframe="1"
@@ -48,46 +49,32 @@
             <div class="sidenav-logo"></div>
         </header>
         <md-content class="nav-content">
-            <a class="md-button nav-button" href="#/">
-                Introduction
-            </a>
-            <a class="md-button nav-button" href="#/playing">
-                Playing a Project
-            </a>
-            <!--
-            <a class="md-button nav-button nav-button-sub"
-            href="playing/cues">
-                Cue Playback
-            </a>
-            <a class="md-button nav-button nav-button-sub"
-            href="playing/queue">
-                Use the Queue
-            </a>
-            <a class="md-button nav-button nav-button-sub"
-            href="playing/settings">
-                Board Settings
-            </a>
-            -->
-            <a class="md-button nav-button" href="#/editing">
-                Editing a Project
-            </a>
-            <!--
-            <a class="md-button nav-button nav-button-sub">
-                Create a New Project
-            </a>
-            <a class="md-button nav-button nav-button-sub">
-                Customize the Layout
-            </a>
-            <a class="md-button nav-button nav-button-sub">
-                Add/Edit Cues
-            </a>
-            <a class="md-button nav-button nav-button-sub">
-                Manage Subgroups
-            </a>
-            -->
-            <a class="md-button nav-button" href="#/help">
-                Help &amp; Usage
-            </a>
+            <div class="navlink-container page-{{currentPage}}" >
+                <a id="navlink-home"
+                class="md-button nav-button" href="#/">
+                    Introduction
+                </a>
+                <a id="navlink-playing"
+                class="md-button nav-button" href="#/playing">
+                    Playing a Project
+                </a>
+                <a id="navlink-editing"
+                class="md-button nav-button" href="#/editing">
+                    Creating a Project
+                </a>
+                <a id="navlink-media" href="#/media"
+                class="md-button nav-button nav-button-sub">
+                    Managing Media
+                </a>
+                <a id="navlink-cues" href="#/cues"
+                class="md-button nav-button nav-button-sub">
+                    Making Cues
+                </a>
+                <a id="navlink-help"
+                class="md-button nav-button" href="#/help">
+                    Help &amp; Usage
+                </a>
+            </div>
 
           </md-content>
     </md-sidenav>

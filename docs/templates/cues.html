@@ -1,0 +1,201 @@
+<div class="section-title">Making Cues</div>
+
+<ul class="section-toc">
+    <li><a class="internal-link" scroll-to="sec-editor">the Cue Editor</a></li>
+    <li><a class="internal-link" scroll-to="sec-layout">Cue Settings</a></li>
+    <li><a class="internal-link" scroll-to="sec-media">Assigning Media</a></li>
+    <li><a class="internal-link" scroll-to="sec-subgroups">Subgroups</a></li>
+</ul>
+
+
+<section id="sec-editor" class="section">
+    <div class="section-header">the Cue Editor</div>
+
+    <div class="section-body">
+        <p>Click on an existing cue button to edit it, or click on <b>+ Add Cue</b>
+        to create a new cue button.</p>
+
+        <div class="section-screenshot">
+            <img class="section-screenshot-image"
+            style="max-width:600px;"
+            src="images/sshot-editcue.png">
+        </div>
+    </div>
+</section>
+
+<section id="sec-settings" class="section">
+    <div class="section-header">Cue Settings</div>
+
+    <div class="section-body">
+
+        <p>Every cue can be configured with settings for display and playback
+        defaults. The following options are available for every cue:</p>
+
+        <blockquote>
+            <p>
+                <div><strong>Cue Title</strong></div>
+                The name of the cue, which will appear on the button and in
+                the queue/playback track name.
+            </p>
+            <p>
+                <div><strong>Subgroup</strong></div>
+                If you assign this cue to a
+                <a class="internal-link" scroll-to="sec-subgroups">subgroup</a>,
+                when played it will fade out
+                any other cues in the same subgroup. If this cue is playing and another
+                cue in the same subgroup is played, this cue will fade out.
+                <br/><br/>
+                If you do not assign a subgroup this cue will play on top,
+                regardless of what else is playing.
+            </p>
+            <p>
+                <div><strong>Loop Cue</strong></div>
+                You can set this cue to loop by default. You can always change
+                the loop state of a playing cue on the playback interface.
+            </p>
+            <p>
+                <div><strong>Fade In</strong></div>
+                By default, cues will either fade in or start at full volume,
+                depending on the board&apos;s current setting. Instead, you can
+                specify that this specific cue should always (or never) fade in.
+            </p>
+            <p>
+                <div><strong>Delete Cue (<md-icon class="material-icons">delete</md-icon>)</strong></div>
+                You can click on the delete icon to remove a cue from the project.
+                This will not affect any media files attached to the cue.
+            </p>
+        </blockquote>
+    </div>
+</section>
+
+<section id="sec-media" class="section">
+    <div class="section-header">Assigning Media</div>
+
+    <div class="section-body">
+
+        <p>A cue will need at least one media file assigned in order to play.
+        If multiple media files are assigned, one will play at random each time
+        the cue is played (but the same one won&apos;t play twice in a row). If
+        no media files are assigned, the button will be disabled in player mode
+        or have a warning icon (<md-icon class="material-icons">warning</md-icon>) in editor mode.
+        </p>
+
+
+        <p>
+            <div><strong>Cue Audio File(s)</strong></div>
+            This area at the bottom of the cue editor lists the audio files
+            assigned to the cue. You can
+            remove an assigned file by clicking on the removal
+            icon (<b>&times;</b>).
+        </p>
+        <p>
+            <div><strong>Project Media</strong></div>
+            Here you will see a list of all the media files in the project
+            that can be assigned to the cue. Select a file and click
+            <b>&lt;&lt; Assign File to Cue</b> to attach it (or double-click
+            the file).
+            <br/><br/>
+            You can add new media files to the project by clicking on <b>+ Add Files</b>. <br><br/>
+            <i>NOTE: Any files added in this way will be automatically assigned
+            to the cue.</i>
+        </p>
+
+        <p>
+            <div><strong>Media Filter</strong></div>
+            If your project has a lot of media files, you can use the
+            filter box below the media list to find something. Type anything
+            into the box to start filtering files by name.
+        </p>
+
+    </div>
+</section>
+
+<section id="sec-subgroups" class="section">
+    <div class="section-header">Subgroups</div>
+
+    <div class="section-body">
+
+        <p>Synthea utilizes the concept of <i>subgroups</i> to manage concurrent
+        playback of cues in a project that might utilize any combination of music,
+        ambient audio, and discrete sound effects. If your project has a "board type"
+        set, all new cues will default to that subgroup.</p>
+
+        <p>
+        <div><strong>Concurrency</strong></div>
+        By default, all cues want to play on top of one another, which works well
+        for layering audio and creating dynamic soundscapes. Any cue without a
+        subgroup will layer on top of other currently-playing cues
+        (i.e. concurrency).
+        </p>
+
+        <p>
+        <div><strong>Exclusivity</strong></div>
+        Some types of cues shouldn&apos;t be play on top of each other. For
+        example, playing a music track should seamlessly <i>replace</i> the
+        music track that&apos;s currently playing, and itself be replaced by
+        another. There should only be one music track playing at any given time
+        (i.e. exclusivity).
+        </p>
+
+        <p>
+        Every Synthea subgroup creates an exclusivity set, so playing any cue
+        in that subgroup will replace any currently-playing cues <i>in that same
+        subgroup</i>. Cues in other subgroups, and cues without subgroups, will
+        not be affected.
+        </p>
+
+        <blockquote>
+        <p><i>EXAMPLE:
+            <table>
+                <tr>
+                    <th>Cue Played</th>
+                    <th>Subgroup</th>
+                    <th>Effect</th>
+                </tr>
+                <tr>
+                    <td>Happy Music</td>
+                    <td>Music</td>
+                    <td>Track fades in automatically and plays</td>
+                </tr>
+                <tr>
+                    <td>Gentle Waves</td>
+                    <td>Ambient</td>
+                    <td>Track plays concurrently over music</td>
+                </tr>
+                <tr>
+                    <td>Thunderclap</td>
+                    <td><i>none</i></td>
+                    <td>Track plays concurrently over all others</td>
+                </tr>
+                <tr>
+                    <td>Stronger Waves</td>
+                    <td>Ambient</td>
+                    <td>Track cross-fades with previous &quot;ambient&quot; track to replace it</td>
+                </tr>
+                <tr>
+                    <td>Medium Rain</td>
+                    <td>Rain</td>
+                    <td>Track plays concurrently over all others</td>
+                </tr>
+                <tr>
+                    <td>Intense Music</td>
+                    <td>Music</td>
+                    <td>Track cross-fades with previous &quot;music&quot; track to replace it</td>
+                </tr>
+                <tr>
+                    <td>Thunderclap</td>
+                    <td><i>none</i></td>
+                    <td>Track plays concurrently over all others</td>
+                </tr>
+                <tr>
+                    <td>Heavy Rain</td>
+                    <td>Rain</td>
+                    <td>Track cross-fades with previous &quot;rain&quot; track to replace it</td>
+                </tr>
+            </table>
+
+
+        </i></p>
+        </blockquote>
+    </div>
+</section>

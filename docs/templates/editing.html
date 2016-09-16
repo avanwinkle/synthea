@@ -1,10 +1,10 @@
-<div class="section-title">Editing Synthea Projects</div>
+<div class="section-title">Creating Synthea Projects</div>
 
 <ul class="section-toc">
     <li><a class="internal-link" scroll-to="sec-create">Creating a Project</a></li>
     <li><a class="internal-link" scroll-to="sec-layout">Page and Section Layout</a></li>
-    <li><a class="internal-link" scroll-to="sec-media">Adding Media</a></li>
-    <li><a class="internal-link" scroll-to="sec-cues">Editing Cues</a></li>
+    <li><a class="internal-link" scroll-to="sec-media">Adding Media and Cues</a></li>
+    <li><a class="internal-link" scroll-to="sec-cues">Arranging Cues</a></li>
 </ul>
 
 
@@ -60,13 +60,16 @@
     <div class="section-header">Page and Section Layout</div>
 
     <div class="section-body">
-        <p>You can add pages and sections to your project layout by clicking
-        on the <b>+ Add Page</b> and <b>+ Add Section</b> buttons. There is no
-        limit to how many pages or sections a project can have... but be reasonable.
+        <p>Pages and sections are handled under <b>Manage Pages</b> and
+        <b>Manage Sections</b>, which can be found in the <b>Project Menu</b>
+        (<md-icon class="material-icons">settings</md-icon>) in the bottom-left.
         </p>
-
-        <p>It is currently not possible to delete or re-order pages and sections,
-        but that will come along soon.
+        <p>Change the name of any page/section by clicking on the name.
+        Use the drag handles (<md-icon class="material-icons">drag_handle</md-icon>) to change
+        the order, or the delete icon (<md-icon class="material-icons">delete</md-icon>) to delete.
+        New pages/sections can be added with the <b>+ Add Page/Section</b> button.
+        There is no limit to how many pages or sections a project can have,
+        but&hellip; be reasonable.
         </p>
 
     </div>
@@ -76,72 +79,26 @@
     <div class="section-header">Adding Media</div>
 
     <div class="section-body">
-        <p>In the bottom left, click on the add media icon (<md-icon class="material-icons">library_add</md-icon>) to
+        <p>In the bottom-left, click on the add media icon (<md-icon class="material-icons">library_add</md-icon>) to
         open a file selection window. Select as many files as you want and click okay
         to add these files to the project.</p>
         <p><i>NOTE: All files are <b>copied</b> to the project folder. Deleting this project
-        will delete the copies, not the originals.</i></p>
+        will delete the copies, not the originals.</i>
+        </p>
+        <p>To see all the media in the project and advanced media settings, use the
+        <a href="#/media" class="internal-link"><b>Media Manager</b></a> in the
+        Project Menu (<md-icon class="material-icons">settings</md-icon>).
+        </p>
     </div>
 </section>
 
 <section id="sec-cues" class="section">
-    <div class="section-header">Editing Cues</div>
+    <div class="section-header">Arranging Cues</div>
 
     <div class="section-body">
-        <p>Click on an existing cue button to edit it, or click on <b>+ Add Cue</b>
-        to create a new cue button.</p>
-
-        <div class="section-screenshot">
-            <img class="section-screenshot-image"
-            style="max-width:600px;"
-            src="images/sshot-editcue.png">
-        </div>
-
-        <blockquote>
-            <p>
-                <div><strong>Cue Title</strong></div>
-                The name of the cue, which will appear on the button and in
-                the queue/playback track name.
-            </p>
-            <p>
-                <div><strong>Subgroup</strong></div>
-                If you assign this cue to a subgroup, when played it will fade out
-                any other cues in the same subgroup. If this cue is playing and another
-                cue in the same subgroup is played, this cue will fade out.
-                <br/><br/>
-                If you do not assign a subgroup, this cue will play on its own
-                regardless of what else is playing.
-            </p>
-            <p>
-                <div><strong>Loop Cue</strong></div>
-                You can set this cue to loop by default. You can always change
-                the loop state of a playing cue on the playback interface.
-            </p>
-            <p>
-                <div><strong>Fade In</strong></div>
-                By default, cues will either fade in or start at full volume,
-                depending on the board&apos;s current setting. Instead, you can
-                specify that this specific cue should always (or never) fade in.
-            </p>
-            <p>
-                <div><strong>Cue Audio File(s)</strong></div>
-                This area lists the audio files attached to the cue. You can
-                remove an attached file by clicking on the removal icon (<b>&times;</b>), or attach a file using the <b>Project Media</b> section.
-            </p>
-            <p>
-                <div><strong>Project Media</strong></div>
-                Here you will see a list of all the media files in the project
-                that can be attached to the cue. Select a file and click <b>&lt;&lt; Add File to Cue</b> to attach it.
-                <br/><br/>
-                You can add new media files to the project by clicking on <b>+ Add Files</b>. <br><br/>
-                <i>NOTE: Any files added in this way will be automatically attached
-                to the cue.</i>
-            </p>
-            <p>
-                <div><strong>Delete Cue (<md-icon class="material-icons">delete</md-icon>)</strong></div>
-                You can click on the delete icon to remove a cue from the project.
-                This will not affect any media files attached to the cue.
-            </p>
-        </blockquote>
+        <p>To place a cue in a different position or a different section,
+        <instr>&lt;Click-and-Drag&gt;</instr> the cue to where you want it.
+        </p>
+        <p>It is not possible at this time to move a cue from one page to another.</p>
     </div>
 </section>

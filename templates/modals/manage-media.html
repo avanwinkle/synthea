@@ -81,12 +81,12 @@ layout="column" layout-fill md-theme="pink">
                 <div class="editmedia-cuelist">
 
                     <div class="editmedia-cuelist-title">
-                        <div ng-if="smVm.selectedMedia._attachedCues">
-                            This media is attached to:
+                        <div ng-if="smVm.selectedMedia._assignedCues">
+                            This media is assigned to:
                         </div>
-                        <div ng-if="!smVm.selectedMedia._attachedCues">
+                        <div ng-if="!smVm.selectedMedia._assignedCues">
                             <div>
-                                This media is not attached to any cues.
+                                This media is not assigned to any cues.
                             </div>
                             <div style="font-style:normal;text-align: right;">
                                 <md-button class=""
@@ -99,7 +99,7 @@ layout="column" layout-fill md-theme="pink">
                     </div>
 
                     <div class="editmedia-cuelist-item"
-                    ng-repeat="cue in smVm.selectedMedia._attachedCues">
+                    ng-repeat="cue in smVm.selectedMedia._assignedCues">
                         <div layout="row">
                             <div class="editmedia-cuelist-item-name"
                             ng-bind="cue.name"></div>

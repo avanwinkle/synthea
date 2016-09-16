@@ -83,7 +83,7 @@
 
             <div>
                 <div class="faux-label" layout="row">
-                    <div>Cue Audio File(s)</div>
+                    <div>Assigned Audio File(s)</div>
                     <span flex></span>
                     <div><small>
                         <a class="md-primary" style="cursor: pointer;"
@@ -105,7 +105,7 @@
                     <span class="editcue-sources-item"
                     style="opacity:0.6;"
                     ng-if="!secVm.cue.sources.length">
-                        <i>No files attached to this cue</i>
+                        <i>No files assigned to this cue</i>
                     </span>
                 </div>
 
@@ -143,7 +143,7 @@
                 <md-button class="editcue-filelist-add md-primary"
                 ng-click="secVm.addFilesToCue()"
                 ng-disabled="!secVm.selectedFiles.length">
-                    &lt;&lt; Add File<span ng-if="secVm.selectedFiles.length>1">s</span> to Cue
+                    &lt;&lt; Assign File<span ng-if="secVm.selectedFiles.length>1">s</span> to Cue
                 </md-button>
                 <span flex></span>
             </div>

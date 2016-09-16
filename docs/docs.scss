@@ -99,6 +99,15 @@ instr {
     width: 100%;
 }
 
+// Highlighting
+$list: home playing editing media cues help;
+@each $page in $list {
+   .navlink-container.page-#{$page} #navlink-#{$page} {
+      background-color: rgba(255,255,255,0.2);
+    }
+}
+
+
 .sidenav.md-synthea-theme {
     background-color: rgb(66,66,66);
     color: #eee;
@@ -155,7 +164,7 @@ instr {
 .section-screenshot {
     text-align: center;
     &-image {
-        margin: 0 auto;
+        margin: 0 auto 16px auto;
         max-width: 100%;
     }
 }
