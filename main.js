@@ -139,48 +139,62 @@ function createMenus() {
     ];
 
     // This menu position will vary depending on platform (see below)
-    var aboutMenu = {
-        label: 'synthea-webapp',
-        submenu: [
-            {
-                role: 'about',
-            },
-            {
-                label: 'Enable Debug Mode',
-                click: enableDebugMode,
-            },
-            {
-                label: 'Reset Audio Engine',
-                click: resetAudioEngine,
-            },
-            {
-                type: 'separator',
-            },
-            {
-                role: 'services',
-                submenu: [],
-            },
-            {
-                type: 'separator',
-            },
-            {
-                role: 'quit',
-            }
-
-        ]
-    };
-
+   
     // OSX has the special application menu first, so populate that with about
     if (process.platform === 'darwin') {
+        var aboutMenu = {
+            label: 'synthea-webapp',
+            submenu: [
+                {
+                    role: 'about',
+                },
+                {
+                    label: 'Enable Debug Mode',
+                    click: enableDebugMode,
+                },
+                {
+                    label: 'Reset Audio Engine',
+                    click: resetAudioEngine,
+                },
+                {
+                    type: 'separator',
+                },
+                {
+                    role: 'services',
+                    submenu: [],
+                },
+                {
+                    type: 'separator',
+                },
+                {
+                    role: 'quit',
+                }
+
+            ]
+        };
+
         aboutMenu.label = 'synthea-webapp';
         template.unshift(aboutMenu);
     }
     // Otherwise, put the about menu at the end
     else {
-        // Remove 'Quit' from the about menu
-        aboutMenu.splice( aboutMenu.length-3,2);
+        var advancedMenu = {
+            label: 'Advanced',
+            submenu: [
+                
+                {
+                    label: 'Enable Debug Mode',
+                    click: enableDebugMode,
+                },
+                {
+                    label: 'Reset Audio Engine',
+                    click: resetAudioEngine,
+                },
+            ]
+        };
+
         // Add the about menu to the end of the menus
-        template.push(aboutMenu);
+        template.push(advancedMenu);
         // But we want 'Quit' to be in the 'File' menu
         template[0].submenu.push({ type: 'separator' });
         template[0].submenu.push({ role: 'quit' });
