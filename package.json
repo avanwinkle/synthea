@@ -12,7 +12,7 @@
     "type": "git",
     "url": "https://github.com/avanwinkle/synthea.git"
   },
-  "version": "0.1.0",
+  "version": "0.0.8",
   "dependencies": {
     "angular": "^1.5.8",
     "angular-animate": "^1.5.8",
@@ -27,6 +27,7 @@
   "devDependencies": {
     "documentation": "^3.0.4",
     "electron": "^1.4.0",
+    "electron-installer-dmg": "^0.1.2",
     "electron-packager": "^8.0.0",
     "electron-prebuilt": "^1.4.0",
     "jsdoc-to-markdown": "^1.3.7"
@@ -34,6 +35,7 @@
   "scripts": {
     "build": "npm run pack:osx",
     "docs": "jsdoc2md scripts/**/*.js > api.md",
+    "pack:dmg": "electron-installer-dmg ./dist/Synthea-darwin-x64/$npm_package_productName.app $npm_package_productName --debug --out=./dist/ --icon=./assets/synthea_icon_apple.icns --background=./assets/bg_dmg.png --overwrite",
     "pack:osx": "electron-packager . $npm_package_productName --out=dist --platform=darwin --arch=x64 --icon=assets/synthea_icon_apple.icns --overwrite=true",
     "pack:win": "electron-packager . --out=dist --platform=win32 --arch=x64 --overwrite=true",
     "start": "electron ."

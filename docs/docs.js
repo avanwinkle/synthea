@@ -44,17 +44,16 @@ function SyntheaDocsConfig($locationProvider,$mdThemingProvider,$routeProvider) 
 
 }
 
-SyntheaDocsController.$inject = ['$mdSidenav','$scope'];
+SyntheaDocsController.$inject = ['$mdSidenav','$scope','$timeout'];
 
-function SyntheaDocsController($mdSidenav,$scope) {
+function SyntheaDocsController($mdSidenav,$scope,$timeout) {
 
     var vm = this;
 
     this.openSidenav = openSidenav;
 
     $scope.$on('$routeChangeSuccess', function(evt,route) {
-        console.log(route)
-        document.getElementById('body-content').scrollTop = 0;
+
         $mdSidenav('left').close();
         if (route.$$route && route.$$route.originalPath !== '/') {
             $scope.currentPage = route.$$route.originalPath.replace('/','');
@@ -62,6 +61,20 @@ function SyntheaDocsController($mdSidenav,$scope) {
         else {
             $scope.currentPage = 'home';
         }
+
+        // Hide the scrollbar
+        document.getElementById('body-content').style.overflow = 'hidden';
+
+        // Wait 250ms for the page to fade out before jumping to the top
+        $timeout(function() {
+            document.getElementById('body-content').scrollTop = 0;
+        },250);
+
+        // Wait 500ms for the new page to fade in before restoring scrollbar
+        $timeout(function() {
+            document.getElementById('body-content').style.overflow = 'auto';
+        },500);
+
     });
 
     function openSidenav() {

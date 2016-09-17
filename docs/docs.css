@@ -28,7 +28,9 @@ footer {
   font-size: 12px;
   line-height: 14px;
   padding: 16px 8px;
-  text-align: right; }
+  text-align: right;
+  opacity: 1;
+  transition: opacity 0.25s ease-in-out; }
   footer .license-link {
     color: #999; }
     footer .license-link:hover {
@@ -40,7 +42,7 @@ a {
   a:hover {
     color: #d9004a; }
   a:visited {
-    color: #d9668d; }
+    color: #ec5387; }
 
 p {
   font-weight: 400;
@@ -84,7 +86,22 @@ instr {
   padding: 24px;
   margin: 0;
   max-width: 800px;
-  width: 100%; }
+  width: 100%;
+  transition: opacity 0.25s ease-in-out;
+  opacity: 1; }
+  .main-content.ng-enter {
+    display: flex !important;
+    opacity: 0;
+    position: absolute; }
+    .main-content.ng-enter-active {
+      opacity: 0; }
+      .main-content.ng-enter-active + footer {
+        opacity: 0; }
+  .main-content.ng-leave {
+    display: flex !important;
+    opacity: 1; }
+    .main-content.ng-leave-active {
+      opacity: 0; }
 
 .navlink-container.page-home #navlink-home {
   background-color: rgba(255, 255, 255, 0.2); }
