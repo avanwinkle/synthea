@@ -18,6 +18,8 @@ function SyntheaController(SynProject,$location,$log,$q,$scope,$timeout) {
     this.$q_ = $q;
     this.$timeout_ = $timeout;
 
+    this.ready = false;
+
     // We need a mixer
     var mixer;
     // We need to track some variables
@@ -45,25 +47,36 @@ function SyntheaController(SynProject,$location,$log,$q,$scope,$timeout) {
 
     // Listen for the main application to broadcast a project change
     ipcRenderer.on('open-project', function(event,projectDef,projectLayout) {
-        // Did we get a project?
-        if (projectDef) {
-            // Open it!
-            sVm.loadProject(projectDef,projectLayout);
-        }
-        // If we didn't get a project, clear out
-        else {
-            // Hearing this broadcast means we're ready
-            sVm.ready = true;
-            // Clear out any older project
-            sVm.project = undefined;
-            $location.path('/landing');
-            // Nice title
-            document.title = "Synthea";
+        // Clear out the current project to trigger the animation
 
-            // This is an external callback, so time to digest!
-            $scope.$apply();
-        }
-    });
+        this.$timeout_(function() {
+            sVm.ready = false;
+        },0);
+
+
+        this.$timeout_(function() {
+            // Did we get a project?
+            if (projectDef) {
+                // Open it!
+                sVm.loadProject(projectDef,projectLayout);
+            }
+            // If we didn't get a project, clear out
+            else {
+                // Hearing this broadcast means we're ready
+                sVm.ready = true;
+                // Clear out any older project
+                sVm.project = undefined;
+                $location.path('/landing');
+                // Nice title
+                document.title = "Synthea";
+
+                // This is an external callback, so time to digest!
+                $scope.$apply();
+            }
+            sVm.ready = true;
+        }.bind(this),500);
+
+    }.bind(this));
 
     ipcRenderer.on('reset-audio-engine', function() {
         // TODO: Fix the bug where playback to the end breaks playback
@@ -82,7 +95,7 @@ function SyntheaController(SynProject,$location,$log,$q,$scope,$timeout) {
 
 SyntheaController.prototype.browseCloudProjects = function() {
     ipcRenderer.send('browse-cloud-projects');
-}
+};
 
 
 SyntheaController.prototype.createProject = function() {
@@ -106,7 +119,7 @@ SyntheaController.prototype.loadProject = function(projectDef,projectLayout) {
         document.title = 'Synthea: ' + this.project.name;
 
         // Trigger a route change!
-        this.$location_.path('/player/'+projectDef.key);
+        this.$location_.path('/player/'+projectDef.key).replace();
 
         // Ready!
         this.ready = true;

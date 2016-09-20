@@ -128,7 +128,6 @@ instr {
             opacity: 0;
         }
     }
-
 }
 
 // Highlighting
@@ -139,6 +138,26 @@ $list: home playing editing media cues help;
     }
 }
 
+
+.editcue-subgroup-table {
+    border-collapse: collapse;
+    font-size: 14px;
+    margin-top: 8px;
+    width: 100%;
+
+    td { padding: 4px;}
+
+    th:not(:first-child), td:not(:first-child) {
+        padding-left: 2em;
+    }
+    td:last-child {
+        font-style: italic;
+        color: #555;
+    }
+    tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+}
 
 .sidenav.md-synthea-theme {
     background-color: rgb(66,66,66);

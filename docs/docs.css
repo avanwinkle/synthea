@@ -121,6 +121,21 @@ instr {
 .navlink-container.page-help #navlink-help {
   background-color: rgba(255, 255, 255, 0.2); }
 
+.editcue-subgroup-table {
+  border-collapse: collapse;
+  font-size: 14px;
+  margin-top: 8px;
+  width: 100%; }
+  .editcue-subgroup-table td {
+    padding: 4px; }
+  .editcue-subgroup-table th:not(:first-child), .editcue-subgroup-table td:not(:first-child) {
+    padding-left: 2em; }
+  .editcue-subgroup-table td:last-child {
+    font-style: italic;
+    color: #555; }
+  .editcue-subgroup-table tr:nth-child(even) {
+    background-color: #f2f2f2; }
+
 .sidenav.md-synthea-theme {
   background-color: #424242;
   color: #eee; }

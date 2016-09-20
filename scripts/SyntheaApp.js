@@ -25,6 +25,9 @@ function SyntheaAppConfig($routeProvider) {
         .when('/landing', {
             templateUrl: 'templates/landing.html',
         })
+        .when('/loading', {
+            templateUrl: 'templates/loading.html',
+        })
         .otherwise({
             template: '<div>Synthea Error: Something has gone wrong :(</div>',
         });

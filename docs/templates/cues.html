@@ -28,21 +28,22 @@
 
     <div class="section-body">
 
-        <p>Every cue can be configured with settings for display and playback
-        defaults. The following options are available for every cue:</p>
+        <p>Each cue can be configured with settings for display and playback.
+        The following options are available for every cue:</p>
 
         <blockquote>
             <p>
                 <div><strong>Cue Title</strong></div>
                 The name of the cue, which will appear on the button and in
-                the queue/playback track name.
+                the queue/playback controls.
             </p>
             <p>
                 <div><strong>Subgroup</strong></div>
-                If you assign this cue to a
+                If assigned to a
                 <a class="internal-link" scroll-to="sec-subgroups">subgroup</a>,
-                when played it will fade out
-                any other cues in the same subgroup. If this cue is playing and another
+                playing this cue will fade out
+                any other cue in the same subgroup. Similarly, if this cue is
+                playing and a different
                 cue in the same subgroup is played, this cue will fade out.
                 <br/><br/>
                 If you do not assign a subgroup this cue will play on top,
@@ -91,19 +92,19 @@
         <p>
             <div><strong>Project Media</strong></div>
             Here you will see a list of all the media files in the project
-            that can be assigned to the cue. Select a file and click
-            <b>&lt;&lt; Assign File to Cue</b> to attach it (or double-click
-            the file).
+            that can be assigned to the cue. Select a filename and click
+            <b>&lt;&lt; Assign File to Cue</b> (or double-click
+            the filename) to assign it.
             <br/><br/>
             You can add new media files to the project by clicking on <b>+ Add Files</b>. <br><br/>
-            <i>NOTE: Any files added in this way will be automatically assigned
-            to the cue.</i>
+            <i>NOTE: Any media files added from this screen will automatically be assigned
+            to the current cue.</i>
         </p>
 
         <p>
             <div><strong>Media Filter</strong></div>
             If your project has a lot of media files, you can use the
-            filter box below the media list to find something. Type anything
+            filter box below the media list to find a specific file. Type anything
             into the box to start filtering files by name.
         </p>
 
@@ -133,20 +134,20 @@
         Some types of cues shouldn&apos;t be play on top of each other. For
         example, playing a music track should seamlessly <i>replace</i> the
         music track that&apos;s currently playing, and itself be replaced by
-        another. There should only be one music track playing at any given time
+        another. In short: there should only be one music track playing at any given time
         (i.e. exclusivity).
         </p>
 
         <p>
-        Every Synthea subgroup creates an exclusivity set, so playing any cue
+        Every Synthea subgroup creates an exclusivity set, so playing a cue
         in that subgroup will replace any currently-playing cues <i>in that same
         subgroup</i>. Cues in other subgroups, and cues without subgroups, will
         not be affected.
         </p>
 
         <blockquote>
-        <p><i>EXAMPLE:
-            <table>
+            <i>SUBGROUP PLAYBACK EXAMPLE:</i>
+            <table class="editcue-subgroup-table">
                 <tr>
                     <th>Cue Played</th>
                     <th>Subgroup</th>
@@ -194,8 +195,6 @@
                 </tr>
             </table>
 
-
-        </i></p>
         </blockquote>
     </div>
 </section>

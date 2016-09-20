@@ -37,6 +37,26 @@ button:active, button:focus {
 md-input-container.nobottom {
   margin-bottom: 0; }
 
+#ng-loading {
+  background-color: #eee;
+  color: #999;
+  opacity: 1;
+  transition: opacity cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.5s;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000; }
+  #ng-loading.ng-enter {
+    opacity: 0; }
+    #ng-loading.ng-enter-active {
+      opacity: 1; }
+  #ng-loading.ng-leave {
+    opacity: 1; }
+    #ng-loading.ng-leave-active {
+      opacity: 0; }
+
 .modal-body {
   background-color: #eee;
   padding: 24px;

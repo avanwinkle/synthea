@@ -23,14 +23,16 @@
 	      href="assets/synthea_icon_cropped.png" />
 	<link rel="icon" type="image/x-icon" href="assets/synthea_flat.ico" />
 </head>
-<body ng-controller="SyntheaController as sVm" class="nostealth"
+<body ng-controller="SyntheaController as sVm" class="nostealth" ng-cloak
 >
 
-	<div layout="column" ng-if="sVm.ready" layout-fill ng-view ng-cloak></div>
+	<div id="ng-view" layout="column" layout-fill ng-view></div>
 
-	<div layout="column" layout-fill ng-if="!sVm.ready">
+	<div id="ng-loading" layout="column" layout-fill ng-if="!sVm.ready">
 		<span flex></span>
-		Loading Synthea...
+		<div>
+			<span ng-if="!sVm.ready">Loading Synthea...</span>
+		</div>
 		<span flex></span>
 	</div>
 

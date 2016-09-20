@@ -139,7 +139,7 @@ function createMenus() {
     ];
 
     // This menu position will vary depending on platform (see below)
-   
+
     // OSX has the special application menu first, so populate that with about
     if (process.platform === 'darwin') {
         var aboutMenu = {
@@ -181,7 +181,7 @@ function createMenus() {
         var advancedMenu = {
             label: 'Advanced',
             submenu: [
-                
+
                 {
                     label: 'Enable Debug Mode',
                     click: enableDebugMode,
