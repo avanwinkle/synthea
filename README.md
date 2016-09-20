@@ -47,10 +47,13 @@ with Synthea (see below).
 
 ## Installation
 
-***Synthea*** can be built into a native application for Mac OS, Windows, and Linux, and when ready
-those distributions will be linked to here. For now, you may clone this repo and run locally
+***Synthea*** can be built into a native application for Mac OS, Windows, and Linux, and
+links to those distributions will be available soon. For now, you may clone this repo and run locally
 or create your own builds.
 
+**User Installation**
+Binary installers will be found on the [Synthea homepage](https://avanwinkle.github.io/synthea/)
+when available.
 
 **Developer Installation**
 
