@@ -37,6 +37,12 @@ button:active, button:focus {
 md-input-container.nobottom {
   margin-bottom: 0; }
 
+.md-input-suffix {
+  color: #666;
+  left: 100%;
+  line-height: 30px;
+  position: absolute; }
+
 #ng-loading {
   background-color: #eee;
   color: #999;
@@ -56,6 +62,11 @@ md-input-container.nobottom {
     opacity: 1; }
     #ng-loading.ng-leave-active {
       opacity: 0; }
+
+.md-icon-subtitle {
+  font-size: 10px;
+  bottom: 0;
+  position: absolute; }
 
 .modal-body {
   background-color: #eee;

@@ -26,6 +26,7 @@ function SynPlayerController(SynMixer,SynProject,$location,$log,$scope,$timeout)
     this.SynProject_ = SynProject;
     this.$location_ = $location;
     this.$log_ = $log;
+    this.$scope_ = $scope;
     this.$timeout_ = $timeout;
 
     // We need a mixer
@@ -53,7 +54,10 @@ function SynPlayerController(SynMixer,SynProject,$location,$log,$scope,$timeout)
         vars.is_dj_mode = !vars.is_dj_mode;
     }.bind(this));
 
-    document.addEventListener('keypress', function(e) {
+
+    // These functions cannot be prototyped, because their identity must exist
+    // on the instance to be cancelable
+    var _onKeyPress = function(e) {
         // If we're in an input, DON'T trigger any keypress events
         if (e.target.nodeName === 'INPUT') {
             return;
@@ -91,28 +95,33 @@ function SynPlayerController(SynMixer,SynProject,$location,$log,$scope,$timeout)
         }
 
         // This is a non-angular event
-        $scope.$apply();
-    }.bind(this));
+        this.$scope_.$apply();
+    }.bind(this);
 
-    document.addEventListener('keyup', function(e) {
+    var _onKeyUp = function(e) {
+        // If we're in an input, DON'T trigger any keypress events
+        if (e.target.nodeName === 'INPUT') {
+            return;
+        }
 
         switch (e.code) {
             case 'Backspace':
                 this.mixer.stop();
                 break;
-            case 'ArrowRight':
-                this.selectPage('next');
-                break;
-            case 'ArrowLeft':
-                this.selectPage('prev');
-                break;
         }
 
         // This is a non-angular event
         $scope.$apply();
-    }.bind(this));
+    }.bind(this);
 
-    $scope.$on('$destroy', this.stopAll.bind(this));
+    document.addEventListener('keypress', _onKeyPress);
+    document.addEventListener('keyup', _onKeyUp);
+
+    $scope.$on('$destroy', function() {
+        this.stopAll();
+        document.removeEventListener('keypress', _onKeyPress);
+        document.removeEventListener('keyup', _onKeyUp);
+    }.bind(this));
 
 }
 
@@ -252,6 +261,7 @@ SynPlayerController.prototype.stopAll = function() {
         this.$timeout_.cancel(this.dj_timer_);
     }
 };
+
 
 // IIFE
 })();

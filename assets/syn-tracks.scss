@@ -63,20 +63,21 @@ $track-trans-time: 0.5s;
     // With the big md-icon-button margins, no bottom padding
     padding: 8px 8px 0 8px;
     opacity:1;
+    overflow: hidden;
     // Stack these ABOVE the titles, so they overlap
     position: relative;
     z-index:2;
 
     transition: height $track-trans-time ease-in-out;
 
-    &:not(.queue) {
+    &:not(.cplayer-mode-queue) {
         height: $track-container-height;
     }
-    &.queue {
+    &.cplayer-mode-queue {
         height: $queue-container-height
     }
 
-    &.expanded:not(.STOPPING):not(.STOPPED) {
+    &.cplayer-mode-queue.expanded:not(.STOPPING):not(.STOPPED) {
         height: $expanded-container-height;
 
         .cplayer-button-expand {
@@ -125,6 +126,7 @@ $track-trans-time: 0.5s;
 .cplayer-button {
 
     opacity: 1;
+    position: relative;
     transition: opacity $track-trans-time ease-in-out, transform $track-trans-time ease-in-out;
 
     &.active {
@@ -136,13 +138,36 @@ $track-trans-time: 0.5s;
             fill: darken($syn-accent, 20%);
         }
     }
+
+    &-subtitle {
+        bottom: -4px;
+        color: #666;
+        font-size: 10px;
+        right:0;
+        position:absolute;
+        text-align: center;
+        width: 40px;
+    }
 }
 
 .cplayer-buttons-container {
+    position: relative;
     // Align them for visual balance
     text-align: center;
-    &:first-child { text-align: left;}
-    &:last-child { text-align: right;}
+    &:first-child {
+        text-align: left;
+         .md-button.md-icon-button {
+            // margin-left: -6px;
+            margin-left:0;
+        }
+    }
+    &:last-child {
+        text-align: right;
+        .md-button.md-icon-button {
+            // margin-right: -6px;
+            margin-right:0;
+        }
+    }
 }
 
 .cplayer-eta {
@@ -170,8 +195,12 @@ $track-trans-time: 0.5s;
     margin-top: -16px;
     padding: 0 8px;
 
-    &:first-child { text-align: left;}
-    &:last-child { text-align: right;}
+    &:first-child {
+        text-align: left;
+    }
+    &:last-child {
+        text-align: right;
+    }
 }
 
 .cplayer-timeline {
@@ -277,13 +306,5 @@ $track-trans-time: 0.5s;
 
     .track-container-title {
         text-align: left;
-    }
-}
-
-// The edit media container
-.editmedia-player {
-    // Don't show the stop button, pause is good enough
-    .cplayer-button-stop {
-        visibility: hidden;
     }
 }

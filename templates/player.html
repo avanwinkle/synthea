@@ -57,7 +57,7 @@ ng-include="'templates/partials/header-player.html'"
     <div class="track-container-player queue"
         ng-repeat="channel in spVm.mixer.channels | filter:{'is_queued': true} as queuedTracks"
         ng-style="{'z-index':$index}">
-        <syn-channel-player channel="channel" queue="butts"></syn-channel-player>
+        <syn-channel-player channel="channel" mode="queue"></syn-channel-player>
     </div>
 </div>
 

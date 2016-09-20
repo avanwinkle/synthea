@@ -44,10 +44,11 @@ SynMediaController.prototype.activate = function() {
     this._processMediaFiles();
 
     // Make a channel so we can preview
-    this.channel = new this.SynChannel_({name:'__COMMON__'});
-    // Force the player to skip the fade process
-    this.channel.forceFadeIn = false;
-    this.channel.forceFadeOut = false;
+    this.channel = new this.SynChannel_({
+        // Force the player to skip the fade process
+        isFadeIn: false,
+        name:'__COMMON__'
+    });
 
 };
 
@@ -88,7 +89,7 @@ SynMediaController.prototype.selectMedia = function() {
     this.selectedMedia = this.mediaSelector[0];
 
     // Load the media up in a channel
-    this.channel.stop().then(function() {
+    this.channel.stop({forceUnload:true}).then(function() {
 
         if (!this.selectedMedia) { return; }
 
@@ -99,6 +100,9 @@ SynMediaController.prototype.selectMedia = function() {
             _fullPath:
                 this.SynProject_.getProjectDef().documentRoot + '/audio/' +
                 this.selectedMedia.name
+        },{
+            dontUnload: true,
+            forceFadeOut: false,
         });
     }.bind(this));
 

@@ -28,37 +28,30 @@
                 <input ng-model="secVm.cue.name" autofocus>
             </md-input-container>
 
-            <div>
-                <md-input-container>
-                    <label>Subgroup</label>
-                    <md-select ng-model="secVm.cue.subgroup">
-                        <md-option ng-value="null"><em>None</em></md-option>
-                        <md-option value="music">Music</md-option>
-                        <md-option value="ambient">Ambient</md-option>
-                        <md-option value="fire">Fire</md-option>
-                        <md-option value="rain">Rain</md-option>
-                    </md-select>
-                    <div class="hint" ng-switch="secVm.cue.subgroup">
-                        <span ng-switch-when="null">
-                            This cue will play independent of other cues.
-                        </span>
-                        <span ng-switch-default>
-                            Playing this cue will replace any other
-                            {{secVm.cue.subgroup}} cue.
-                        </span>
-                    </div>
-                </md-input-container>
-            </div>
-
             <div layout="row">
-                <div flex>
-                    <div class="faux-label">Loop Cue</div>
-                    <md-checkbox style="padding:4px;"
-                    ng-model="secVm.cue.isLoop" class="md-primary">
-                        Looping {{secVm.cue.isLoop ? 'On':'Off'}}
-                    </md-checkbox>
+                <div flex="50">
+                    <md-input-container>
+                        <label>Subgroup</label>
+                        <md-select ng-model="secVm.cue.subgroup">
+                            <md-option ng-value="null"><em>None</em></md-option>
+                            <md-option value="music">Music</md-option>
+                            <md-option value="ambient">Ambient</md-option>
+                            <md-option value="fire">Fire</md-option>
+                            <md-option value="rain">Rain</md-option>
+                        </md-select>
+                        <div class="hint" ng-switch="secVm.cue.subgroup">
+                            <span ng-switch-when="null">
+                                This cue will play independent of other cues.
+                            </span>
+                            <span ng-switch-default>
+                                Playing this cue will replace any other
+                                {{secVm.cue.subgroup}} cue.
+                            </span>
+                        </div>
+                    </md-input-container>
                 </div>
-                <div flex>
+                <span flex="5"></span>
+                 <div flex="45">
                     <md-input-container>
                         <label>Fade In</label>
                         <md-select ng-model="secVm.cue.isFadeIn">
@@ -81,6 +74,29 @@
                 </div>
             </div>
 
+            <div layout="row">
+                <div flex="50">
+                    <div class="faux-label">Loop Cue</div>
+                    <md-checkbox style="padding:4px;"
+                    ng-model="secVm.cue.isLoop" class="md-primary">
+                        Looping {{secVm.cue.isLoop ? 'On':'Off'}}
+                    </md-checkbox>
+                </div>
+                <span flex="5"></span>
+                <div flex="45">
+                    <md-input-container style="margin-bottom:0;">
+                        <label style="overflow:visible;">Volume Adjustment</label>
+                        <input ng-model="secVm.volume_pct" type="number"
+                        style="min-width: 4em;"
+                        min="0" max="200" step="1" placeholder="100"
+                        ng-change="secVm.updateVolume()"
+                        ng-model-options='{ debounce: 500 }'>
+                        <span class="md-input-suffix">%</span>
+                    </md-input-container>
+                </div>
+
+            </div>
+
             <div>
                 <div class="faux-label" layout="row">
                     <div>Assigned Audio File(s)</div>
@@ -97,7 +113,9 @@
                     <div class="editcue-sources-item"
                     ng-repeat="src in secVm.cue.sources"
                     layout="row">
-                        <span class="editcue-sources-item-name" ng-bind="src"></span>
+                        <a class="editcue-sources-item-name" ng-bind="src"
+                        ng-click="secVm.selectAssignedMedia(src)"
+                        ></a>
                         <span flex></span>
                         <span class="editcue-sources-item-remove"
                         ng-click="secVm.removeSource(src)">&times;</span>
@@ -116,6 +134,8 @@
 
         <div flex="40" layout="column" class="editcue-column">
 
+            <!-- Media list -->
+
             <div class="faux-label" layout="row">
                 <div>Project Media</div>
                 <span flex></span>
@@ -127,7 +147,8 @@
             </div>
             <div flex layout-fill>
                 <select multiple class="editcue-filelist md-primary"
-                        ng-dblclick="secVm.addFilesToCue(file)"
+                        ng-dblclick="secVm.addFilesToCue()"
+                        ng-click="secVm.selectAssignedMedia('select')"
                         ng-model="secVm.selectedFiles"
                         ng-disabled="secVm.cue.sources.indexOf(file)!==-1"
                         ng-options="file for file in secVm.mediaList | filter: secVm.filterFiles">
@@ -148,7 +169,9 @@
                 <span flex></span>
             </div>
 
-
+            <div flex="none" class="editmedia-player">
+                <syn-channel-player channel="secVm.channel" mode="preview"></syn-channel-player>
+            </div>
         </div>
 
     </form>

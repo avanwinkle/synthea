@@ -1,0 +1,53 @@
+<md-button class="md-icon-button cplayer-button cplayer-button-pause"
+    aria-label="pause"
+    ng-click="cVm.channel.pause()"
+    ng-disabled="cVm.channel.state==='PAUSING'||cVm.channel.state==='STOPPING'"
+    ng-if="cVm.channel.is_playing">
+        <md-icon><svg syn-icon="pause"></svg></md-icon>
+    </md-button>
+    <md-button class="md-icon-button cplayer-button cplayer-button-play"
+    aria-label="play"
+    ng-click="cVm.channel.play()"
+    ng-disabled="!cVm.channel.state||cVm.channel.state==='STOPPING'"
+    ng-if="!cVm.channel.is_playing">
+        <md-icon>
+            <svg syn-icon="play"></svg>
+        </md-icon>
+    </md-button>
+    <md-button class="md-icon-button cplayer-button cplayer-button-queuing"
+    ng-disabled="true" aria-label="please wait">
+        <md-icon style="padding: 4px;">
+            <md-progress-circular
+            class="md-accent md-hue-3"
+            md-diameter="16px"
+            indeterminate></md-progress-circular>
+        </md-icon>
+</md-button>
+
+<!--
+the duplicate version, for reference (in case something is different)
+            <md-button class="md-icon-button cplayer-button cplayer-button-pause"
+            aria-label="pause"
+            ng-click="cVm.channel.pause()"
+            ng-disabled="cVm.channel.state==='PAUSING'||cVm.channel.state==='STOPPING'"
+            ng-if="cVm.channel.is_playing">
+                <md-icon><svg syn-icon="pause"></svg></md-icon>
+            </md-button>
+            <md-button class="md-icon-button cplayer-button cplayer-button-play"
+            aria-label="play"
+            ng-click="cVm.channel.play()"
+            ng-disabled="!cVm.channel.state||cVm.channel.state==='STOPPING'"
+            ng-if="!cVm.channel.is_playing">
+                <md-icon>
+                    <svg syn-icon="play"></svg>
+                </md-icon>
+            </md-button>
+            <md-button class="md-icon-button cplayer-button cplayer-button-queuing" ng-disabled="true" aria-label="please wait">
+                <md-icon style="padding: 4px;">
+                    <md-progress-circular
+                    class="md-accent md-hue-3"
+                    md-diameter="16px"
+                    indeterminate></md-progress-circular>
+                </md-icon>
+            </md-button>
+-->

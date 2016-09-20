@@ -1,0 +1,31 @@
+<md-menu  md-offset="100 48" md-position-mode="target-right target">
+    <md-button
+    class="md-icon-button cplayer-button cplayer-button-subgroup"
+    aria-label="media volume"
+    ng-click="cVm.openMenu($mdOpenMenu, $event)">
+        <md-icon md-menu-align-target>
+            <svg syn-icon="volume_up"></svg>
+        </md-icon>
+    </md-button>
+    <md-menu-content>
+         <md-slider-container flex>
+          <md-input-container>
+            <input flex type="number"
+            ng-model="cVm.channel.volume_pct"
+            aria-label="volume"
+            aria-controls="volume-slider">
+          </md-input-container>
+              <md-slider
+                ng-model="cVm.channel.volume_pct"
+                min="0"
+                max="200"
+                step="5"
+                aria-label="volume"
+                id="volume-slider"
+                class="md-accent"
+                md-vertical
+                md-range></md-slider>
+        </md-slider-container>
+    </md-menu-content>
+</md-menu>
+<div class="cplayer-button-subtitle">{{cVm.channel.volume_pct}}%</div>

@@ -85,11 +85,27 @@ function SyntheaController(SynProject,$location,$log,$q,$scope,$timeout) {
         h.Howler.init();
     });
 
-    activate();
 
-    function activate() {
+    document.addEventListener('keyup', function(e) {
 
-    }
+        // If we're in an input, DON'T trigger any keypress events
+        if (e.target.nodeName === 'INPUT') {
+            return;
+        }
+
+        switch (e.code) {
+            case 'ArrowRight':
+                this.selectPage('next');
+                break;
+            case 'ArrowLeft':
+                this.selectPage('prev');
+                break;
+        }
+
+        // This is a non-angular event
+        $scope.$apply();
+    }.bind(this));
+
 
 }
 

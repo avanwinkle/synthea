@@ -1,0 +1,8 @@
+<md-button class="md-icon-button cplayer-button cplayer-button-fadein"
+    aria-label="fade in"
+    ng-class="{'active': cVm.channel.isFadeIn}"
+    ng-click="cVm.channel.isFadeIn = !cVm.channel.isFadeIn">
+        <md-icon ng-if="cVm.channel.isFadeIn"><svg syn-icon="signal_cellular_4_bar"></svg></md-icon>
+        <md-icon ng-if="!cVm.channel.isFadeIn"><svg syn-icon="signal_cellular_off"></svg></md-icon>
+        <md-tooltip md-delay="500" md-direction="top">Fade In: {{cVm.channel.isFadeIn ? 'On':'Off'}}</md-tooltip>
+</md-button>

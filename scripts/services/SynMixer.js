@@ -52,6 +52,12 @@ function SynMixer(SynSubgroup,SynProject) {
         // Set our global Howler options
         require('howler').Howler.autoSuspend = false;
 
+        // Fail? So far, only on debug refresh of render window
+        if (!p.config || !d.documentRoot) {
+            console.warn('Unable to load Mixer, missing project or config');
+            return;
+        }
+
         this.fadeInDuration = p.config.fadeInDuration || 2000;
         this.fadeOutDuration = p.config.fadeOutDuration || 2000;
         this.isCloudProject = !!d.documentRoot.match('https?://');

@@ -29,6 +29,9 @@ var cueSchema = {
           },
           "tooltip": {
             "type": "string"
+          },
+          "volume": {
+            "type": "float"
           }
         },
         "required": [

@@ -17,8 +17,6 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
 
     // Track our channel counts so we can assign global ids
     var cidx = 0;
-    // Store what "full" volume is, so we can consistently fade in/out of it
-    const MAX_VOLUME = 0.5;
 
     /**
      * The Channel object
@@ -41,7 +39,6 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
      */
     function Channel(subgroup,opts) {
 
-        opts = opts || {};
 
        // Store a channel id, for reference. Simple incremental will do.
         this._id = cidx += 1;
@@ -49,8 +46,8 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
         // trigger stopExcept() if this channel is part of an Exclusive Group
         this._subgroup = subgroup;
 
-        // Web Audio for cloud-based projects, direct for local
-        this.useWebAudio = opts.useWebAudio;
+        // Store the options
+        this.opts = opts || {};
 
         // In case we don't start playing immediately
         this.currentTime = 0;
@@ -79,19 +76,24 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
         switch (direction) {
             case 'in':
                 start = startingLevel ?
-                    // Constrain the start between zero and maximum volume
-                    Math.min(Math.max(startingLevel,0),MAX_VOLUME) : 0;
-                end = MAX_VOLUME;
+                    // Constrain the start between zero and maximum volume,
+                    // in case (somehow) we get a negative or excessive
+                    // starting value
+                    Math.min(Math.max(startingLevel,0), this.getFullVolume()):0;
+                end = this.getFullVolume();
                 duration = SynProject.getProject().config.fadeInDuration;
                 break;
             case 'out':
                 // AVW: If a double-fade is somehow triggered, this could
                 // possibly "pop" the track back to full volume. Is there a
                 // downside to starting at this._player.volume() ?
-                start = MAX_VOLUME;
+                // start = this.getFullVolume();
+                start = this._player.volume();
                 end = 0;
                 duration = SynProject.getProject().config.fadeOutDuration;
         }
+
+        console.log('making fade from '+start+' to '+end);
 
         // Make the fade
         this._player.fade(start,end,duration);
@@ -125,7 +127,7 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
             // Create a promise to resolve ourselves
             var fadeprom = $q.defer();
             // Set the channel to full volume
-            this._player.volume(MAX_VOLUME);
+            this._player.volume( this.getFullVolume() );
             // Play immediately
             this._player.play();
             // Resolve immediately so the "fade" is complete (duration == 0)
@@ -156,6 +158,18 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
     };
 
     /**
+     * Method to find the target volume for the channel, based on the global
+     * default "full" volume and the channel media's volume adjustment
+     * @return {number} Volume level (min 0, max 1)
+     */
+    Channel.prototype.getFullVolume = function() {
+        // Note what "full" volume is, so we can consistently fade in/out of it
+        const MAX_VOLUME = 0.5;
+        console.log("target full volume:", MAX_VOLUME * (this.volume_pct / 100));
+        return MAX_VOLUME * (this.volume_pct / 100);
+    };
+
+    /**
      * Wrapper method for getting the current playback position of the media
      * @return {number} Seconds elapsed
      */
@@ -167,7 +181,7 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
      * Convenience method for determining whether this Channel is eligible to
      * load a new cue. Checks against the player and state.
      *
-     * @return {Boolean} True if this Channel is available, false if not
+     * @return {boolean} True if this Channel is available, false if not
      */
     Channel.prototype.isAvailable = function() {
         return !this._player ||
@@ -211,7 +225,7 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
             // should only stream via HTML5 for non-looping tracks!
             // However, switching back and forth creates playback problems.
             // CURRENT SOLUTION: always HTML5 for cloud, never for local
-            html5: this.useWebAudio,
+            html5: this.opts.useWebAudio,
             preload: true,
             onend: function() {
                 // This event fires at the end of each loop
@@ -220,6 +234,7 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
                     channel.is_playing = false;
                     // Clear out the cue and all relatedness
                     channel.stop();
+
                 }
             },
             onload: function() {
@@ -247,6 +262,11 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
             // onplay: function() {}
         });
 
+
+        // The default "full" volume can be adjusted on a media-by-media basis,
+        // measured  in percents from zero to 200
+        channel.volume_pct = this.media.volume * 100 || 100;
+
         // Note that we're occupied!
         channel.state = 'QUEUING';
         // A queuing/queued channel is not "current", like a playing/paused is
@@ -269,7 +289,7 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
             // console.log('--media');
         }
         // THIRD PRIORITY: The subgroup we're in
-        else if (typeof(this._subgroup.opts.isFadeIn) === 'boolean') {
+        else if (this._subgroup && typeof(this._subgroup.opts.isFadeIn) === 'boolean') {
             channel.isFadeIn = this._subgroup.opts.isFadeIn;
             // console.log('--subgroup');
         }
@@ -278,6 +298,10 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
             channel.isFadeIn = SynProject.getProject().config.isFadeIn;
             // console.log('--project');
         }
+
+        // Other options can be set
+        channel.forceFadeOut = opts.forceFadeOut;
+        channel.dontUnload = opts.dontUnload;
 
         return defer.promise;
     };
@@ -352,7 +376,7 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
         // If we are playing in a Subgroup, cancel the rest of the subgroup
         // AVW: Shouldn't this be handled higher up? Why isn't the "play" action
         // trickling down from the subgroup and the subgroup clearing itself?
-        if (this._subgroup.name !== '__COMMON__') {
+        if (this._subgroup && this._subgroup.name !== '__COMMON__') {
             this._subgroup.stopExcept(this.media);
         }
 
@@ -377,15 +401,29 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
      * @param {float} targetTime  The target timecode to seek
      */
     Channel.prototype.setTime = function(targetTime) {
-        this._player.seek(targetTime || this.currentTime);
+        // Target time might be zero, so have to check for defined-ness
+        this._player.seek(
+            angular.isDefined(targetTime) ? targetTime : this.currentTime);
+    };
+
+    Channel.prototype.setFullVolume = function(adjustment) {
+        // Constraints, of course
+        this.volume_pct = Math.max(0, Math.min(adjustment,200));
+        console.log(adjustment,this.volume_pct)
+        // Make the fade in... half a second, why not?
+        this._player.fade(
+            this._player.volume(),
+            this.getFullVolume(),
+            500);
     };
 
     /**
      * Stop the playback of the media in this channel and cleanup
      */
-    Channel.prototype.stop = function() {
+    Channel.prototype.stop = function(opts) {
 
         var defer = $q.defer();
+        opts = opts || {};
 
         // We might not need to take action if a stop is already in progress
         if (!this.media || this.state==='STOPPING'|| this.state==='STOPPED') {
@@ -400,19 +438,33 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
                 $interval.cancel(this.elapsedCounter);
             }
 
-            // Clear out the flags so we're ready to use the channel again
-            this.state = 'STOPPED';
-            this.is_current = false;
-            this.is_queued = false;
             this.is_playing = false;
 
-            // Clear the cue
-            this.media._channel = undefined;
-
-            // Flush the player to free up its memory allocation
-            this._player.stop();
-            this._player.unload();
             console.log(' -- channel '+this._id+' stopped');
+
+            // Sometimes we don't want to flush everything
+            if (this.dontUnload && !opts.forceUnload) {
+                // Hop to the beginning
+                this.setTime(0);
+                // Set a ready state
+                this.state = 'QUEUED';
+            }
+
+            // But usually, yes we want to flush everything
+            else {
+
+                // Clear out the flags so we're ready to use the channel again
+                this.state = 'STOPPED';
+                this.is_current = false;
+                this.is_queued = false;
+
+                // Clear the cue
+                this.media._channel = undefined;
+                // Flush the player to free up its memory allocation
+                this._player.stop();
+                this._player.unload();
+
+            }
 
             defer.resolve();
         }.bind(this);

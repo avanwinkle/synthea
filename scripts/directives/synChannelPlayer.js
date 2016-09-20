@@ -8,33 +8,39 @@ angular
     return {
         link: function(scope,ele,attrs) {
             scope.ele = ele;
+            console.log(attrs)
+            scope.mode = attrs.mode || 'player';
+            console.log(scope)
         },
         controller: SynChannelPlayerController,
         controllerAs: 'cVm',
         restrict: 'E',
         scope: {
             channel: '=',
-            queue: '@',
         },
         templateUrl: 'templates/partials/channel-player.html',
     };
 
 });
 
-SynChannelPlayerController.$inject = ['$scope'];
+SynChannelPlayerController.$inject = ['$scope','$timeout'];
 
-function SynChannelPlayerController($scope) {
+function SynChannelPlayerController($scope,$timeout) {
 
     var cVm = this;
     cVm.$scope_ = $scope;
 
-    cVm.channel = $scope.channel;
-    cVm.isInQueue = !!$scope.queue;
-    cVm.isExpanded = false;
     cVm.seekPreview = undefined;
 
     window.cVm = this;
     window.scope = $scope;
+
+    $timeout(function() {
+        cVm.channel = $scope.channel;
+        cVm.mode = $scope.ele.attr('mode');
+        cVm.isInQueue = cVm.mode==='queue';
+        cVm.isExpanded = cVm.mode!== 'queue';
+    });
 }
 
 SynChannelPlayerController.prototype.expand = function() {
@@ -49,6 +55,10 @@ SynChannelPlayerController.prototype.expand = function() {
     }
 };
 
+SynChannelPlayerController.prototype.openMenu = function($mdOpenMenu, ev) {
+      var originatorEv = ev;
+      $mdOpenMenu(ev);
+};
 
 /**
  * Wrapper method for setting a channel to playback at the specific time
@@ -60,6 +70,9 @@ SynChannelPlayerController.prototype.expand = function() {
  * @param  {$event} evt     Click event
  */
 SynChannelPlayerController.prototype.timelineSeek = function(evt) {
+
+    if (!this.channel.media) { return; }
+
     // We'll assume that we're seeking to the preview time, rather than
     // passing in a time (which could lead to delays? Who knows!)
     this.channel.setTime(this.seekPreview);
@@ -77,6 +90,7 @@ SynChannelPlayerController.prototype.timelineSeek = function(evt) {
  * @return {number}         The time position of the seek preview
  */
 SynChannelPlayerController.prototype.timelineSeekPreview = function(evt) {
+    if (!this.channel.media) { return; }
     // Where are we, physically, relative to the timeline DOM?
     var seekTarget = evt.offsetX / evt.target.offsetWidth;
     // Take the above calculation (as a percentage) and multiply by the duration
