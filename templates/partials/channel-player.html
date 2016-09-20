@@ -1,4 +1,4 @@
-<div class="cplayer {{cVm.channel.state}}" ng-style="{'z-index':$index}">
+<div class="cplayer {{cVm.channel.state}}" ng-class="{'expanded': cVm.isExpanded, 'queue': cVm.isInQueue}">
     <div layout="row">
         <div class="cplayer-title" flex
         ng-bind="cVm.channel.media.name"></div>
@@ -12,27 +12,77 @@
     </div>
 
 
-    <div class="cplayer-timeline" layout="row">
-        <div class="cplayer-timeline-bar">
-            <div class="cplayer-timeline-progress"
-            ng-style="{'transform':'scaleX('+(cVm.channel.currentTime/cVm.channel.duration)+')'}"></div>
-            <div class="cplayer-timeline-seeker"
-            ng-mousemove="cVm.timelineSeekPreview($event)"
-            ng-mouseleave="cVm.seekPreview = undefined"
-            ng-click="cVm.timelineSeek($event)"></div>
+    <div class="cplayer-buttons" layout="row" ng-if="::cVm.isInQueue">
+        <div class="cplayer-buttons-container" flex>
+            <md-button class="md-icon-button cplayer-button cplayer-button-expand"
+            aria-label="repeat"
+            ng-click="cVm.expand()"
+            ng-disabled="cVm.channel.state==='STOPPING'"
+            ng-class="{'active': cVm.isExpanded}">
+                <md-icon><svg syn-icon="chevron_down"></svg></md-icon>
+            </md-button>
+        </div>
+        <div class="cplayer-buttons-container" flex>
+            <md-button class="md-icon-button cplayer-button cplayer-button-pause"
+            aria-label="pause"
+            ng-click="cVm.channel.pause()"
+            ng-disabled="cVm.channel.state==='PAUSING'||cVm.channel.state==='STOPPING'"
+            ng-if="cVm.channel.is_playing">
+                <md-icon><svg syn-icon="pause"></svg></md-icon>
+            </md-button>
+            <md-button class="md-icon-button cplayer-button cplayer-button-play"
+            aria-label="play"
+            ng-click="cVm.channel.play()"
+            ng-disabled="cVm.channel.state==='STOPPING'"
+            ng-if="!cVm.channel.is_playing">
+                <md-icon>
+                    <svg syn-icon="play"></svg>
+                </md-icon>
+            </md-button>
+            <md-button class="md-icon-button cplayer-button cplayer-button-queuing" ng-disabled="true" aria-label="please wait">
+                <md-icon style="padding: 4px;">
+                    <md-progress-circular
+                    class="md-accent md-hue-3"
+                    md-diameter="16px"
+                    indeterminate></md-progress-circular>
+                </md-icon>
+            </md-button>
+
+        </div>
+        <div class="cplayer-buttons-container" flex>
+            <md-button class="md-icon-button cplayer-button cplayer-button-stop"
+            aria-label="stop"
+            ng-click="cVm.channel.stop()"
+            ng-disabled="cVm.channel.state==='PAUSING'">
+                <md-icon><svg syn-icon="clear"></svg></md-icon>
+            </md-button>
         </div>
     </div>
 
-    <div layout="row">
-        <div flex class="cplayer-timecode">
-            <span ng-bind="cVm.channel.currentTime | secondsToTimecode : true"></span>
+    <div layout="column">
+
+        <div class="cplayer-timeline" layout="row">
+            <div class="cplayer-timeline-bar">
+                <div class="cplayer-timeline-progress"
+                ng-style="{'transform':'scaleX('+(cVm.channel.currentTime/cVm.channel.duration)+')'}"></div>
+                <div class="cplayer-timeline-seeker"
+                ng-mousemove="cVm.timelineSeekPreview($event)"
+                ng-mouseleave="cVm.seekPreview = undefined"
+                ng-click="cVm.timelineSeek($event)"></div>
+            </div>
         </div>
-        <div flex class="cplayer-timecode">
-            <span ng-bind="cVm.channel.duration | secondsToTimecode : true"></span>
+
+        <div layout="row">
+            <div flex class="cplayer-timecode">
+                <span ng-bind="cVm.channel.currentTime | secondsToTimecode : true"></span>
+            </div>
+            <div flex class="cplayer-timecode">
+                <span ng-bind="cVm.channel.duration | secondsToTimecode : true"></span>
+            </div>
         </div>
     </div>
 
-    <div class="cplayer-buttons" layout="row">
+    <div class="cplayer-buttons" layout="row" ng-if="::!cVm.isInQueue">
         <div class="cplayer-buttons-container" flex>
             <md-button class="md-icon-button cplayer-button cplayer-button-loop"
             aria-label="repeat"
@@ -76,6 +126,49 @@
             ng-disabled="cVm.channel.state==='PAUSING'">
                 <md-icon><svg syn-icon="stop"></svg></md-icon>
             </md-button>
+        </div>
+    </div>
+
+
+    <div class="cplayer-buttons" layout="row" ng-if="::cVm.isInQueue">
+        <div class="cplayer-buttons-container" flex>
+            <md-button class="md-icon-button cplayer-button cplayer-button-loop"
+            aria-label="repeat"
+            ng-click="cVm.channel.repeat()"
+            ng-disabled="cVm.channel.state==='STOPPING'"
+            ng-class="{'active': cVm.channel.media.isLoop}">
+                <md-icon><svg syn-icon="repeat"></svg></md-icon>
+                <md-tooltip md-delay="500" md-direction="top">Loop: {{cVm.channel.isLoop ? 'On':'Off'}}</md-tooltip>
+            </md-button>
+        </div>
+        <div class="cplayer-buttons-container" flex>
+            <md-button class="md-icon-button cplayer-button cplayer-button-fadein"
+            aria-label="fade in"
+            ng-class="{'active': cVm.channel.isFadeIn}"
+            ng-click="cVm.channel.isFadeIn = !cVm.channel.isFadeIn">
+                <md-icon ng-if="cVm.channel.isFadeIn"><svg syn-icon="signal_cellular_4_bar"></svg></md-icon>
+                <md-icon ng-if="!cVm.channel.isFadeIn"><svg syn-icon="signal_cellular_off"></svg></md-icon>
+                <md-tooltip md-delay="500" md-direction="top">Fade In: {{cVm.channel.isFadeIn ? 'On':'Off'}}</md-tooltip>
+            </md-button>
+        </div>
+        <div class="cplayer-buttons-container" flex>
+            <!--
+            <md-button class="md-icon-button cplayer-button cplayer-button-subgroup"
+            disabled="disabled"
+            aria-label="subgroup" >
+                <md-icon ng-switch="cVm.channel.media.subgroup"">
+                    <svg ng-switch-when="music" syn-icon="queue_music"></svg>
+                    <svg ng-switch-when="fire" syn-icon="whatshot"></svg>
+                    <svg ng-switch-when="ambient" syn-icon="nature_people"></svg>
+                    <svg ng-switch-when="rain" syn-icon="invert_colors"></svg>
+                </md-icon>
+            </md-button>
+            <md-tooltip md-delay="500" md-direction="top">Subgroup: {{cVm.channel.media.subgroup || 'None'}}</md-tooltip>
+            -->
+            <div class="cplayer-subgroup">
+                Subgroup<br/>
+                <b>{{cVm.channel.media.subgroup || 'None'}}</b>
+            </div>
         </div>
     </div>
 

@@ -16,19 +16,54 @@
   to {
     background-color: transparent; } }
 
-syn-channel-player {
-  display: block; }
+.track-container-player {
+  display: block;
+  position: relative;
+  opacity: 1;
+  transition: height 0.5s ease-in-out, opacity 0.5s ease-in-out; }
+  .track-container-player.expanded {
+    background-color: red !important; }
+  .track-container-player.ng-enter {
+    display: block !important;
+    height: 0;
+    opacity: 0;
+    overflow: hidden; }
+    .track-container-player.ng-enter-active {
+      opacity: 1; }
+      .track-container-player.ng-enter-active:not(.queue) {
+        height: 96px; }
+      .track-container-player.ng-enter-active.queue {
+        height: 64px; }
+  .track-container-player.ng-leave {
+    display: block !important;
+    overflow: hidden; }
+    .track-container-player.ng-leave:not(.queue) {
+      height: 96px; }
+    .track-container-player.ng-leave.queue {
+      height: 64px; }
+    .track-container-player.ng-leave.expanded {
+      height: 144px; }
+    .track-container-player.ng-leave-active {
+      opacity: 0;
+      height: 0 !important; }
 
 .cplayer {
   background-color: #ddd;
   border: solid 1px rgba(0, 0, 0, 0.4);
   font-size: 12px;
-  height: 96px;
   padding: 8px 8px 0 8px;
   opacity: 1;
-  overflow: hidden;
   position: relative;
-  z-index: 2; }
+  z-index: 2;
+  transition: height 0.5s ease-in-out; }
+  .cplayer:not(.queue) {
+    height: 96px; }
+  .cplayer.queue {
+    height: 64px; }
+  .cplayer.expanded:not(.STOPPING):not(.STOPPED) {
+    height: 144px; }
+    .cplayer.expanded:not(.STOPPING):not(.STOPPED) .cplayer-button-expand {
+      transform: rotate(180deg); }
   .cplayer.STOPPING {
     cursor: default; }
     .cplayer.STOPPING .cplayer-timeline-progress {
@@ -44,7 +79,7 @@ syn-channel-player {
 
 .cplayer-button {
   opacity: 1;
-  transition: opacity 0.2s ease-in-out; }
+  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out; }
   .cplayer-button.active {
     stroke: #368BE6; }
     .cplayer-button.active svg {
@@ -65,6 +100,13 @@ syn-channel-player {
   line-height: 1; }
   .cplayer-eta-preview {
     color: #368BE6; }
+
+.cplayer-subgroup {
+  font-size: 10px;
+  color: #666;
+  padding-top: 8px;
+  text-align: center;
+  text-transform: capitalize; }
 
 .cplayer-timecode {
   font-size: 12px;
@@ -105,6 +147,9 @@ syn-channel-player {
     .cplayer-timeline-seeker:focus {
       outline: none; }
 
+.cplayer.QUEUED .cplayer-timeline-progress, .cplayer.PAUSED .cplayer-timeline-progress {
+  transition-duration: 0s; }
+
 .cplayer-title {
   overflow: hidden;
   text-align: left;
@@ -112,30 +157,27 @@ syn-channel-player {
   white-space: nowrap; }
 
 /**  SPECIFIC STYLES TO PLAYBACK VIEW **/
-.track-container {
-  position: relative;
-  transition: height 0.5s ease-in-out, opacity 0.5s ease-in-out; }
-  .track-container-title {
-    background-color: #696969;
-    border-radius: 4px 4px 0 0;
-    color: #eee;
-    font-size: 10px;
-    opacity: 1;
-    padding: 4px 8px;
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 100%;
-    transition: opacity 0.5s ease-in-out; }
-    .track-container-title.ng-enter {
-      display: block !important;
+.track-container-title {
+  background-color: #696969;
+  border-radius: 4px 4px 0 0;
+  color: #eee;
+  font-size: 10px;
+  opacity: 1;
+  padding: 4px 8px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  transition: opacity 0.5s ease-in-out; }
+  .track-container-title.ng-enter {
+    display: block !important;
+    opacity: 0; }
+    .track-container-title.ng-enter-active {
+      opacity: 1; }
+  .track-container-title.ng-leave {
+    display: block !important; }
+    .track-container-title.ng-leave-active {
       opacity: 0; }
-      .track-container-title.ng-enter-active {
-        opacity: 1; }
-    .track-container-title.ng-leave {
-      display: block !important; }
-      .track-container-title.ng-leave-active {
-        opacity: 0; }
 
 #currentTracks {
   background-color: #ddd;
@@ -144,24 +186,8 @@ syn-channel-player {
   right: 16px;
   width: 196px;
   z-index: 20; }
-  #currentTracks .track-container {
-    opacity: 1;
-    position: relative; }
-    #currentTracks .track-container-title {
-      text-align: right; }
-    #currentTracks .track-container.ng-enter {
-      display: block !important;
-      height: 0;
-      z-index: 3; }
-      #currentTracks .track-container.ng-enter-active {
-        height: 96px; }
-    #currentTracks .track-container.ng-leave {
-      display: block !important;
-      opacity: 1;
-      height: 96px;
-      z-index: 1; }
-      #currentTracks .track-container.ng-leave-active {
-        height: 0; }
+  #currentTracks .track-container-title {
+    text-align: right; }
 
 #queuedTracks {
   bottom: 0;
@@ -169,27 +195,8 @@ syn-channel-player {
   position: fixed;
   width: 196px;
   z-index: 19; }
-  #queuedTracks .track-container {
-    height: 64px;
-    opacity: 1;
-    position: relative; }
-    #queuedTracks .track-container-title {
-      text-align: left; }
-    #queuedTracks .track-container.ng-enter {
-      display: block !important;
-      height: 0;
-      z-index: 3; }
-      #queuedTracks .track-container.ng-enter-active {
-        height: 64px; }
-    #queuedTracks .track-container.ng-leave {
-      display: block !important;
-      opacity: 1;
-      height: 64px;
-      z-index: 1; }
-      #queuedTracks .track-container.ng-leave-active {
-        height: 0; }
-    #queuedTracks .track-container.expanded {
-      height: 112px; }
+  #queuedTracks .track-container-title {
+    text-align: left; }
 
 .editmedia-player .cplayer-button-stop {
   visibility: hidden; }

@@ -112,33 +112,8 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
      */
     Channel.prototype._fadeIn = function() {
 
-        // Mazlow's hierarchy of fade-in priorities
-        //---------------------------------------------------
-        var isFadeIn;
-        // console.log("Fade in priority:")
-        // FIRST PRIORITY: A hotkey override stored on the channel
-        if (typeof(this.forceFadeIn) === 'boolean') {
-            isFadeIn = this.forceFadeIn;
-            // console.log('--forced');
-        }
-        // SECOND PRIORITY: The cue itself
-        else if (typeof(this.media.isFadeIn) === 'boolean') {
-            isFadeIn = this.media.isFadeIn;
-            // console.log('--media');
-        }
-        // THIRD PRIORITY: The subgroup we're in
-        else if (typeof(this._subgroup.opts.isFadeIn) === 'boolean') {
-            isFadeIn = this._subgroup.opts.isFadeIn;
-            // console.log('--subgroup');
-        }
-        // FOURTH PRIORITY: The project default
-        else {
-            isFadeIn = SynProject.getProject().config.isFadeIn;
-            // console.log('--project');
-        }
-
         // Do we ACTUALLY fade in?
-        if (isFadeIn) {
+        if (this.isFadeIn) {
             // Set the volume to zero for fade-in goodness
             this._player.volume(0);
             // Start playing before we start the fade, to ensure smoothness
@@ -272,27 +247,6 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
             // onplay: function() {}
         });
 
-        // HOWLER BLACK MAGICK:
-        // If an HTML5 non-loop file plays, it sets
-        // the global Howler to use Web Audio, which then nullifies
-        // audio output for non-HTML5 tracks. If this cue is a loop
-        // (and therefore non-HTML5), we should force the global
-        // Howler to switch off of Web Audio mode
-
-        // AVW: This may be the cause of buggy behavior when streaming
-        // over the network and mixing loop/nonloop tracks. One crude
-        // solution would be to only allow seamless looping (an non-web
-        // audio) on local projects...
-
-        // For the time being, I'm restricting webAudio for only cloud projects
-        // (at the cost of smooth looping) and commenting out this reset...
-
-        /*
-        if (cue.isLoop) {
-            require('howler').Howler.usingWebAudio = false;
-        }
-        */
-
         // Note that we're occupied!
         channel.state = 'QUEUING';
         // A queuing/queued channel is not "current", like a playing/paused is
@@ -301,9 +255,29 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
         channel.currentTime = undefined;
         channel.duration = undefined;
 
-        // If we have a fadeIn override, now is the place to set it
-        // Conveniently, this will reset every time a cue is loaded. Hurray!
-        channel.forceFadeIn = opts.forceFadeIn;
+        // Mazlow's hierarchy of fade-in priorities
+        //---------------------------------------------------
+        // console.log("Fade in priority:")
+        // FIRST PRIORITY: A hotkey override stored on the channel
+        if (typeof(opts.forceFadeIn) === 'boolean') {
+            channel.isFadeIn = this.forceFadeIn;
+            // console.log('--forced');
+        }
+        // SECOND PRIORITY: The cue itself
+        else if (typeof(this.media.isFadeIn) === 'boolean') {
+            channel.isFadeIn = this.media.isFadeIn;
+            // console.log('--media');
+        }
+        // THIRD PRIORITY: The subgroup we're in
+        else if (typeof(this._subgroup.opts.isFadeIn) === 'boolean') {
+            channel.isFadeIn = this._subgroup.opts.isFadeIn;
+            // console.log('--subgroup');
+        }
+        // FOURTH PRIORITY: The project default
+        else {
+            channel.isFadeIn = SynProject.getProject().config.isFadeIn;
+            // console.log('--project');
+        }
 
         return defer.promise;
     };

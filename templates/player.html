@@ -54,52 +54,18 @@ ng-include="'templates/partials/header-player.html'"
 
 <div id="queuedTracks">
     <div class="track-container-title" ng-if="queuedTracks.length">Queued</div>
-    <div class="track-container"
-    ng-class="{'expanded': expanded}"
-    ng-repeat="channel in spVm.mixer.channels | filter:{'is_queued': true} as queuedTracks"
-    ng-style="{'z-index':$index}">
-        <div class="track">
-            <div layout="row">
-                <div class="track-title" flex ng-bind="channel.media.name"></div>
-                <div ng-bind="channel.duration | secondsToTimecode"></div>
-            </div>
-            <div layout="row">
-                <div flex>
-                    <md-button class="md-icon-button track-button" aria-label="play"
-                    ng-click="expanded = !expanded">
-                        <md-icon ng-if="!expanded"><svg syn-icon="chevron_down"></svg></md-icon>
-                        <md-icon ng-if="expanded"><svg syn-icon="chevron_up"></svg></md-icon>
-                    </md-button>
-                </div>
-                <div flex>
-                    <md-button class="md-icon-button track-button" aria-label="play"
-                    ng-click="channel.play()">
-                        <md-icon><svg syn-icon="play"></svg></md-icon>
-                    </md-button>
-                </div>
-                <div flex>
-                    <md-button class="md-icon-button track-button" aria-label="clear"
-                    ng-click="channel.stop()">
-                        <md-icon><svg syn-icon="clear"></svg></md-icon>
-                    </md-button>
-                </div>
-            </div>
-            <div layout="row" ng-show="expanded">
-                <div flex>
-                    <input ng-model="channel.currentTime"
-                    type="number" step="0.1" size="2"
-                    placeholder="0.0"
-                    ng-change="channel.setTime()" />
-                </div>
-            </div>
-        </div>
+    <div class="track-container-player queue"
+        ng-repeat="channel in spVm.mixer.channels | filter:{'is_queued': true} as queuedTracks"
+        ng-style="{'z-index':$index}">
+        <syn-channel-player channel="channel" queue="butts"></syn-channel-player>
     </div>
 </div>
 
 <div id="currentTracks">
     <div class="track-container-title" ng-if="currentTracks.length">Now Playing</div>
-    <div class="track-container"
-    ng-repeat="channel in spVm.mixer.channels | filter: {'is_current':true} as currentTracks">
-        <syn-channel-player channel="channel"></syn-channel-player>
+    <div class="track-container-player"
+        ng-repeat="channel in spVm.mixer.channels | filter: {'is_current':true} as currentTracks">
+        <syn-channel-player channel="channel"
+            ng-style="{'z-index':$index}"></syn-channel-player>
     </div>
 </div>

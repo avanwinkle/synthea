@@ -6,25 +6,48 @@ angular
     .directive('synChannelPlayer', function() {
 
     return {
+        link: function(scope,ele,attrs) {
+            scope.ele = ele;
+        },
         controller: SynChannelPlayerController,
         controllerAs: 'cVm',
         restrict: 'E',
         scope: {
             channel: '=',
+            queue: '@',
         },
         templateUrl: 'templates/partials/channel-player.html',
     };
 
 });
 
+SynChannelPlayerController.$inject = ['$scope'];
+
 function SynChannelPlayerController($scope) {
+
     var cVm = this;
+    cVm.$scope_ = $scope;
 
     cVm.channel = $scope.channel;
+    cVm.isInQueue = !!$scope.queue;
+    cVm.isExpanded = false;
     cVm.seekPreview = undefined;
 
     window.cVm = this;
+    window.scope = $scope;
 }
+
+SynChannelPlayerController.prototype.expand = function() {
+    this.isExpanded = !this.isExpanded;
+
+    // Apply a class to the parent
+    if (this.isExpanded) {
+        this.$scope_.ele.parent().addClass('expanded');
+    }
+    else {
+        this.$scope_.ele.parent().removeClass('expanded');
+    }
+};
 
 
 /**
