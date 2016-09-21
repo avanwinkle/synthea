@@ -1,8 +1,20 @@
-$syn-accent: #368BE6;
-$syn-accent-faded: desaturate($syn-accent, 50%);
+$syn-accent-400: #42a5f5;
+$syn-accent-500: #2196F3;
+$syn-accent-600: #1e88e5;
+$syn-accent-700: #1976d2;
+$syn-accent-900: #0d47a1;
 $syn-background: #eee;
-$syn-danger: rgb(233,30,99);
+
+$syn-accent: $syn-accent-600;
+$syn-accent-faded: desaturate($syn-accent, 50%);
+
+$syn-danger: #e91e63; // rgb(233,30,99);
+
 $track-background: #ddd;
+$track-trans-time: 0.5s;
+$track-container-height: 96px;
+$queue-container-height: 64px;
+$expanded-container-height: 144px;
 
 .blink {
   animation: blink-animation 0.5s steps(8, start) infinite alternate;
@@ -33,3 +45,4 @@ $track-background: #ddd;
     text-overflow: ellipsis;
     overflow-x: hidden;
 }
+

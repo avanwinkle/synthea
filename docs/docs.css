@@ -178,7 +178,7 @@ instr {
   text-align: center; }
   .section-screenshot-image {
     margin: 0 auto 16px auto;
-    max-width: 100%; }
+    width: 100%; }
 
 .section-title {
   border-bottom: solid 1px rgba(100, 100, 100, 0.2);

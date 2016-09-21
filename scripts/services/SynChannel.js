@@ -93,8 +93,6 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
                 duration = SynProject.getProject().config.fadeOutDuration;
         }
 
-        console.log('making fade from '+start+' to '+end);
-
         // Make the fade
         this._player.fade(start,end,duration);
         // Resolve the promise, which triggers a $scope.digest?
@@ -165,7 +163,6 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
     Channel.prototype.getFullVolume = function() {
         // Note what "full" volume is, so we can consistently fade in/out of it
         const MAX_VOLUME = 0.5;
-        console.log("target full volume:", MAX_VOLUME * (this.volume_pct / 100));
         return MAX_VOLUME * (this.volume_pct / 100);
     };
 
@@ -217,7 +214,26 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
         var channel = this;
 
         this._player = new Howl({
-            src: [cue._fullPath],
+            src: function(c) {
+                // There might be multiple sources
+                var targetSrc;
+                // If there's only one, take it and be done
+                if (c.sources.length===1) {
+                    targetSrc = c.sources[0];
+                }
+                else {
+                    // Track the last one we played, to avoid double-playing
+                    while (!targetSrc || targetSrc === c._last_source) {
+                        // Find a random source that is NOT the last one we played
+                        targetSrc = c.sources[ Math.floor(Math.random() * c.sources.length) ];
+                    }
+                    // Note that this is the one we'll be playing
+                    c._last_source = targetSrc;
+                }
+
+                // Return the full path of the determined target source
+                return c._audioRoot + targetSrc;
+            }(cue),
             // Additional params
             loop: cue.isLoop,
             // Use HTML5 mode to allow playback before full download

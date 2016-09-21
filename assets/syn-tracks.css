@@ -70,7 +70,7 @@
     .cplayer.STOPPING .cplayer-timeline-progress {
       background-color: #666; }
   .cplayer.PAUSING .cplayer-timeline-progress, .cplayer.PAUSED .cplayer-timeline-progress {
-    background-color: #6f8dae; }
+    background-color: #5d84a6; }
   .cplayer .cplayer-button-queuing {
     display: none; }
   .cplayer.QUEUING .cplayer-button-play, .cplayer.QUEUING .cplayer-button-pause {
@@ -83,19 +83,21 @@
   position: relative;
   transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out; }
   .cplayer-button.active {
-    stroke: #368BE6; }
+    stroke: #42a5f5; }
     .cplayer-button.active svg {
       background-color: rgba(0, 0, 0, 0.12);
       border-radius: 4px;
-      fill: #1459a2; }
+      fill: #10538d; }
   .cplayer-button-subtitle {
-    bottom: -4px;
+    background-color: #ddd;
+    bottom: 2px;
     color: #666;
     font-size: 10px;
+    left: 0;
+    line-height: 1.2;
     right: 0;
     position: absolute;
-    text-align: center;
-    width: 40px; }
+    text-align: center; }
 
 .cplayer-buttons-container {
   position: relative;
@@ -114,7 +116,7 @@
   font-weight: 500;
   line-height: 1; }
   .cplayer-eta-preview {
-    color: #368BE6; }
+    color: #1e88e5; }
 
 .cplayer-subgroup {
   font-size: 10px;
@@ -141,7 +143,7 @@
     position: relative;
     width: 100%; }
   .cplayer-timeline-progress {
-    background-color: #368BE6;
+    background-color: #1e88e5;
     position: absolute;
     top: 0;
     left: 0;

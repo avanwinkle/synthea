@@ -121,6 +121,12 @@ SynEditCueController.prototype.captureHotkeys = function() {
     this.hotkeyListener = function(e) {
         // Prevent propagation, naturally
         e.preventDefault();
+        // Don't allow reserved keys to bind
+        switch (e.code) {
+            case "Enter":
+            case "Space":
+                return;
+        }
 
         this.hotkeyCapture = e;
 
@@ -225,10 +231,11 @@ SynEditCueController.prototype.selectAssignedMedia = function(src) {
     this.channel.stop({forceUnload:true}).then(function() {
 
         this.channel.loadCue({
-            _fullPath: this.SynProject_.getProjectDef().documentRoot + '/audio/' + src,
-            name: src,
+            _audioRoot: this.SynProject_.getProjectDef().documentRoot + '/audio/',
             isFadeIn: false,
             isLoop: false,
+            name: src,
+            sources: [src],
         }, {
             dontUnload: true,
             forceFadeOut: false,

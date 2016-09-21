@@ -1,4 +1,4 @@
-<md-menu  md-offset="100 48" md-position-mode="target-right target">
+<md-menu  md-offset="100 48" md-position-mode="target-right target" md-theme="player">
     <md-button
     class="md-icon-button cplayer-button cplayer-button-subgroup"
     aria-label="media volume"
@@ -6,6 +6,7 @@
         <md-icon md-menu-align-target>
             <svg syn-icon="volume_up"></svg>
         </md-icon>
+        <div class="cplayer-button-subtitle">{{cVm.channel.volume_pct}}%</div>
     </md-button>
     <md-menu-content>
          <md-slider-container flex>
@@ -22,10 +23,9 @@
                 step="5"
                 aria-label="volume"
                 id="volume-slider"
-                class="md-accent"
+                class="md-primary"
                 md-vertical
                 md-range></md-slider>
         </md-slider-container>
     </md-menu-content>
 </md-menu>
-<div class="cplayer-button-subtitle">{{cVm.channel.volume_pct}}%</div>

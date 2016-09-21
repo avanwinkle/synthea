@@ -192,11 +192,10 @@ function SynProject($http,$q,$log) {
         // Look over our cue objects and make some conveniences
         angular.forEach(project.cues, function(c, idx) {
 
-            c._documentRoot = def.documentRoot;
+
             // Note the full path to the audio file, including the
             // documentRoot (which is NOT saved in the project)
-            c._fullPath = def.documentRoot + '/audio/' +
-                c.sources[0];
+            c._audioRoot = def.documentRoot + '/audio/';
 
             // And the lookup for hotkeys
             cue_ids[c.id] = c;

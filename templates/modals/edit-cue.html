@@ -74,17 +74,18 @@
                 </div>
             </div>
 
+            <!-- Loop and volume row -->
             <div layout="row">
                 <div flex="50">
                     <div class="faux-label">Loop Cue</div>
-                    <md-checkbox style="padding:4px;"
+                    <md-checkbox style="padding:4px; font-size: 14px;"
                     ng-model="secVm.cue.isLoop" class="md-primary">
                         Looping {{secVm.cue.isLoop ? 'On':'Off'}}
                     </md-checkbox>
                 </div>
                 <span flex="5"></span>
                 <div flex="45">
-                    <md-input-container style="margin-bottom:0;">
+                    <md-input-container class="nobottom noerror" >
                         <label style="overflow:visible;">Volume Adjustment</label>
                         <input ng-model="secVm.volume_pct" type="number"
                         style="min-width: 4em;"
@@ -97,46 +98,52 @@
 
             </div>
 
+            <!-- Hotkey row -->
             <div>
                     <div class="faux-label">Hotkey</div>
 
-                    <div layout="row" class="editcue-hotkey">
+                    <div layout="row" class="editcue-hotkey" >
 
                         <div class="editcue-hotkey-code" flex>
-                            <div class="hotkey-input hotkey-capture" ng-if="secVm.showHotkeys && secVm.hotkeyCapture">
-                                <span ng-if="secVm.hotkeyCapture.ctrlKey">Ctrl + </span>
-                                <span ng-if="secVm.hotkeyCapture.shiftKey">Shift + </span>
-                                <span ng-bind="secVm.hotkeyCapture.code | hotkeyCode"></span>
-                            </div>
-                            <div class="hotkey-input hotkey-placeholder"
-                            ng-if="secVm.showHotkeys && !secVm.hotkeyCapture">
-                                Press Keys to Bind!
-                            </div>
-                            <div class="hotkey-input hotkey-bound"
-                            ng-if="!secVm.showHotkeys && secVm.cue._hotkey">
-                                <span ng-bind="secVm.cue._hotkey | hotkeyCode"></span>
-                            </div>
-                            <div class="hotkey-input hotkey-none"
-                            ng-if="!secVm.showHotkeys && !secVm.cue._hotkey">
-                                No hotkey bound
+                            <div class="hotkey-input-container">
+                                <div class="hotkey-input hotkey-capture" ng-if="secVm.showHotkeys && secVm.hotkeyCapture">
+                                    <span ng-if="secVm.hotkeyCapture.ctrlKey">Ctrl + </span>
+                                    <span ng-if="secVm.hotkeyCapture.shiftKey">Shift + </span>
+                                    <span ng-bind="secVm.hotkeyCapture.code | hotkeyCode"></span>
+                                </div>
+                                <div class="hotkey-input hotkey-placeholder"
+                                ng-if="secVm.showHotkeys && !secVm.hotkeyCapture">
+                                    Press Keys to Bind!
+                                </div>
+                                <div class="hotkey-input hotkey-bound"
+                                ng-if="!secVm.showHotkeys && secVm.cue._hotkey">
+                                    <span ng-bind="secVm.cue._hotkey | hotkeyCode"></span>
+                                </div>
+                                <div class="hotkey-input hotkey-none"
+                                ng-if="!secVm.showHotkeys && !secVm.cue._hotkey">
+                                    No hotkey bound
+                                </div>
                             </div>
                         </div>
 
-                        <div flex="none">
-                            <md-button class="md-accent "
-                             ng-click="secVm.captureHotkeys()">
-                                {{ secVm.showHotkeys ? 'Cancel' : 'Set Hotkey' }}
-                            </md-button>
-                        </div>
-                        <div flex="none"  ng-if="secVm.showHotkeys"
-                        style="margin-right: -16px">
-                            <md-button class="md-primary"
-                            ng-click="secVm.saveHotkeys()" ng-if="secVm.showHotkeys">Set Key</md-button>
+                        <div flex="none" style="margin-right: -16px">
+
+
+                            <md-button class="smallbutton md-accent md-hue-3"
+                            ng-style="{'visibility': secVm.showHotkeys ? 'visible':'hidden'}"
+                            ng-click="secVm.captureHotkeys()">Cancel</md-button>
+
+                            <md-button class="smallbutton md-primary" ng-if="secVm.showHotkeys"
+                            ng-click="secVm.saveHotkeys()">Set Key</md-button>
+
+                            <md-button class="smallbutton md-primary" ng-if="!secVm.showHotkeys"
+                             ng-click="secVm.captureHotkeys()">Record Key</md-button>
                         </div>
                     </div>
             </div>
 
-            <div>
+            <!-- List of assigned files -->
+            <div class="editcue-assignedfiles">
                 <div class="faux-label" layout="row">
                     <div>Assigned Audio File(s)</div>
                     <span flex></span>
@@ -184,7 +191,7 @@
                     </a>
                 </div>
             </div>
-            <div flex layout-fill>
+            <div flex layout-fill class="editcue-filelist-container">
                 <select multiple class="editcue-filelist md-primary"
                         ng-dblclick="secVm.addFilesToCue()"
                         ng-click="secVm.selectAssignedMedia('select')"
@@ -196,7 +203,7 @@
 
             <div flex="none" style="margin-top: -2px;">
                 <input class="editcue-filelist-filter"
-                ng-model="secVm.filterFiles" placeholder="Filter files">
+                ng-model="secVm.filterFiles" placeholder="Search filenames...">
             </div>
 
             <div flex="none" layout="row">
@@ -208,7 +215,8 @@
                 <span flex></span>
             </div>
 
-            <div flex="none" class="editmedia-player">
+            <div flex="none" class="editmedia-player"
+            ng-class="{'visible': !!secVm.channel.media }">
                 <syn-channel-player channel="secVm.channel" mode="preview"></syn-channel-player>
             </div>
         </div>

@@ -44,6 +44,11 @@ div[dnd-list] .dndDraggingSource {
   font-size: 75%;
   margin-bottom: 4px; }
 
+.editcue-assignedfiles {
+  border-top: solid 1px rgba(0, 0, 0, 0.1);
+  margin-top: 8px;
+  padding-top: 8px; }
+
 .editcue-column:first-child {
   padding-right: 16px; }
 
@@ -64,16 +69,21 @@ div[dnd-list] .dndDraggingSource {
   .editcue-filelist-filter {
     border: solid 1px rgba(0, 0, 0, 0.1);
     font-size: 12px;
-    padding: 8px 8px 4px 8px;
+    padding: 8px;
+    position: relative;
     width: 100%; }
     .editcue-filelist-filter:focus {
       border-color: #e91e63;
       outline: none; }
 
 .editcue-hotkey .hotkey-input {
+  display: inline;
   font-size: 14px;
   line-height: 20px;
-  padding: 4px 8px;
+  padding: 4px 16px; }
+
+.editcue-hotkey .hotkey-input-container {
+  display: flex;
   margin: 8px 0; }
 
 .editcue-hotkey .hotkey-capture {
@@ -81,7 +91,11 @@ div[dnd-list] .dndDraggingSource {
 
 .editcue-hotkey .hotkey-capture, .editcue-hotkey .hotkey-placeholder {
   background-color: #fff;
-  border: solid 1px rgba(0, 0, 0, 0.2); }
+  color: #e91e63;
+  border: solid 2px #e91e63; }
+
+.editcue-hotkey .hotkey-bound {
+  border: solid 1px rgba(0, 0, 0, 0.1); }
 
 .editcue-hotkey .hotkey-placeholder, .editcue-hotkey .hotkey-none {
   font-style: italic;
@@ -148,7 +162,13 @@ div[dnd-list] .dndDraggingSource {
   height: 600px; }
 
 .editmedia-player {
-  margin: 8px 0; }
+  margin: 8px 0;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  visibility: hidden; }
+  .editmedia-player.visible {
+    visibility: visible;
+    opacity: 1; }
 
 .editmedia-rightcolumn {
   width: 240px; }
@@ -188,7 +208,7 @@ div[dnd-list] .dndDraggingSource {
     width: 100%; }
     .managelist-section-input:focus {
       outline: none;
-      border-bottom-color: #368BE6; }
+      border-bottom-color: #1e88e5; }
   .managelist-section-name {
     font-weight: 300;
     padding: 4px 8px; }

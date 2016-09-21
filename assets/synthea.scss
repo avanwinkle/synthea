@@ -24,8 +24,16 @@ button:active, button:focus {
 	border: none;
 }
 
+button.md-button.smallbutton {
+	font-size: 12px;
+	min-width: 40px;
+}
+
 md-input-container.nobottom {
 	margin-bottom: 0;
+}
+md-input-container.noerror .md-errors-spacer {
+	display: none;
 }
 
 .md-input-suffix {
@@ -236,7 +244,7 @@ md-input-container.nobottom {
 		}
 
 		&.current {
-			background-color: $syn-accent;
+			background-color: $syn-accent-500;
 			color: #fff;
 		}
 
@@ -323,7 +331,7 @@ md-input-container.nobottom {
 	}
 
 	&.channelState-PLAYING {
-		background-color: $syn-accent;
+		background-color: $syn-accent-500;
 	}
 
 	&.channelState-STOPPING, &.channelState-STOPPED {

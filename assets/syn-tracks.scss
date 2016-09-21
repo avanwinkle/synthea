@@ -1,9 +1,5 @@
 @import 'syn-common.scss';
 
-$queue-container-height: 64px;
-$track-container-height: 96px;
-$expanded-container-height: 144px;
-$track-trans-time: 0.5s;
 
 // A container that holds a channel players
 .track-container-player {
@@ -130,7 +126,7 @@ $track-trans-time: 0.5s;
     transition: opacity $track-trans-time ease-in-out, transform $track-trans-time ease-in-out;
 
     &.active {
-        stroke: $syn-accent;
+        stroke: $syn-accent-400;
 
         svg {
             background-color: rgba(0,0,0,0.12);
@@ -140,13 +136,16 @@ $track-trans-time: 0.5s;
     }
 
     &-subtitle {
-        bottom: -4px;
+        // Cutting off the volume icon looks better than trying to fit both
+        background-color: $track-background;
+        bottom: 2px;
         color: #666;
         font-size: 10px;
+        left:0;
+        line-height: 1.2;
         right:0;
         position:absolute;
         text-align: center;
-        width: 40px;
     }
 }
 

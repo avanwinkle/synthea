@@ -95,11 +95,10 @@ SynMediaController.prototype.selectMedia = function() {
 
         // Mock out a cue object and load it into the channel
         this.channel.loadCue({
-            name: this.selectedMedia.name,
+            _audioRoot: this.SynProject_.getProjectDef().documentRoot + '/audio/',
             isFadeIn: false,
-            _fullPath:
-                this.SynProject_.getProjectDef().documentRoot + '/audio/' +
-                this.selectedMedia.name
+            name: this.selectedMedia.name,
+            sources: [this.selectedMedia.name],
         },{
             dontUnload: true,
             forceFadeOut: false,
@@ -137,7 +136,6 @@ SynMediaController.prototype.selectMedia = function() {
 };
 
 SynMediaController.prototype.showFile = function() {
-    console.log(this.selectedMedia)
     this.SynProject_.showFile( this.selectedMedia.name);
 };
 

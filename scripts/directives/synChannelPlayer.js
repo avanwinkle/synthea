@@ -8,9 +8,7 @@ angular
     return {
         link: function(scope,ele,attrs) {
             scope.ele = ele;
-            console.log(attrs)
             scope.mode = attrs.mode || 'player';
-            console.log(scope)
         },
         controller: SynChannelPlayerController,
         controllerAs: 'cVm',

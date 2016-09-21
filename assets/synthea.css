@@ -34,8 +34,15 @@ button:active, button:focus {
   outline: none;
   border: none; }
 
+button.md-button.smallbutton {
+  font-size: 12px;
+  min-width: 40px; }
+
 md-input-container.nobottom {
   margin-bottom: 0; }
+
+md-input-container.noerror .md-errors-spacer {
+  display: none; }
 
 .md-input-suffix {
   color: #666;
@@ -178,7 +185,7 @@ md-input-container.nobottom {
     #page-tabs .page-tab:focus {
       background-color: #999; }
     #page-tabs .page-tab.current {
-      background-color: #368BE6;
+      background-color: #2196F3;
       color: #fff; }
     #page-tabs .page-tab:not(.current):hover {
       background-color: #999;
@@ -223,7 +230,7 @@ md-input-container.nobottom {
   position: absolute;
   top: 4px;
   left: -4px;
-  background-color: #6f8dae;
+  background-color: #5d84a6;
   border-radius: 8px;
   border: solid 1px rgba(0, 0, 0, 0.1);
   height: 18px;
@@ -236,7 +243,7 @@ md-input-container.nobottom {
   .cueButton-badge.channelState-ERROR {
     background-color: transparent; }
   .cueButton-badge.channelState-PLAYING {
-    background-color: #368BE6; }
+    background-color: #2196F3; }
   .cueButton-badge.channelState-STOPPING, .cueButton-badge.channelState-STOPPED {
     background-color: #999; }
   .cueButton-badge.channelState-QUEUING, .cueButton-badge.channelState-QUEUED {

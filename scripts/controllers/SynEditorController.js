@@ -61,11 +61,14 @@ SynEditorController.prototype.addCue = function(idx, section, $event) {
 
     // Set a default subgroup? If the board configuration says so
     switch (this.project.config.boardType) {
+        // If we know the subgroup.
+        // TODO: Handle arbitrary subgroups?
         case "music":
-            newCue.subgroup = 'music';
-            break;
         case "ambient":
-            newCue.subgroup = 'ambient';
+        case "rain":
+        case "fire":
+        case "wind":
+            newCue.subgroup = this.project.config.boardType;
             break;
         default:
             newCue.subgroup = null;
@@ -87,6 +90,7 @@ SynEditorController.prototype.addCue = function(idx, section, $event) {
         // Store the cue ids on the sections
         // AVW: This double check is from the legacy migration, won't need in future
         if (!section.cue_ids) {
+            console.warn('Migration: section does not have cue ids array');
             section.cue_ids = [];
         }
         section.cue_ids.push(newCue.id);
@@ -166,7 +170,10 @@ SynEditorController.prototype.editCue = function(cue,$event) {
             angular.merge(cue,response);
 
             // MIGRATION: Not all projects have subgroups
-            // if (!this.project.subgroups) { this.project.subgroups = {}; }
+            if (!this.project.subgroups) {
+                console.warn('Migration: project files need subgroups.');
+                this.project.subgroups = {};
+            }
 
             // If this cue has a subgroup, make sure the project knows
             // (i.e. this might be a new subgroup)
@@ -177,7 +184,7 @@ SynEditorController.prototype.editCue = function(cue,$event) {
                 };
             }
 
-            // If this cue has a hotkey (and an id)
+            // If this cue has a hotkey (and an id. New cues need to get ids first)
             if (cue.id && cue._hotkey) {
                 // Make sure the id matches this cue
                 cue._hotkey.cue_id = cue.id;
@@ -280,6 +287,12 @@ SynEditorController.prototype.saveProject = function() {
     this.SynProject_.saveProject();
 };
 
+/**
+ * Receive a hotkey object from the SynEditCueController and update the project
+ * layout hotkeys configuration.
+ *
+ * @param  {object} hotkey A hotkey object with cue_id and _code properties
+ */
 SynEditorController.prototype._attachHotkey = function(hotkey) {
 
     // Only one hotkey per cue
@@ -289,13 +302,22 @@ SynEditorController.prototype._attachHotkey = function(hotkey) {
         }
     }.bind(this));
 
-    // Remove reference pointing-ness by using a copy
+    // Remove reference pointing-ness by creaty a copy of the hotkey object
     this.project.hotKeys[hotkey._code] = angular.copy(hotkey);
-    // Clear out the temporary hotkey _code
+    // Clear out the temporary hotkey _code, don't need that anymore
     delete( this.project.hotKeys[hotkey._code]._code );
 
 };
 
+/**
+ * Method for managing a list of items in a project, e.g. sections or pages.
+ * This method opens a dialog window with the list manager after pulling the
+ * appropriate items into an array.
+ *
+ * @param  {$event} $event   Click event (for modal positioning)
+ * @param  {string} listtype Type of items to manage ('pages','sections')
+ * @param  {integer} page_id  Current page number (for managing sections)
+ */
 SynEditorController.prototype._manageList = function($event, listtype, page_id) {
 
     // Assemble the appropriate array of objects to manage
