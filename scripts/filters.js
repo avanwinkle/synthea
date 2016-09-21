@@ -4,6 +4,7 @@
 angular
     .module('SyntheaCore')
     .filter('cuesFromIds', cuesFromIds)
+    .filter('hotkeyCode', hotkeyCode)
     .filter('isActive', isActive)
     .filter('isQueued', isQueued)
     .filter('secondsToTimecode', secondsToTimecode);
@@ -34,6 +35,16 @@ function cuesFromIds() {
             }
         });
         return filtered;
+    };
+}
+
+function hotkeyCode() {
+    return function(code) {
+        if (typeof(code)!=='string') { return undefined; }
+        return code
+            .replace(/^Digit/,'')
+            .replace(/^Key/,'')
+            .replace(/^Numpad/,'Num');
     };
 }
 

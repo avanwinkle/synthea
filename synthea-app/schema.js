@@ -92,7 +92,25 @@ var projectSchema = {
     },
     "hotKeys": {
       "type": "object",
-      "properties": {}
+      "properties": {},
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+            "accelAlt": {
+                "type": "boolean"
+            },
+            "accelCtrl": {
+                "type": "boolean"
+            },
+            "action": {
+                "type": "string"
+            },
+            "cue_id": {
+                "type": "integer"
+            }
+        },
+        "required": ["action","cue_id"]
+      }
     },
     "key": {
       "type": "string"

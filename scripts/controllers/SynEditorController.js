@@ -75,6 +75,13 @@ SynEditorController.prototype.addCue = function(idx, section, $event) {
     this.editCue(newCue,$event).then(function(response) {
         // If success? Give it an id!
         newCue.id = this.idCount++;
+
+        // Do we need to update a hotkey with the new id?
+        if (newCue._hotkey) {
+            newCue._hotkey.cue_id = newCue.id;
+            this._attachHotkey(newCue._hotkey);
+        }
+
         // And add it to the project
         this.project.cues.push(newCue);
         // Store the cue ids on the sections
@@ -159,7 +166,7 @@ SynEditorController.prototype.editCue = function(cue,$event) {
             angular.merge(cue,response);
 
             // MIGRATION: Not all projects have subgroups
-            if (!this.project.subgroups) { this.project.subgroups = {}; }
+            // if (!this.project.subgroups) { this.project.subgroups = {}; }
 
             // If this cue has a subgroup, make sure the project knows
             // (i.e. this might be a new subgroup)
@@ -169,6 +176,14 @@ SynEditorController.prototype.editCue = function(cue,$event) {
                     isFadeIn: undefined
                 };
             }
+
+            // If this cue has a hotkey (and an id)
+            if (cue.id && cue._hotkey) {
+                // Make sure the id matches this cue
+                cue._hotkey.cue_id = cue.id;
+                this._attachHotkey(cue._hotkey);
+            }
+
             // Resolve with the original (yet updated cue)
             defer.resolve(cue);
         }
@@ -263,6 +278,22 @@ SynEditorController.prototype.saveAndClose = function() {
 // TODO: Combine the saveProject and saveAndClose
 SynEditorController.prototype.saveProject = function() {
     this.SynProject_.saveProject();
+};
+
+SynEditorController.prototype._attachHotkey = function(hotkey) {
+
+    // Only one hotkey per cue
+    angular.forEach( this.project.hotKeys, function(keyobj,keycode) {
+        if (keyobj.cue_id===hotkey.cue_id) {
+            delete(this.project.hotKeys[keycode]);
+        }
+    }.bind(this));
+
+    // Remove reference pointing-ness by using a copy
+    this.project.hotKeys[hotkey._code] = angular.copy(hotkey);
+    // Clear out the temporary hotkey _code
+    delete( this.project.hotKeys[hotkey._code]._code );
+
 };
 
 SynEditorController.prototype._manageList = function($event, listtype, page_id) {

@@ -204,7 +204,13 @@ function SynProject($http,$q,$log) {
 
         // Map the cues to the hotkeys so we can call the cue directly
         angular.forEach(project.hotKeys, function(h) {
-            h.cue = cue_ids[h.target];
+            // MIGRATION: target to cue_id
+            if (h.target) {
+                console.warn('Hotkey.target is deprecated. Please use hotkey.cue_id');
+                h.cue_id = h.target;
+                delete(h.target);
+            }
+            h._cue = cue_ids[h.cue_id];
         });
 
         // Do we have a nice image? Show it!

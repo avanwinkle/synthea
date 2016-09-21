@@ -5,21 +5,23 @@ angular
     .module('SyntheaApp')
     .controller('SynEditCueController', SynEditCueController);
 
-SynEditCueController.$inject = ['SynChannel','SynProject','$mdDialog'];
+SynEditCueController.$inject = ['SynChannel','SynProject','$mdDialog','$scope'];
 
 /**
  * Controller for the modal to edit a single cue (includes creating new cues)
  */
-function SynEditCueController(SynChannel,SynProject,$mdDialog) {
+function SynEditCueController(SynChannel,SynProject,$mdDialog,$scope) {
 
     var secVm = this;
 
     this.SynProject_ = SynProject;
     this.$mdDialog_ = $mdDialog;
+    this.$scope_ = $scope;
 
 
     // Make a channel to preview sources
     this.channel = new SynChannel();
+
 
     // The files selected in the file menu are not immediately atteched
     secVm.selectedFiles = [];
@@ -40,7 +42,13 @@ SynEditCueController.prototype.activate = function() {
     // Make a holding value for the volume
     this.volume_pct = this.cue.volume * 100 || undefined;
 
-
+    // Do we have a hotkey?
+    angular.forEach(this.SynProject_.getProject().hotKeys, function(keyobj,keycode) {
+        if (keyobj.cue_id === this.cue.id) {
+            this.cue._hotkey = keycode;
+        }
+    }.bind(this));
+    window.cue = this.cue;
 };
 
 /**
@@ -58,6 +66,15 @@ SynEditCueController.prototype.$close = function() {
     if (this.volume_pct) {
         this.cue.volume = this.volume_pct / 100;
     }
+    // Make the hotkey into an object
+    if (this.cue._hotkey) {
+        this.cue._hotkey = {
+            action: 'PLAY',
+            cue_id: this.cue._id,
+            _code: this.cue._hotkey
+        };
+    }
+
     this.$mdDialog_.hide(this.cue);
 };
 
@@ -89,6 +106,29 @@ SynEditCueController.prototype.addFilesToCue = function() {
 
         this.cue.name = name;
     }
+
+};
+
+SynEditCueController.prototype.captureHotkeys = function() {
+    // ALready doing? Cancel
+    this.showHotkeys = !this.showHotkeys;
+
+    if (!this.showHotkeys) {
+        document.removeEventListener('keypress', this.hotkeyListener);
+        return;
+    }
+
+    this.hotkeyListener = function(e) {
+        // Prevent propagation, naturally
+        e.preventDefault();
+
+        this.hotkeyCapture = e;
+
+        this.$scope_.$apply();
+
+    }.bind(this);
+
+    document.addEventListener('keypress', this.hotkeyListener);
 
 };
 
@@ -145,8 +185,26 @@ SynEditCueController.prototype.removeSource = function(filename) {
 
 };
 
+SynEditCueController.prototype.saveHotkeys = function() {
+
+    this.cue._hotkey =
+        (this.hotkeyCapture.ctrlKey ? 'Ctrl.':'') +
+        (this.hotkeyCapture.altKey ? 'Alt.' : '') +
+        (this.hotkeyCapture.shiftKey ? 'Shift.' : '') +
+        this.hotkeyCapture.code;
+
+    if (this.hotkeyCapture.altKey) { this.cue._hotkey.accelAlt = true; }
+    if (this.hotkeyCapture.ctrlKey) { this.cue._hotkey.accelCtrl = true; }
+    if (this.hotkeyCapture.shiftKey) { this.cue._hotkey.accelShift = true; }
+
+    // Destroy the listener
+    document.removeEventListener('keypress', this.hotkeyListener);
+    // And the boolean
+    this.showHotkeys = false;
+
+};
+
 SynEditCueController.prototype.selectAssignedMedia = function(src) {
-    console.log('select media:',src)
     // Unselect?
     if (!src) {
         this.selectedAssignedMedia = undefined;

@@ -81,14 +81,14 @@ function SynPlayerController(SynMixer,SynProject,$location,$log,$scope,$timeout)
             if (this.project.hotKeys.hasOwnProperty(code)) {
                 var hotkey = this.project.hotKeys[code];
                 // Is there a cue that matches this key?
-                if (hotkey.cue) {
+                if (hotkey._cue) {
                     // SHIFT to queue, no shift to play
                     // AVW: Does this make sense? I'm going both ways on how
                     // shift is to be handled... out to sort that out...
                     if (e.shiftKey) {
-                        this.mixer.queue(hotkey.cue);
+                        this.mixer.queue(hotkey._cue);
                     } else {
-                        this.mixer.play(hotkey.cue);
+                        this.mixer.play(hotkey._cue);
                     }
                 }
             }

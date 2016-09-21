@@ -98,6 +98,45 @@
             </div>
 
             <div>
+                    <div class="faux-label">Hotkey</div>
+
+                    <div layout="row" class="editcue-hotkey">
+
+                        <div class="editcue-hotkey-code" flex>
+                            <div class="hotkey-input hotkey-capture" ng-if="secVm.showHotkeys && secVm.hotkeyCapture">
+                                <span ng-if="secVm.hotkeyCapture.ctrlKey">Ctrl + </span>
+                                <span ng-if="secVm.hotkeyCapture.shiftKey">Shift + </span>
+                                <span ng-bind="secVm.hotkeyCapture.code | hotkeyCode"></span>
+                            </div>
+                            <div class="hotkey-input hotkey-placeholder"
+                            ng-if="secVm.showHotkeys && !secVm.hotkeyCapture">
+                                Press Keys to Bind!
+                            </div>
+                            <div class="hotkey-input hotkey-bound"
+                            ng-if="!secVm.showHotkeys && secVm.cue._hotkey">
+                                <span ng-bind="secVm.cue._hotkey | hotkeyCode"></span>
+                            </div>
+                            <div class="hotkey-input hotkey-none"
+                            ng-if="!secVm.showHotkeys && !secVm.cue._hotkey">
+                                No hotkey bound
+                            </div>
+                        </div>
+
+                        <div flex="none">
+                            <md-button class="md-accent "
+                             ng-click="secVm.captureHotkeys()">
+                                {{ secVm.showHotkeys ? 'Cancel' : 'Set Hotkey' }}
+                            </md-button>
+                        </div>
+                        <div flex="none"  ng-if="secVm.showHotkeys"
+                        style="margin-right: -16px">
+                            <md-button class="md-primary"
+                            ng-click="secVm.saveHotkeys()" ng-if="secVm.showHotkeys">Set Key</md-button>
+                        </div>
+                    </div>
+            </div>
+
+            <div>
                 <div class="faux-label" layout="row">
                     <div>Assigned Audio File(s)</div>
                     <span flex></span>

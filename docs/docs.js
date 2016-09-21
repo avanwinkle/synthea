@@ -24,22 +24,22 @@ function SyntheaDocsConfig($locationProvider,$mdThemingProvider,$routeProvider) 
 
     $routeProvider
     .when('/cues', {
-        templateUrl: 'templates/cues.html',
+        templateUrl: 'templates/docs-cues.html',
     })
     .when('/editing', {
-        templateUrl: 'templates/editing.html',
+        templateUrl: 'templates/docs-editing.html',
     })
     .when('/help', {
-        templateUrl: 'templates/help.html',
+        templateUrl: 'templates/docs-help.html',
     })
     .when('/playing', {
-        templateUrl: 'templates/playing.html',
+        templateUrl: 'templates/docs-playing.html',
     })
     .when('/media', {
-        templateUrl: 'templates/media.html',
+        templateUrl: 'templates/docs-media.html',
     })
     .otherwise({
-        templateUrl: 'templates/intro.html'
+        templateUrl: 'templates/docs-intro.html'
     });
 
 }
