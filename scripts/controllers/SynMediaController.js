@@ -16,9 +16,10 @@ function SynMediaController(SynChannel,SynProject,$filter,$mdDialog,$scope) {
     this.$cancel = $mdDialog.cancel;
     this.$hide = $mdDialog.hide;
 
-    // Stop playback if this controller is destroyed
+    // Stop the channel when the modal is closed
     $scope.$on('$destroy', function() {
-        this.channel.stop();
+        // Need to force unload, otherwise the channel will reset and restart
+        this.channel.stop({forceUnload:true});
     }.bind(this));
 
     this.activate();
@@ -67,8 +68,7 @@ SynMediaController.prototype.deleteMedia = function() {
 
 /**
  * Wrap the deleteCue method so we can update the view when it completes
- * @param  {[type]} cue [description]
- * @return {[type]}     [description]
+ * @param  {Cue} cue Cue object to be deleted
  */
 SynMediaController.prototype.goDeleteCue = function(cue) {
 

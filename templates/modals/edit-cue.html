@@ -197,11 +197,11 @@
                         ng-click="secVm.selectAssignedMedia('select')"
                         ng-model="secVm.selectedFiles"
                         ng-disabled="secVm.cue.sources.indexOf(file)!==-1"
-                        ng-options="file for file in secVm.mediaList | filter: secVm.filterFiles">
+                        ng-options="file for file in secVm.mediaList track by $index| filter: secVm.filterFiles">
                 </select>
             </div>
 
-            <div flex="none" style="margin-top: -2px;">
+            <div flex="none" class="editcue-filelist-filter-container">
                 <input class="editcue-filelist-filter"
                 ng-model="secVm.filterFiles" placeholder="Search filenames...">
             </div>
@@ -216,7 +216,7 @@
             </div>
 
             <div flex="none" class="editmedia-player"
-            ng-class="{'visible': !!secVm.channel.media }">
+            ng-class="{'visible': !!secVm.channel }">
                 <syn-channel-player channel="secVm.channel" mode="preview"></syn-channel-player>
             </div>
         </div>

@@ -22,6 +22,11 @@ function SynEditCueController(SynChannel,SynProject,$mdDialog,$scope) {
     // Make a channel to preview sources
     this.channel = new SynChannel();
 
+    // Stop the channel when the modal is closed
+    $scope.$on('$destroy', function() {
+        // Need to force unload, otherwise the channel will reset and restart
+        this.channel.stop({forceUnload:true});
+    }.bind(this));
 
     // The files selected in the file menu are not immediately atteched
     secVm.selectedFiles = [];
@@ -255,7 +260,9 @@ SynEditCueController.prototype.updateVolume = function() {
         this.volume_pct = Math.max(0, Math.min(this.volume_pct,200));
     }
     // Change the player volume level without changing the cue
-    this.channel.setFullVolume(this.volume_pct);
+    if (this.channel.media) {
+        this.channel.setFullVolume(this.volume_pct);
+    }
 };
 
 // IIFE

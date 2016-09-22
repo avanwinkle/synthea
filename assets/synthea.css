@@ -287,6 +287,27 @@ md-input-container.noerror .md-errors-spacer {
   .cueButton-handle-container {
     line-height: 2.2; }
 
+md-dialog#searchcue-dialog {
+  background-color: transparent;
+  border-radius: 0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25); }
+
+.searchcue {
+  background-color: rgba(200, 200, 200, 0.6);
+  width: 600px;
+  max-width: 100%; }
+  .searchcue #searchcue-input {
+    font-size: 24px;
+    line-height: 56px;
+    height: 56px; }
+  .searchcue-container {
+    height: 56px; }
+  .searchcue md-autocomplete-wrap {
+    background-color: transparent;
+    height: 56px; }
+  .searchcue-result-title {
+    text-align: left; }
+
 .weblink {
   color: #e91e63;
   cursor: pointer; }

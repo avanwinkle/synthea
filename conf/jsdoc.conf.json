@@ -1,0 +1,1 @@
+{ "plugins": [ "plugins/strip-outer-iife.js" ] }

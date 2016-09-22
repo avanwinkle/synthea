@@ -61,8 +61,10 @@ div[dnd-list] .dndDraggingSource {
   border-color: rgba(0, 0, 0, 0.2);
   font-size: 12px;
   height: 100%;
-  margin-top: 4px;
   width: 100%; }
+  .editcue-filelist:focus {
+    border-color: #e91e63;
+    outline: none; }
   .editcue-filelist-add {
     cursor: pointer;
     font-size: 12px; }
@@ -72,6 +74,8 @@ div[dnd-list] .dndDraggingSource {
     padding: 8px;
     position: relative;
     width: 100%; }
+    .editcue-filelist-filter-container {
+      margin-top: -1px; }
     .editcue-filelist-filter:focus {
       border-color: #e91e63;
       outline: none; }

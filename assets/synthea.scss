@@ -413,6 +413,43 @@ md-input-container.noerror .md-errors-spacer {
 
 }
 
+$searchcue-size: 56px;
+
+md-dialog#searchcue-dialog {
+	background-color: transparent;
+	border-radius: 0;
+	box-shadow: 0 2px 5px rgba(0,0,0,0.25);
+}
+
+.searchcue {
+
+	background-color: rgba(200,200,200,0.6);
+	width: 600px;
+	max-width: 100%;
+
+	#searchcue-input {
+		font-size: 24px;
+		line-height: $searchcue-size;
+		height: $searchcue-size;
+	}
+
+	&-container {
+		height: $searchcue-size;
+	}
+
+	md-autocomplete-wrap {
+		background-color: transparent;
+		height: $searchcue-size;
+	}
+
+	&-result {
+
+		&-title {
+			text-align: left;
+		}
+	}
+}
+
 .weblink {
 	color: $syn-danger;
 	cursor: pointer;

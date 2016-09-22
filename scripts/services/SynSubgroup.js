@@ -1,4 +1,4 @@
-(function() {
+(function(){
 'use strict';
 
 angular
@@ -173,13 +173,14 @@ function SynSubgroup(SynChannel,SynProject,$mdToast) {
             if (!opts.autoplay) {
                 channel.stop();
             }
-            // Are we paused? Then play!
-            else if (channel.state==='PAUSED') {
-                channel.play();
+            // Subgroups, don't double-do it. If a subgroup cue is already
+            // playing, ignore the hotkey
+            else if (channel.media.subgroup && channel.is_playing) {
+
             }
-            // Are we playing? Then pause!
-            else if (channel.state==='PLAYING') {
-                channel.pause();
+            // Non-subgroups (or non-playing subgroups), play immediately.
+            else {
+                channel.play();
             }
 
             return channel;

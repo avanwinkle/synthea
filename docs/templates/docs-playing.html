@@ -4,6 +4,7 @@
     <li><a class="internal-link" scroll-to="sec-quickstart">Quickstart</a></li>
     <li><a class="internal-link" scroll-to="sec-opening">Opening a Project</a></li>
     <li><a class="internal-link" scroll-to="sec-board">The Synthea Soundboard</a></li>
+    <li><a class="internal-link" scroll-to="sec-search">Quick-Searching Cues</a></li>
     <li><a class="internal-link" scroll-to="sec-cloud">Cloud Projects</a></li>
 </ul>
 
@@ -15,7 +16,8 @@
             <li><instr>&lt;Click&gt;</instr> a cue button to play it</li>
             <li><instr>&lt;Right-Click&gt;</instr> a cue button to queue it</li>
             <li><instr>[Spacebar]</instr> to play all queued cues</li>
-            <li><instr>[Backspace]</instr></b> to stop all playing cues</li>
+            <li><instr>[Backspace]</instr> to stop all playing cues</li>
+            <li><instr>[Tab]</instr> to search for (and play/queue) a cue</li>
         </ul>
     </div>
 </section>
@@ -29,7 +31,7 @@
         <p>Synthea keeps a Projects Folder for storing projects you
         create, and all projects in this folder can be seen in the <b>Projects</b>
         menu. Select any project from the menu to open it.</p>
-        <p><i>NOTE: Newly-created and deleted projects will not be reflected
+        <p><i>NOTE: Newly-created and deleted projects will not be updated
         in the Projects menu until after Synthea restarts.</i></p>
         <p>You can browse the Projects Folder directly by selecting <b>Projects &gt; Go to Projects Folder</b>, and you can change the Projects Folder by selecting <b>Projects &gt; Change Projects Folder&hellip;</b></p>
     </div>
@@ -75,10 +77,10 @@
                 <ul>
                     <li><instr>&lt;Click&gt;</instr> to play</li>
                     <li><instr>&lt;Right-Click&gt;</instr> to queue</li>
-                    <li>(Playing) <instr>&lt;Click&gt;</instr> to pause</li>
-                    <li>(Playing) <instr>&lt;Right-Click&gt;</instr> to stop</li>
-                    <li>(Queued) <instr>&lt;Click&gt;</instr> to play</li>
+                    <!-- <li>(Queued) <instr>&lt;Click&gt;</instr> to play</li> -->
                     <li>(Queued) <instr>&lt;Right-Click&gt;</instr> to unqueue</li>
+                    <!-- <li>(Paused) <instr>&lt;Click&gt;</instr> to resume</li> -->
+                    <li>(Playing) <instr>&lt;Right-Click&gt;</instr> to stop</li>
                 </ul>
             </p>
             <p>
@@ -115,6 +117,32 @@
     </div>
 </section>
 
+<section id="sec-search" class="section">
+    <div class="section-header">Quick-Searching Cues</div>
+
+    <div class="section-body">
+        <p>At any time, press <instr>[Tab]</instr> to bring up a cue search box. Type part of a
+        cue name to see a list of matching cues in the project.
+        </p>
+
+
+        <div class="section-screenshot">
+            <img class="section-screenshot-image"
+            alt="Cue search dialog"
+            style="max-width: 600px;"
+            src="images/sshot-search.png">
+        </div>
+
+        <ul>
+            <li><instr>&lt;Click&gt;</instr> a cue to play it</li>
+            <li><instr>&lt;Click&gt;</instr> a cue&apos;s queue icon (<md-icon class="material-icons">playlist_play</md-icon>) to queue it</li>
+            <li><instr>[Up/Down]</instr> to highlight a cue in the list</li>
+            <li><instr>[Enter]</instr> to play the highlighted cue</li>
+            <li><instr>[Shift + Enter]</instr> to queue the highlighted cue</li>
+            <li><instr>[Escape]</instr> to close the search box</li>
+        </ul>
+    </div>
+</section>
 
 <section id="sec-cloud" class="section">
     <div class="section-header">Cloud Projects</div>

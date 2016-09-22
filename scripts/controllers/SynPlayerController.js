@@ -6,7 +6,7 @@ angular
     .module('SyntheaApp')
     .controller("SynPlayerController", SynPlayerController);
 
-SynPlayerController.$inject = ['SynMixer','SynProject','$location','$log','$scope','$timeout'];
+SynPlayerController.$inject = ['SynMixer','SynProject','$filter','$location','$log','$mdDialog','$scope','$timeout'];
 
 /**
  * The main controller for the "player" view, aka the board when in playback mode.
@@ -17,15 +17,17 @@ SynPlayerController.$inject = ['SynMixer','SynProject','$location','$log','$scop
  * @property {SynMixer} [SynMixer_] Internal reference to the SynMixer service
  * @property {SynProject} [SynProject_] Internal reference to the SynProject service
  */
-function SynPlayerController(SynMixer,SynProject,$location,$log,$scope,$timeout) {
+function SynPlayerController(SynMixer,SynProject,$filter,$location,$log,$mdDialog,$scope,$timeout) {
 
     var spVm = this;
     window.spVm = spVm;
 
     this.SynMixer_ = SynMixer;
     this.SynProject_ = SynProject;
+    this.$filter_ = $filter;
     this.$location_ = $location;
     this.$log_ = $log;
+    this.$mdDialog_ = $mdDialog;
     this.$scope_ = $scope;
     this.$timeout_ = $timeout;
 
@@ -59,7 +61,7 @@ function SynPlayerController(SynMixer,SynProject,$location,$log,$scope,$timeout)
     // on the instance to be cancelable
     var _onKeyPress = function(e) {
         // If we're in an input, DON'T trigger any keypress events
-        if (e.target.nodeName === 'INPUT') {
+        if (e.target.nodeName === 'INPUT' || this.preventHotkeys) {
             return;
         }
 
@@ -108,6 +110,10 @@ function SynPlayerController(SynMixer,SynProject,$location,$log,$scope,$timeout)
             case 'Backspace':
                 this.mixer.stop();
                 break;
+            case 'Tab':
+                e.preventDefault();
+                this.openSearchDialog();
+                break;
         }
 
         // This is a non-angular event
@@ -136,6 +142,12 @@ SynPlayerController.prototype.activate =  function() {
     // Get our project and mixer and bind here for convenience
     this.project = this.SynProject_.getProject();
     this.mixer = this.SynMixer_.createMixer();
+
+    // Store some search
+    this.search = {
+        query: undefined,
+        selected: undefined,
+    };
 
 };
 
@@ -219,6 +231,45 @@ SynPlayerController.prototype.enableDJMode = function() {
 
 };
 
+
+/**
+ * Open a search dialog
+ * @return {Array<Cue>} List of cues matching search query
+ */
+SynPlayerController.prototype.openSearchDialog = function() {
+
+    // No hotkeys AT ALL
+    this.preventHotkeys = true;
+
+    this.$mdDialog_.show({
+        autoWrap: false,
+        clickOutsideToClose: true,
+        controller: 'SynCueSearchController',
+        controllerAs: 'csVm',
+        escapeToClose: true,
+        hasBackdrop: false,
+        templateUrl: 'templates/partials/cuesearch.html',
+
+    }).then(function(response) {
+        // console.log("Modal response says to queue?",response.queue)
+        if (response.cue) {
+            // Do we want to queue it?
+            if (response.queue) {
+                // console.log("GO GO GADGET CONTEXT")
+                this.contextCue(response.cue);
+            }
+            // Otherwise, play it!
+            else {
+                // console.log("ugh, select")
+                this.selectCue(response.cue);
+            }
+        }
+    }.bind(this)).finally(function() {
+        // console.log("restoring hotkeys")
+        this.preventHotkeys = false;
+    }.bind(this));
+};
+
 /**
  * Basic handling of a click on a cue object. Like this.contextCue, a basic
  * binding allows us to separate the OS-level event handling from the
@@ -234,10 +285,16 @@ SynPlayerController.prototype.enableDJMode = function() {
  */
 SynPlayerController.prototype.selectCue = function(cue,event) {
 
+    // We might get a false call, e.g. an empty search submission
+    if (!cue) { return; }
+
     // We can pass in a "force" value for fadeIn
     var forceFadeIn;
     if (event && event.shiftKey) { forceFadeIn = true; }
     else if (event && event.altKey) { forceFadeIn = false;}
+
+    // Clear the search box
+    this.search.query = undefined;
 
     // Use the mixer's method, which handles all the necessary
     // group and channel logic. It returns the channel that the cue

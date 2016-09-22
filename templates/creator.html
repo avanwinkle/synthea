@@ -35,6 +35,7 @@
                     <label>Project Name</label>
                     <input ng-model="scVm.project.name"
                     class="projectcreator-input"
+                    ng-change="scVm.checkAutoKey()"
                     md-no-asterisk="true"
                     placeholder="My New Soundboard"
                     autofocus
@@ -48,6 +49,8 @@
                 <md-input-container class="md-accent">
                     <label>Folder Name</label>
                     <input ng-model="scVm.project.key"
+                    ng-model-options="{updateOn: 'blur'}"
+                    ng-blur="scVm.setManualKey(scVm.project.key)"
                     class="projectcreator-input"
                     md-no-asterisk="true"
                     placeholder="myboard"
@@ -73,7 +76,7 @@
                     <label>Board Type</label>
                     <md-select ng-model="scVm.project.config.boardType">
                         <md-option value="music">Music</md-option>
-                        <md-option value="ambience">Ambience</md-option>
+                        <md-option value="ambient">Ambience</md-option>
                         <md-option ng-value="null">Sound Effects</md-option>
                     </md-select>
                     <div class="hint">
@@ -85,7 +88,7 @@
         </div>
 
         <div id="loader-footer" layout="row">
-            <md-button class="cancelbutton md-accent"
+            <md-button class="cancelbutton md-accent md-hue-3"
             ng-click="scVm.close()">Cancel</md-button>
             <span flex></span>
             <md-button class="md-primary"

@@ -1,4 +1,4 @@
-(function() {
+(function(){
 'use strict';
 
 angular
@@ -456,10 +456,9 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
 
             this.is_playing = false;
 
-            console.log(' -- channel '+this._id+' stopped');
-
             // Sometimes we don't want to flush everything
             if (this.dontUnload && !opts.forceUnload) {
+                console.log(' -- channel '+this._id+' stopped and reset');
                 // Hop to the beginning
                 this.setTime(0);
                 // Set a ready state
@@ -468,7 +467,7 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
 
             // But usually, yes we want to flush everything
             else {
-
+                console.log(' -- channel '+this._id+' stopped and unloaded');
                 // Clear out the flags so we're ready to use the channel again
                 this.state = 'STOPPED';
                 this.is_current = false;

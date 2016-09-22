@@ -53,6 +53,7 @@ function SyntheaAppRun() {
 require('howler');
 require('./SyntheaCore');
 require('./controllers/SyntheaController');
+require('./controllers/SynCueSearchController');
 require('./controllers/SynEditCueController');
 require('./controllers/SynEditorController');
 require('./controllers/SynListController');

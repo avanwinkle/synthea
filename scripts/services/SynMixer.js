@@ -1,4 +1,4 @@
-(function() {
+(function(){
 'use strict';
 
 angular
@@ -16,6 +16,8 @@ function SynMixer(SynSubgroup,SynProject) {
      * @private
      */
     var mixer;
+
+
 
     /**
      * Creates an instance of **SynMixer**, which is the Mixer singleton, the
@@ -133,7 +135,6 @@ function SynMixer(SynSubgroup,SynProject) {
 
     };
 
-
     return {
         createMixer: function() {
 
@@ -151,7 +152,6 @@ function SynMixer(SynSubgroup,SynProject) {
     };
 
 }
-
 
 // IIFE
 })();
