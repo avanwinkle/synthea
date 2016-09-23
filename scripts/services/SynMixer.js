@@ -84,7 +84,6 @@ function SynMixer(SynSubgroup,SynProject,$interval) {
      * Universal method to play a cue, really just a convenience method to call
      * `Mixer.queue` with `opts.autoplay = true`.
      *
-     * @name Mixer.play()
      * @param {Cue} cue - the Cue object to be played
      * @param {object} [opts] options to define playback
      * @return {Channel}
@@ -101,7 +100,6 @@ function SynMixer(SynSubgroup,SynProject,$interval) {
      * Universal method to queue a cue for playback (which essentially passes
      * the command down the line to Subgroup to Channel to Player)
      *
-     * @name Mixer.queue()
      * @param {Cue} cue - the Cue object to be queued
      * @param {object} [opts] - options for the cue playback
      * @return {Channel}

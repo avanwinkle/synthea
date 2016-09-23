@@ -46,11 +46,10 @@ function SynPlayerController(SynMixer,SynProject,$filter,$interval,$location,$lo
 
     // Listen for DJ Mode!
     ipcRenderer.on('toggle-dj', function(event) {
-        // Turn it off?
-        if (vars.is_dj_mode) {
-            this.stopAll();
-        }
-        else {
+        // Turn everything off, to start
+        this.stopAll();
+
+        if (!vars.is_dj_mode) {
             this.enableDJMode();
         }
 
@@ -206,8 +205,12 @@ SynPlayerController.prototype.enableDJMode = function() {
         // Play it, for one
         var channel = syn.selectCue(track);
 
+        if (syn._dj_timer) {
+            console.warn("DJ Timer exists!", syn._dj_timer);
+        }
+
         // Rather than promise, just set a time
-        syn.dj_timer_ = syn.$timeout_(function() {
+        syn._dj_timer = syn.$timeout_(function() {
 
             var playtime = channel.getDuration();
 
@@ -219,7 +222,7 @@ SynPlayerController.prototype.enableDJMode = function() {
             }
 
             // When the time is up, change! (But start a touch earlier)
-            syn.dj_timer_ =
+            syn._dj_timer =
                 syn.$timeout_(playThatFunkyMusic, playtime*1000-3000);
 
             // Undercut
@@ -228,7 +231,8 @@ SynPlayerController.prototype.enableDJMode = function() {
 
     }
 
-    playThatFunkyMusic();
+    // Wait a digest cycle to let any old dj timers destroy
+    this.$timeout_(playThatFunkyMusic,0);
 
 };
 
@@ -331,9 +335,9 @@ SynPlayerController.prototype.stopAll = function() {
     this.mixer.stop();
 
     // Do we have a DJ timer to cancel?
-    if (this.dj_timer_) {
+    if (this._dj_timer) {
         // Stop that funky music!
-        this.$timeout_.cancel(this.dj_timer_);
+        this.$timeout_.cancel(this._dj_timer);
     }
 };
 

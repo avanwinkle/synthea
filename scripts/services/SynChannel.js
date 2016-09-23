@@ -213,6 +213,17 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
         // on every friggin callback function we make for the Howl
         var channel = this;
 
+        // If there is an old player, dispose of it properly.
+        // AVW: This is primarily a last-ditch attempt to catch players and
+        // avoid orphaning Howls that make noise without controls. Typically
+        // happens when switching projects and/or using DJ mode, so should be
+        // resolved through bug tracking and tightening over time.
+        if (this._player) {
+            console.warn('Found an old player! What do we do?');
+            this._player.stop();
+            this._player.unload();
+        }
+
         this._player = new Howl({
             src: function(c) {
                 // There might be multiple sources
