@@ -6,7 +6,7 @@ angular
     .module('SyntheaApp')
     .controller("SynPlayerController", SynPlayerController);
 
-SynPlayerController.$inject = ['SynMixer','SynProject','$filter','$location','$log','$mdDialog','$scope','$timeout'];
+SynPlayerController.$inject = ['SynMixer','SynProject','$filter','$interval','$location','$log','$mdDialog','$scope','$timeout'];
 
 /**
  * The main controller for the "player" view, aka the board when in playback mode.
@@ -17,7 +17,7 @@ SynPlayerController.$inject = ['SynMixer','SynProject','$filter','$location','$l
  * @property {SynMixer} [SynMixer_] Internal reference to the SynMixer service
  * @property {SynProject} [SynProject_] Internal reference to the SynProject service
  */
-function SynPlayerController(SynMixer,SynProject,$filter,$location,$log,$mdDialog,$scope,$timeout) {
+function SynPlayerController(SynMixer,SynProject,$filter,$interval,$location,$log,$mdDialog,$scope,$timeout) {
 
     var spVm = this;
     window.spVm = spVm;
@@ -25,6 +25,7 @@ function SynPlayerController(SynMixer,SynProject,$filter,$location,$log,$mdDialo
     this.SynMixer_ = SynMixer;
     this.SynProject_ = SynProject;
     this.$filter_ = $filter;
+    this.$interval_ = $interval;
     this.$location_ = $location;
     this.$log_ = $log;
     this.$mdDialog_ = $mdDialog;
@@ -108,7 +109,7 @@ function SynPlayerController(SynMixer,SynProject,$filter,$location,$log,$mdDialo
 
         switch (e.code) {
             case 'Backspace':
-                this.mixer.stop();
+                this.stopAll();
                 break;
             case 'Tab':
                 e.preventDefault();
@@ -296,6 +297,22 @@ SynPlayerController.prototype.selectCue = function(cue,event) {
     // Clear the search box
     this.search.query = undefined;
 
+    var checkViz = function() {
+        if (this.mixer.analyser) {
+            this.visualize();
+        }
+        else {
+            this.$timeout_(checkViz,1000);
+        }
+    }.bind(this);
+
+    // If we're not already running a visualizer, that is
+    if (!this.vizInterval) {
+        // UNCOMMENT THIS LINE TO ENABLE VISUALIZATION
+        // checkViz();
+    }
+
+
     // Use the mixer's method, which handles all the necessary
     // group and channel logic. It returns the channel that the cue
     // gets assigned to.
@@ -312,6 +329,7 @@ SynPlayerController.prototype.stopAll = function() {
 
     // Use the mixer's stop() method to handle all audio stoppage
     this.mixer.stop();
+
     // Do we have a DJ timer to cancel?
     if (this.dj_timer_) {
         // Stop that funky music!
@@ -319,6 +337,54 @@ SynPlayerController.prototype.stopAll = function() {
     }
 };
 
+SynPlayerController.prototype.visualize = function() {
+
+    var canvas = document.getElementById('visualizer');
+    var canvasCtx = canvas.getContext("2d");
+
+    const WIDTH = document.body.clientWidth; //canvas.width;
+    const HEIGHT = canvas.height;
+    console.log(WIDTH,HEIGHT)
+
+    // Begin FREQUENCY BARS viz
+    this.mixer.analyser.fftSize = 256 * 4;
+    var bufferLength = this.mixer.analyser.frequencyBinCount;
+    console.log(bufferLength);
+    var dataArray = new Uint8Array(bufferLength);
+
+    canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
+
+    this.vizInterval = this.$interval_( function() {
+
+        canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
+
+        if (!Howler._howls.length) {
+            this.$interval_.cancel(this.vizInterval);
+            this.vizInterval = null;
+            console.log("done!")
+            return;
+        }
+
+        this.mixer.analyser.getByteFrequencyData(dataArray);
+        // console.log("DRAWING", dataArray);
+
+
+        var barWidth = (WIDTH / bufferLength);
+        var barHeight;
+        var x = 0;
+
+        for(var i = 0; i < bufferLength; i++) {
+            barHeight = dataArray[i]/3;
+
+            canvasCtx.fillStyle = '#999'; //'#2196F3'; //'rgb(' + (barHeight+100) + ',50,50)';
+            canvasCtx.fillRect(x,HEIGHT/2 - barHeight,barWidth, barHeight*2);
+
+            x += barWidth + 1;
+        }
+    }.bind(this),16);
+
+
+};
 
 // IIFE
 })();

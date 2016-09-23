@@ -150,6 +150,7 @@ md-input-container.noerror .md-errors-spacer {
 
 #page-header {
   padding: 8px;
+  position: relative;
   color: rgba(255, 255, 255, 0.9); }
   #page-header .page-title {
     vertical-align: middle;
@@ -173,7 +174,8 @@ md-input-container.noerror .md-errors-spacer {
   background-repeat: no-repeat;
   background-size: 48px;
   height: 64px;
-  width: 64px; }
+  width: 64px;
+  position: relative; }
 
 #page-tabs {
   color: #eee;
@@ -314,3 +316,15 @@ md-dialog#searchcue-dialog {
   .weblink .syn-icon {
     fill: #e91e63;
     vertical-align: bottom; }
+
+#visualizer-container {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0; }
+  #visualizer-container #visualizer {
+    height: 60px;
+    width: 1024px;
+    max-width: 100%;
+    background-color: transparent; }

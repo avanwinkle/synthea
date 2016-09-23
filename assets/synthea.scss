@@ -188,6 +188,7 @@ md-input-container.noerror .md-errors-spacer {
 
 #page-header {
 	padding: 8px;
+	position: relative;
 	color: rgba(255,255,255,0.9);
 
 	.page-title {
@@ -219,6 +220,7 @@ md-input-container.noerror .md-errors-spacer {
 	background-size: 48px;
 	height: 64px;
 	width: 64px;
+	position: relative;
 }
 
 
@@ -457,5 +459,21 @@ md-dialog#searchcue-dialog {
 	.syn-icon {
 		fill: $syn-danger;
 		vertical-align: bottom;
+	}
+}
+
+#visualizer-container {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom:0;
+	z-index: 0;
+
+	#visualizer {
+		// margin: 0 auto;
+		height: 60px;
+		width: 1024px;
+		max-width: 100%;
+		background-color: transparent;
 	}
 }

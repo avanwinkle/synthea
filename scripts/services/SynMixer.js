@@ -5,9 +5,9 @@ angular
     .module('SyntheaApp')
     .factory('SynMixer', SynMixer);
 
-SynMixer.$inject = ['SynSubgroup','SynProject'];
+SynMixer.$inject = ['SynSubgroup','SynProject','$interval'];
 
-function SynMixer(SynSubgroup,SynProject) {
+function SynMixer(SynSubgroup,SynProject,$interval) {
 
     /**
      * A pointer to the current SynMixer instance, so we can
@@ -16,8 +16,7 @@ function SynMixer(SynSubgroup,SynProject) {
      * @private
      */
     var mixer;
-
-
+    var Howler = require('howler').Howler;
 
     /**
      * Creates an instance of **SynMixer**, which is the Mixer singleton, the
@@ -43,6 +42,9 @@ function SynMixer(SynSubgroup,SynProject) {
      *   populated on-demand as cues are loaded.
      */
     function Mixer() {
+
+        this.$interval_ = $interval;
+
         this.channels = [];
         this.subgroups = {};
         window.channels = this.channels;
@@ -52,7 +54,7 @@ function SynMixer(SynSubgroup,SynProject) {
         var d = SynProject.getProjectDef();
 
         // Set our global Howler options
-        require('howler').Howler.autoSuspend = false;
+        Howler.autoSuspend = false;
 
         // Fail? So far, only on debug refresh of render window
         if (!p.config || !d.documentRoot) {
@@ -66,6 +68,17 @@ function SynMixer(SynSubgroup,SynProject) {
 
         return this;
     }
+
+
+    Mixer.prototype._buildAnalyser = function() {
+
+        // Create a analyser/visualization node and splice it in between the
+        // Howler masterGain and destination nodes
+        this.analyser = Howler.ctx.createAnalyser();
+        Howler.masterGain.connect(this.analyser);
+        this.analyser.connect(Howler.ctx.destination);
+
+    };
 
     /**
      * Universal method to play a cue, really just a convenience method to call
@@ -104,6 +117,19 @@ function SynMixer(SynSubgroup,SynProject) {
         // Does this subgroup need to be created?
         if (!this.subgroups.hasOwnProperty(subname)) {
             this.subgroups[subname] = new SynSubgroup(subname,this);
+        }
+
+        // Should we make an analyser?
+        if (!this.analyser) {
+
+            // Keep an eye out for our howler context
+            var contextInterval = this.$interval_(function() {
+                if (Howler.ctx) {
+                    console.log("Got an analyser!")
+                    this._buildAnalyser();
+                    this.$interval_.cancel(contextInterval);
+                }
+            }.bind(this));
         }
 
         // Return the channel on which it plays
