@@ -6,7 +6,7 @@ angular
     .module('SyntheaApp')
     .controller("SynPlayerController", SynPlayerController);
 
-SynPlayerController.$inject = ['SynMixer','SynProject','$filter','$interval','$location','$log','$mdDialog','$scope','$timeout'];
+SynPlayerController.$inject = ['SynMixer','SynProject','$filter','$interval','$location','$log','$q','$scope','$timeout'];
 
 /**
  * The main controller for the "player" view, aka the board when in playback mode.
@@ -17,7 +17,7 @@ SynPlayerController.$inject = ['SynMixer','SynProject','$filter','$interval','$l
  * @property {SynMixer} [SynMixer_] Internal reference to the SynMixer service
  * @property {SynProject} [SynProject_] Internal reference to the SynProject service
  */
-function SynPlayerController(SynMixer,SynProject,$filter,$interval,$location,$log,$mdDialog,$scope,$timeout) {
+function SynPlayerController(SynMixer,SynProject,$filter,$interval,$location,$log,$q,$scope,$timeout) {
 
     var spVm = this;
     window.spVm = spVm;
@@ -28,7 +28,7 @@ function SynPlayerController(SynMixer,SynProject,$filter,$interval,$location,$lo
     this.$interval_ = $interval;
     this.$location_ = $location;
     this.$log_ = $log;
-    this.$mdDialog_ = $mdDialog;
+    this.$q_ = $q;
     this.$scope_ = $scope;
     this.$timeout_ = $timeout;
 
@@ -61,10 +61,13 @@ function SynPlayerController(SynMixer,SynProject,$filter,$interval,$location,$lo
     // on the instance to be cancelable
     var _onKeyPress = function(e) {
         // If we're in an input, DON'T trigger any keypress events
-        if (e.target.nodeName === 'INPUT' || this.preventHotkeys) {
+        if (e.target.nodeName === 'INPUT') {
             return;
         }
+        // No hotkeys if we're doing a search
+        else if (this.showSearchDialog) {
 
+        }
         // Spacebar is reserved for locking
         else if (e.code === 'Space') {
             // Chromium wants space to scroll the page, don't allow that
@@ -104,6 +107,18 @@ function SynPlayerController(SynMixer,SynProject,$filter,$interval,$location,$lo
         // If we're in an input, DON'T trigger any keypress events
         if (e.target.nodeName === 'INPUT') {
             return;
+        }
+
+        else if (this.showSearchDialog) {
+            // Escape to close
+            if (e.code==='Escape') {
+                this.showSearchDialog.reject();
+            }
+            // Tab to reset
+            else if (e.code==='Tab') {
+                document.getElementById('searchcue-input').value = '';
+                document.getElementById('searchcue-input').focus();
+            }
         }
 
         switch (e.code) {
@@ -238,24 +253,15 @@ SynPlayerController.prototype.enableDJMode = function() {
 
 
 /**
- * Open a search dialog
+ * Open a search dialog by creating a deferral.
  * @return {Array<Cue>} List of cues matching search query
  */
 SynPlayerController.prototype.openSearchDialog = function() {
 
-    // No hotkeys AT ALL
-    this.preventHotkeys = true;
 
-    this.$mdDialog_.show({
-        autoWrap: false,
-        clickOutsideToClose: true,
-        controller: 'SynCueSearchController',
-        controllerAs: 'csVm',
-        escapeToClose: true,
-        hasBackdrop: false,
-        templateUrl: 'templates/partials/cuesearch.html',
+    this.showSearchDialog = this.$q_.defer();
 
-    }).then(function(response) {
+    this.showSearchDialog.promise.then(function(response) {
         // console.log("Modal response says to queue?",response.queue)
         if (response.cue) {
             // Do we want to queue it?
@@ -270,8 +276,7 @@ SynPlayerController.prototype.openSearchDialog = function() {
             }
         }
     }.bind(this)).finally(function() {
-        // console.log("restoring hotkeys")
-        this.preventHotkeys = false;
+        this.showSearchDialog = undefined;
     }.bind(this));
 };
 

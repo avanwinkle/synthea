@@ -423,16 +423,32 @@ md-dialog#searchcue-dialog {
 	box-shadow: 0 2px 5px rgba(0,0,0,0.25);
 }
 
+#search {
+	position: fixed;
+	top: 25%;
+	left: 0; right:0;
+	z-index:100;
+}
+
 .searchcue {
 
 	background-color: rgba(200,200,200,0.6);
-	width: 600px;
+	margin: 0 auto;
 	max-width: 100%;
+	position: relative;
+	width: 600px;
 
 	#searchcue-input {
 		font-size: 24px;
 		line-height: $searchcue-size;
 		height: $searchcue-size;
+		padding-left: 54px;
+	}
+
+	&-button {
+		&-queue:hover .syn-icon {
+			fill: $syn-accent;
+		}
 	}
 
 	&-container {
@@ -442,6 +458,13 @@ md-dialog#searchcue-dialog {
 	md-autocomplete-wrap {
 		background-color: transparent;
 		height: $searchcue-size;
+	}
+
+	&-icon {
+		position: absolute;
+		left: 4px;
+		top: 4px;
+		fill: #bbb;
 	}
 
 	&-result {

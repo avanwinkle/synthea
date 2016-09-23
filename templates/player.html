@@ -68,3 +68,42 @@ ng-include="'templates/partials/header-player.html'"
             ng-style="{'z-index':$index}"></syn-channel-player>
     </div>
 </div>
+
+
+<div id="search" ng-if="spVm.showSearchDialog"
+ ng-controller="SynCueSearchController as csVm"
+ ng-init="csVm.init(spVm.showSearchDialog)">
+<form class="searchcue" ng-keyup="csVm.formSubmit($event)">
+    <input type="submit" style="height:0;width:0;position:absolute;left:-99999px;top:-99999px;">
+    <md-autocomplete class="searchcue-container"
+        md-autofocus
+        md-autoselect="true"
+        md-selected-item="csVm.searchSelected"
+        md-select-on-focus="true"
+        md-search-text="csVm.searchQuery"
+        md-items="item in csVm.searchCues(csVm.searchQuery) | orderBy: 'name'"
+        md-item-text="item.name"
+        md-input-id="searchcue-input"
+        md-min-length="1"
+        placeholder="Search Cues...">
+        <md-item-template>
+            <div layout="row" class="searchcue-result" ng-click="csVm.selectCue(item)">
+                <div flex="none">
+                    <md-button aria-label="play" class="md-icon-button searchcue-button-play">
+                        <md-icon><svg syn-icon="play"></svg></md-icon>
+                    </md-button>
+                </div>
+                <div flex class="searchcue-result-title" ng-bind="item.name"></div>
+                <div flex="none">
+                    <md-button aria-label="queue" class="md-icon-button searchcue-button-queue" ng-click="csVm.queueCue(item)">
+                        <md-icon><svg syn-icon="playlist_play"></svg></md-icon>
+                    </md-button>
+                </div>
+            </div>
+        </md-item-template>
+    </md-autocomplete>
+    <div class="searchcue-icon">
+        <svg  syn-icon="search" size="48"></svg>
+    </div>
+</form>
+</div>

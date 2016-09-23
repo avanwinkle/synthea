@@ -294,19 +294,36 @@ md-dialog#searchcue-dialog {
   border-radius: 0;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25); }
 
+#search {
+  position: fixed;
+  top: 25%;
+  left: 0;
+  right: 0;
+  z-index: 100; }
+
 .searchcue {
   background-color: rgba(200, 200, 200, 0.6);
-  width: 600px;
-  max-width: 100%; }
+  margin: 0 auto;
+  max-width: 100%;
+  position: relative;
+  width: 600px; }
   .searchcue #searchcue-input {
     font-size: 24px;
     line-height: 56px;
-    height: 56px; }
+    height: 56px;
+    padding-left: 54px; }
+  .searchcue-button-queue:hover .syn-icon {
+    fill: #1e88e5; }
   .searchcue-container {
     height: 56px; }
   .searchcue md-autocomplete-wrap {
     background-color: transparent;
     height: 56px; }
+  .searchcue-icon {
+    position: absolute;
+    left: 4px;
+    top: 4px;
+    fill: #bbb; }
   .searchcue-result-title {
     text-align: left; }
 
