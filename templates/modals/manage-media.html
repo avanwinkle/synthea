@@ -24,6 +24,10 @@ layout="column" layout-fill md-theme="pink">
                 </md-button>
             </div>
 
+            <div class="medialist-empty" ng-if="smVm.mediaList.length===0">
+                There is no media in this project yet.
+            </div>
+
             <div class="medialist-title" flex="none"
             ng-if="smVm.unassignedMedia.length">
                 Unassigned Media

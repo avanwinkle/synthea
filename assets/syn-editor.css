@@ -257,6 +257,12 @@ div[dnd-list] .dndDraggingSource {
   .managelist-container > .dndPlaceholder:last-child {
     border-bottom: dotted 1px #e91e63; }
 
+.medialist-empty {
+  padding: 16px;
+  color: #666;
+  font-style: italic;
+  font-size: 14px; }
+
 .projectcreator-input {
   min-width: 12em; }
 

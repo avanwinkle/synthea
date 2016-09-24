@@ -43,6 +43,7 @@ SyntheaCreatorController.prototype.activate = function() {
         ],
         cues: [],
         sections: [],
+        subgroups: {},
         hotKeys: {},
     };
 

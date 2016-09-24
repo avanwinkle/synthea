@@ -497,9 +497,19 @@ function setMenusEnabled(arg) {
                 'DJ Mode': { enabled: true, checked: false, },
             };
             break;
+        case 'cloud-project':
+            menustate = {
+                'Close Project': true,
+                'Edit Project': false,
+                'Save Project': false,
+                'Save Project As': false,
+                'Delete Project': false,
+            };
+            break;
         // By default, the arg is the object of the states
         default:
-            menustate = arg;
+            console.log("Unknown menus arg", arg)
+            menustate = {};
     }
 
     // Iterate through

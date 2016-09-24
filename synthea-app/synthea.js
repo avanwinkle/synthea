@@ -286,11 +286,12 @@ function openProject(projectDef) {
 
     // Since we validate, might as well pass the layout file too,
     // so let's store a reference to it
-    var projectLayout;
+    var projectLayout, projectMenus;
 
     // Don't do any processing for cloud projects, yet
     if (projectDef && projectDef.location) {
         // Should we do anything different for clouds?
+        projectMenus = 'cloud-project';
     }
     // Check the definition object for a documentRoot, which is all we need
     else if (projectDef && projectDef.documentRoot) {
@@ -303,11 +304,14 @@ function openProject(projectDef) {
             synthea.openProject(null);
             return;
         }
+
+        projectMenus = 'open-project';
     }
     // This means we got a project without a documentRoot, which is bad
     else if (projectDef) {
         console.error('No project documentRoot, unable to process',projectDef);
         projectDef = null;
+        projectMenus = 'no-project';
     }
 
     // Keep track of what's currently open, so we can reference it easily
@@ -318,7 +322,7 @@ function openProject(projectDef) {
     synthea.mainWindow.webContents.send(
         'open-project',projectDef,projectLayout);
     // Set the appropriate menu items to be enabled/disabled
-    synthea.setMenusEnabled(projectDef ? 'open-project' : 'no-project');
+    synthea.setMenusEnabled(projectMenus);
 
     // Remember we opened this, if it's a local project and not our last opened
     if (projectDef && projectDef.key && !projectDef.location &&

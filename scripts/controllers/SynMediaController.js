@@ -63,7 +63,12 @@ SynMediaController.prototype.addMedia = function() {
 SynMediaController.prototype.deleteMedia = function() {
     this.SynProject_.deleteMedia(this.selectedMedia.name)
         // Update the media list, including our size tallies
-        .then(this._processMediaFiles.bind(this));
+        .then(function() {
+            this._processMediaFiles();
+            // Clear the selection and the player
+            this.channel.stop({forceUnload:true});
+            this.selectedMedia = undefined;
+        }.bind(this));
 };
 
 /**
@@ -84,6 +89,11 @@ SynMediaController.prototype.goDeleteCue = function(cue) {
 };
 
 SynMediaController.prototype.selectMedia = function() {
+
+    // No media?
+    if (!this.mediaSelector) {
+        return;
+    }
 
     // For now, only one selectable (but 'multiple') for the UX
     this.selectedMedia = this.mediaSelector[0];
