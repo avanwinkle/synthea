@@ -234,10 +234,10 @@ function createWindow () {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     backgroundColor: '#EEEEEE',
-    height: 600,
+    height: 680,
     icon: './assets/synthea_flat.ico',
     title: 'Synthea ' + VERSION,
-    width: 1200,
+    width: 1080,
   });
   synthea.mainWindow = mainWindow;
 

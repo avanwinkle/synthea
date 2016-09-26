@@ -194,10 +194,11 @@
             <div flex layout-fill class="editcue-filelist-container">
                 <select multiple class="editcue-filelist md-primary"
                         ng-dblclick="secVm.addFilesToCue()"
-                        ng-click="secVm.selectAssignedMedia('select')"
+                        ng-change="secVm.selectAssignedMedia('select')"
                         ng-model="secVm.selectedFiles"
                         ng-disabled="secVm.cue.sources.indexOf(file)!==-1"
-                        ng-options="file for file in secVm.mediaList track by $index| filter: secVm.filterFiles">
+                        ng-options="file for file in secVm.mediaList |
+                        filter: secVm.filterFiles">
                 </select>
             </div>
 
@@ -235,6 +236,7 @@
             <div>
                 <md-button class="md-primary"
                 style="margin-right: -8px;"
+                ng-disabled="secVm.showHotkeys"
                 type="submit" ng-click="secVm.$close(secVm.cue)">
                     Save
                 </md-button>
