@@ -82,6 +82,7 @@ div[dnd-list] .dndDraggingSource {
 
     &-filter {
         border: solid 1px rgba(0,0,0,0.1);
+        border-top-color: #fff;
         font-size: 12px;
         padding: 8px;
         position:relative;
@@ -89,7 +90,7 @@ div[dnd-list] .dndDraggingSource {
 
         &-container {
             // Overlap the bottom border of the above select box
-            margin-top: -1px;
+            margin-top: 0px;
         }
 
         &:focus {
@@ -261,6 +262,26 @@ div[dnd-list] .dndDraggingSource {
     width: 240px;
 }
 
+.edit-pagetab {
+
+    cursor: pointer;
+    line-height: 30px;
+    padding: 0 8px;
+
+    .syn-icon {
+
+        fill: #bbb;
+    }
+
+    &:hover {
+        background-color: #999;
+
+        .syn-icon {
+            fill: $syn-danger;
+        }
+    }
+
+}
 
 // The link to edit a section
 .edit-sectionheader {
@@ -273,9 +294,21 @@ div[dnd-list] .dndDraggingSource {
 
     &-cta {
         cursor: pointer;
+        vertical-align: bottom;
+
         &:hover {
             color: $syn-danger;
+
+            .edit-sectionheader-icon {
+                fill: $syn-danger;
+
+            }
         }
+    }
+
+    &-icon {
+        padding-top:6px;
+        fill: #666;
     }
 }
 

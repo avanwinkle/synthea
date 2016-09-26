@@ -56,6 +56,21 @@ function SynPlayerController(SynMixer,SynProject,$filter,$interval,$location,$lo
         vars.is_dj_mode = !vars.is_dj_mode;
     }.bind(this));
 
+    // Listen for playback commands
+    ipcRenderer.on('playback', function(event,command) {
+        switch(command) {
+            case 'playqueue':
+                this.mixer.toggleLock();
+                break;
+            case 'search':
+                this.openSearchDialog();
+                break;
+            case 'stopall':
+                this.stopAll();
+                break;
+        }
+    }.bind(this));
+
 
     // These functions cannot be prototyped, because their identity must exist
     // on the instance to be cancelable
@@ -123,7 +138,8 @@ function SynPlayerController(SynMixer,SynProject,$filter,$interval,$location,$lo
 
         switch (e.code) {
             case 'Backspace':
-                this.stopAll();
+                // Use shift to clear out the queue as well
+                this.stopAll( e.shiftKey);
                 break;
             case 'Tab':
                 e.preventDefault();
@@ -139,7 +155,7 @@ function SynPlayerController(SynMixer,SynProject,$filter,$interval,$location,$lo
     document.addEventListener('keyup', _onKeyUp);
 
     $scope.$on('$destroy', function() {
-        this.stopAll();
+        this.stopAll(true);
         document.removeEventListener('keypress', _onKeyPress);
         document.removeEventListener('keyup', _onKeyUp);
     }.bind(this));
@@ -333,11 +349,12 @@ SynPlayerController.prototype.selectCue = function(cue,event) {
  * Global stop method to gracefully kill playback on all channels. A wrapper for
  * the mixer's method to do the same, plus remove any latent timers.
  *
+ * @param {boolean} fullstop Force all channels (including queued) to stop & flush
  */
-SynPlayerController.prototype.stopAll = function() {
+SynPlayerController.prototype.stopAll = function(fullstop) {
 
     // Use the mixer's stop() method to handle all audio stoppage
-    this.mixer.stop();
+    this.mixer.stop(fullstop);
 
     // Do we have a DJ timer to cancel?
     if (this._dj_timer) {

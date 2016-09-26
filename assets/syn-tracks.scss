@@ -82,6 +82,15 @@
 
     }
 
+    &.STOPPED {
+        // Typically when stopped the player will disappear, but in editor preview
+        // it will persist. Since the file source is unloaded, don't show a play
+        // or anything else
+        .cplayer-button-play, .cplayer-button-pause {
+            display: none;
+        }
+    }
+
     &.STOPPING {
         cursor: default;
         .cplayer-timeline-progress {

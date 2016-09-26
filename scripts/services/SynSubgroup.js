@@ -229,11 +229,22 @@ function SynSubgroup(SynChannel,SynProject,$mdToast) {
         // one with a cue provided
         angular.forEach(this.channels, function(c) {
             // Only stop ones that are "current"ly playing, not queued ones
-            // TODO: make a "super Stop" that kills the whole queue too
             if (c.media!==cue && c.is_current) {
                 console.log(' -- stopping channel ',c._id);
                 c.stop();
             }
+        });
+    };
+
+    /**
+     * An uber-method to stop and flush every queue no matter what
+     */
+    Subgroup.prototype.stopFull = function(hardstop) {
+        angular.forEach(this.channels, function(c) {
+            c.stop({
+                forceFadeOut: hardstop ? false : undefined,
+                forceUnload:true
+            });
         });
     };
 

@@ -6,12 +6,13 @@ angular
     .module('SyntheaApp')
     .controller("SyntheaController", SyntheaController);
 
-SyntheaController.$inject = ['SynProject','$location','$log','$q','$scope','$timeout'];
+SyntheaController.$inject = ['SynMixer','SynProject','$location','$log','$q','$scope','$timeout'];
 
-function SyntheaController(SynProject,$location,$log,$q,$scope,$timeout) {
+function SyntheaController(SynMixer,SynProject,$location,$log,$q,$scope,$timeout) {
 
     var sVm = this;
     window.sVm = sVm;
+    this.SynMixer_ = SynMixer;
     this.SynProject_ = SynProject;
     this.$location_ = $location;
     this.$log_ = $log;
@@ -20,8 +21,6 @@ function SyntheaController(SynProject,$location,$log,$q,$scope,$timeout) {
 
     this.ready = false;
 
-    // We need a mixer
-    var mixer;
     // We need to track some variables
     var vars = {
         is_dj_mode: false,
@@ -78,12 +77,7 @@ function SyntheaController(SynProject,$location,$log,$q,$scope,$timeout) {
 
     }.bind(this));
 
-    ipcRenderer.on('reset-audio-engine', function() {
-        // TODO: Fix the bug where playback to the end breaks playback
-        var h = require('howler');
-        h.Howler.unload();
-        h.Howler.init();
-    });
+    ipcRenderer.on('reset-audio-engine', this.resetAudioEngine.bind(this));
 
 
     document.addEventListener('keyup', function(e) {
@@ -99,6 +93,12 @@ function SyntheaController(SynProject,$location,$log,$q,$scope,$timeout) {
                 break;
             case 'ArrowLeft':
                 this.selectPage('prev');
+                break;
+            case 'Escape':
+                // Don't let this be accidental, because it's not graceful
+                if (e.ctrlKey) {
+                    this.resetAudioEngine();
+                }
                 break;
         }
 
@@ -154,6 +154,17 @@ SyntheaController.prototype.openProjectFromFolder = function() {
 
 SyntheaController.prototype.openWeburl = function(url) {
     ipcRenderer.send('open-weburl', url);
+};
+
+SyntheaController.prototype.resetAudioEngine = function() {
+    // Hard kill the mixer
+    this.SynMixer_.getMixer().stop(true,true);
+    // Kill Howler
+    var h = require('howler');
+    if (h.ctx) {
+        h.Howler.unload();
+        h.Howler.init();
+    }
 };
 
 /**

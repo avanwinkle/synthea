@@ -59,7 +59,7 @@ function createMenus() {
                 {
                     label: 'New Project',
                     role: 'new',
-                    click: openProjectCreator
+                    click: openProjectCreator,
                 },
                 {
                     label: 'Open Project...',
@@ -127,6 +127,28 @@ function createMenus() {
                     enabled: false,
                     accelerator: 'Shift+Tab',
                 },
+                { type: 'separator'},
+                {
+                    label: 'Search Cues...',
+                    accelerator: 'Tab',
+                    click: function() {
+                        mainWindow.webContents.send('playback','search');
+                    }
+                },
+                {
+                    label: 'Play All Queued',
+                    accelerator: 'Space',
+                    click: function() {
+                        mainWindow.webContents.send('playback','playqueue');
+                    }
+                },
+                {
+                    label: 'Stop All',
+                    accelerator: 'Backspace',
+                    click: function() {
+                        mainWindow.webContents.send('playback','stopall');
+                    }
+                },
                 {   type: 'separator' },
                 {
                     label: 'DJ Mode',
@@ -155,6 +177,7 @@ function createMenus() {
                 {
                     label: 'Reset Audio Engine',
                     click: resetAudioEngine,
+                    accelerator: 'Ctrl+Escape',
                 },
                 {
                     type: 'separator',
@@ -189,6 +212,7 @@ function createMenus() {
                 {
                     label: 'Reset Audio Engine',
                     click: resetAudioEngine,
+                    accelerator: 'Escape',
                 },
             ]
         };

@@ -197,13 +197,21 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
      */
     Channel.prototype.loadCue = function(cue,opts) {
 
+        // Reset values
+        this.currentTime = undefined;
+        this.duration = undefined;
+
         // Force opts
         opts = opts || {};
         // Loading a cue returns a promise, to be resolved when the cue is ready
         var defer = $q.defer();
 
         // Store a reference to the cue object, for getting configs and attrs
-        this.media = cue;
+        this.media = cue || {};
+
+        // If there really isn't anything? Bail now
+        if (!cue) { return; }
+
         // Back-ref this channel to the cue, so we can call channel methods
         // TODO: Use a listener or event to push a state onto the cue, to
         // avoid this privade backref and expose the state publically
@@ -218,8 +226,8 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
         // avoid orphaning Howls that make noise without controls. Typically
         // happens when switching projects and/or using DJ mode, so should be
         // resolved through bug tracking and tightening over time.
-        if (this._player) {
-            console.warn('Found an old player! What do we do?');
+        if (this._player && this._player.playing()) {
+            console.warn('Found an old player! Unloading it.');
             this._player.stop();
             this._player.unload();
         }
@@ -298,9 +306,7 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
         channel.state = 'QUEUING';
         // A queuing/queued channel is not "current", like a playing/paused is
         channel.is_current = false;
-        // Until the promise is resolved
-        channel.currentTime = undefined;
-        channel.duration = undefined;
+
 
         // Mazlow's hierarchy of fade-in priorities
         //---------------------------------------------------
@@ -490,6 +496,21 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
                 this._player.stop();
                 this._player.unload();
 
+                // Garbage collect: If there are more than two channels in
+                // this subgroup (four for common), trim that down by removing
+                // references to the channels and let the JS garbage collector
+                // take care of them.
+                if (this._subgroup && this._subgroup.channels && this._subgroup.channels.length >
+                            (this._subgroup.name === '__COMMON__' ? 4 : 2)) {
+                    console.log("Garbage collecting channel "+this._id)
+                    // De-reference the channel from the subgroup
+                    this._subgroup.channels.splice(
+                        this._subgroup.channels.indexOf(this),1);
+                    // De-reference the channel from the mixer
+                    this._subgroup._mixer.channels.splice(
+                        this._subgroup._mixer.channels.indexOf(this),1);
+                }
+
             }
 
             defer.resolve();
@@ -499,7 +520,7 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
         this.state = 'STOPPING';
 
         // Are we playing? Fade out before we stop
-        if (this.is_playing && this.forceFadeOut!==false) {
+        if (this.is_playing && this.forceFadeOut!==false && opts.forceFadeOut!==false) {
             this._fadeOut().then(stopFn);
         }
         // If not? Death immediately!

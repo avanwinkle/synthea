@@ -121,9 +121,9 @@ function SynMixer(SynSubgroup,SynProject,$interval) {
         if (!this.analyser) {
 
             // Keep an eye out for our howler context
+            // TODO: use a callback rather than interval
             var contextInterval = this.$interval_(function() {
                 if (Howler.ctx) {
-                    console.log("Got an analyser!")
                     this._buildAnalyser();
                     this.$interval_.cancel(contextInterval);
                 }
@@ -135,13 +135,22 @@ function SynMixer(SynSubgroup,SynProject,$interval) {
     };
 
     /**
-     * Global method to stop playback on ALL Channels.
+     * Global method to stop playback on all Channels.
+     *
+     * @param {boolean} fullstop Force all channels (including queued) to stop & flush
      */
-    Mixer.prototype.stop = function() {
+    Mixer.prototype.stop = function(fullstop, hardstop) {
 
         // Iterate through the Subgroups and stop them all
         angular.forEach(this.subgroups, function(subgroup) {
-            subgroup.stopExcept();
+            // If fullstop, clear ALL channels including queue
+            if (fullstop) {
+                subgroup.stopFull(hardstop);
+            }
+            // If regular stop, only stop current/active channels
+            else {
+                subgroup.stopExcept();
+            }
         });
     };
 

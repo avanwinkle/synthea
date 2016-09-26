@@ -234,6 +234,11 @@ SynEditCueController.prototype.selectAssignedMedia = function(src) {
 
     // Stop! For reals!
     this.channel.stop({forceUnload:true}).then(function() {
+        // If no source available, clear out the channel
+        if (!src) {
+            this.channel.loadCue();
+            return;
+        }
 
         this.channel.loadCue({
             _audioRoot: this.SynProject_.getProjectDef().documentRoot + '/audio/',

@@ -70,12 +70,13 @@ div[dnd-list] .dndDraggingSource {
     font-size: 12px; }
   .editcue-filelist-filter {
     border: solid 1px rgba(0, 0, 0, 0.1);
+    border-top-color: #fff;
     font-size: 12px;
     padding: 8px;
     position: relative;
     width: 100%; }
     .editcue-filelist-filter-container {
-      margin-top: -1px; }
+      margin-top: 0px; }
     .editcue-filelist-filter:focus {
       border-color: #e91e63;
       outline: none; }
@@ -177,15 +178,33 @@ div[dnd-list] .dndDraggingSource {
 .editmedia-rightcolumn {
   width: 240px; }
 
+.edit-pagetab {
+  cursor: pointer;
+  line-height: 30px;
+  padding: 0 8px; }
+  .edit-pagetab .syn-icon {
+    fill: #bbb; }
+  .edit-pagetab:hover {
+    background-color: #999; }
+    .edit-pagetab:hover .syn-icon {
+      fill: #e91e63; }
+
 .edit-sectionheader-name {
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden; }
 
 .edit-sectionheader-cta {
-  cursor: pointer; }
+  cursor: pointer;
+  vertical-align: bottom; }
   .edit-sectionheader-cta:hover {
     color: #e91e63; }
+    .edit-sectionheader-cta:hover .edit-sectionheader-icon {
+      fill: #e91e63; }
+
+.edit-sectionheader-icon {
+  padding-top: 6px;
+  fill: #666; }
 
 .managelist {
   min-width: 320px; }

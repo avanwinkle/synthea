@@ -27,6 +27,11 @@ ng-class="{'hasBanner': sVm.project._bannerImage}"
 
     <div id="page-tabs" flex="none" layout="row">
         <span flex></span>
+        <div flex="none" class="edit-pagetab">
+            <md-icon ng-click="seVm.managePages($event)" style="padding: 4px;">
+                <svg syn-icon="edit" size="20"></svg>
+            </md-icon>
+        </div>
         <div class="page-tab-container" flex="none"
         dnd-list="sVm.project.pages"
         dnd-allowed-types="['page']"
@@ -41,7 +46,6 @@ ng-class="{'hasBanner': sVm.project._bannerImage}"
             ng-click="sVm.selectPage(page)"
             ng-class="{'current': page == sVm.currentPage}"></div>
         </div>
-
         <span flex></span>
     </div>
 
@@ -67,8 +71,11 @@ ng-class="{'hasBanner': sVm.project._bannerImage}"
         ng-repeat="section in sVm.project.sections | filter: {'page_id': sVm.currentPage.id} :true | orderBy: '+display_order' as currentSections">
             <div class="section-header edit-sectionheader">
                 <a class="edit-sectionheader-cta"
-                ng-click="seVm.manageSections(sVm.currentPage.id, $event)"
-                ng-bind="section.name"></a>
+                ng-click="seVm.manageSections(sVm.currentPage.id, $event)">
+                <svg  class="edit-sectionheader-icon"
+                syn-icon="edit" size="20"></svg>
+                <span ng-bind="section.name"></span>
+                </a>
             </div>
             <div class="section-container"
             >
