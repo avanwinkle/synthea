@@ -138,9 +138,9 @@
     <div class="section-body">
 
         <p>Synthea utilizes the concept of <i>subgroups</i> to manage concurrent
-        playback of cues in a project that might utilize any combination of music,
-        ambient audio, and discrete sound effects. If your project has a "board type"
-        set, all new cues will default to that subgroup.</p>
+        playback of cues in a project that might feature any combination of music,
+        ambient audio, and discrete sound effects. If a project has a "board type"
+        set, all new cues will default to the subgroup for that board type.</p>
 
         <p>
         <div><strong>Concurrency</strong></div>
@@ -152,16 +152,16 @@
 
         <p>
         <div><strong>Exclusivity</strong></div>
-        Some types of cues shouldn&apos;t be play on top of each other. For
-        example, playing a music track should seamlessly <i>replace</i> the
+        Some types of cues shouldn&apos;t be played on top of each other. For
+        example, a music track should seamlessly <i>replace</i> another
         music track that&apos;s currently playing, and itself be replaced by
-        another. In short: there should only be one music track playing at any given time
+        the next music track. In short: there should only be one music track playing at any given time
         (i.e. exclusivity).
         </p>
 
         <p>
         Every Synthea subgroup creates an exclusivity set, so playing a cue
-        in that subgroup will replace any currently-playing cues <i>in that same
+        in that subgroup will replace any currently-playing cue <i>in that same
         subgroup</i>. Cues in other subgroups, and cues without subgroups, will
         not be affected.
         </p>
@@ -175,7 +175,7 @@
                     <th>Effect</th>
                 </tr>
                 <tr>
-                    <td>Happy Music</td>
+                    <td>Happy Tune</td>
                     <td>Music</td>
                     <td>Track fades in automatically and plays</td>
                 </tr>
@@ -190,7 +190,7 @@
                     <td>Track plays concurrently over all others</td>
                 </tr>
                 <tr>
-                    <td>Stronger Waves</td>
+                    <td>Waves with Wind</td>
                     <td>Ambient</td>
                     <td>Track cross-fades with previous &quot;ambient&quot; track to replace it</td>
                 </tr>
@@ -200,7 +200,7 @@
                     <td>Track plays concurrently over all others</td>
                 </tr>
                 <tr>
-                    <td>Intense Music</td>
+                    <td>Intense Symphony</td>
                     <td>Music</td>
                     <td>Track cross-fades with previous &quot;music&quot; track to replace it</td>
                 </tr>

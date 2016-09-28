@@ -183,7 +183,15 @@
             <!-- Media list -->
 
             <div class="faux-label" layout="row">
-                <div>Project Media</div>
+                <div ng-click="secVm.toggleMediaList()" style="cursor:pointer;">
+                    Project Media:
+                    <span ng-if="!secVm.mediaListOnlyUnassigned">
+                        All
+                    </span>
+                    <span ng-if="secVm.mediaListOnlyUnassigned">
+                        Unassigned
+                    </span>
+                </div>
                 <span flex></span>
                 <div>
                     <a class="md-primary" ng-click="secVm.copyMediaToProject()">
@@ -197,7 +205,7 @@
                         ng-change="secVm.selectAssignedMedia('select')"
                         ng-model="secVm.selectedFiles"
                         ng-disabled="secVm.cue.sources.indexOf(file)!==-1"
-                        ng-options="file for file in secVm.mediaList |
+                        ng-options="file as file.name for file in secVm.mediaList |
                         filter: secVm.filterFiles">
                 </select>
             </div>

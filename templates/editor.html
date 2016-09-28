@@ -38,7 +38,7 @@ ng-class="{'hasBanner': sVm.project._bannerImage}"
         dnd-horizontal-list="true"
         >
             <div class="page-tab"
-            ng-repeat="page in sVm.project.pages"
+            ng-repeat="page in sVm.project.pages | orderBy: 'display_order' "
             dnd-draggable="page"
             dnd-type="'page'"
             dnd-moved="sVm.project.pages.splice($index,1)"
@@ -79,7 +79,7 @@ ng-class="{'hasBanner': sVm.project._bannerImage}"
             </div>
             <div class="section-container"
             >
-                <div layout="column"
+                <div layout="column" class="section-container-drop"
                 dnd-list="section.cue_ids"
                 dnd-allowed-types="['cue']"
                 dnd-drop="seVm.insertCue(item)">
@@ -87,31 +87,25 @@ ng-class="{'hasBanner': sVm.project._bannerImage}"
                     flex="none"
                     ng-repeat="cue in section.cue_ids | cuesFromIds: sVm.project.cues as currentCues track by $index"
                     syn-cue-id="{{cue.id}}"
-                    dnd-draggable="cue.id"
-                    dnd-type="'cue'"
-                    dnd-moved="seVm.moveCue(cue.id, section, $index)"
-                    dnd-effect-allowed="move">
-                            <!--
-                             <div flex="none" class="cueButton-handle-container">
-                                <md-icon dnd-handle class="cueButton-handle">
-                                    <svg syn-icon="drag_handle"></svg>
-                                </md-icon>
+                    >
+
+                        <div class="cueButton"
+                        dnd-draggable="cue.id"
+                        dnd-type="'cue'"
+                        dnd-moved="seVm.moveCue(cue.id, section, $index)"
+                        dnd-effect-allowed="move"
+                        aria-label="{{cue.name}}"
+                        ng-bind="cue.name"
+                        ng-click="seVm.editCue(cue,$event)">
+                        </div>
+                        <div class="cueButton-badge channelState-ERROR"
+                        ng-if="!cue.sources.length"
+                        md-whiteframe="1">
+                            <div class="badge badge-error">
+                                <svg syn-icon="error" size="22"></svg>
                             </div>
-                            -->
-                            <div class="cueButton-dragger" flex>
-                                <md-button class="cueButton"
-                                aria-label="{{cue.name}}"
-                                ng-bind="cue.name"
-                                ng-click="seVm.editCue(cue,$event)">
-                                </md-button>
-                                <div class="cueButton-badge channelState-ERROR"
-                                ng-if="!cue.sources.length"
-                                md-whiteframe="1">
-                                    <div class="badge badge-error">
-                                        <svg syn-icon="error" size="22"></svg>
-                                    </div>
-                                </div>
-                            </div>
+                        </div>
+
 
                     </div>
                 </div>

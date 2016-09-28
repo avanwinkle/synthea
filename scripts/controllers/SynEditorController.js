@@ -169,6 +169,9 @@ SynEditorController.prototype.editCue = function(cue,$event) {
             // Merge the copy's changes back on to the original
             angular.merge(cue,response);
 
+            // The merge won't remove sources, even if the modal did
+            if (response.sources.length===0) { cue.sources.splice(0); }
+
             // MIGRATION: Not all projects have subgroups
             if (!this.project.subgroups) {
                 console.warn('Migration: project files need subgroups.');
@@ -325,7 +328,8 @@ SynEditorController.prototype._manageList = function($event, listtype, page_id) 
     if (listtype === 'sections') {
         // Pull out an array of just the sections in the requested page
         list = this.$filter_('filter')(
-                        this.project.sections, {page_id: page_id}
+                        // Pass 'true' for exact matches only
+                        this.project.sections, {page_id: page_id}, true
                     ).map(function(s) {
                         // Store a copy of the name for changing
                         s._newname = s.name;
@@ -390,18 +394,36 @@ SynEditorController.prototype._manageList = function($event, listtype, page_id) 
             // Was it deleted? Any page not in the order is deleted, or any
             // section that belongs in the given page that's not there is too
             else if (listtype==='pages' || s.page_id === page_id) {
-                target.splice(i,1);
 
-                if (listtype==='sections') {
-                    // Also delete all the cues that used to live in this section?
+
+                var sections_to_clear = [];
+                if (listtype==='pages') {
+                    // If a page is deleted, splice it
+                    target.splice(i,1);
+                    // We also need to remove all the sections/cues in the page
+                    sections_to_clear = this.$filter_('filter')(
+                        this.project.sections, {page_id: s.id}, true);
+
+                }
+                else if (listtype==='sections') {
+                    // Just this one section, then
+                    sections_to_clear.push(s);
+                }
+
+                // Also delete all the cues that used to live in this section
+                angular.forEach(sections_to_clear, function(section) {
                     // AVW: Will need to decide how to behave once cues can be put
                     // in multiple sections, i.e. when (if ever) are they collected?
+                    // For now: yes, delete all cues in the section.
                     for (var k=this.project.cues.length-1;k>=0;k--) {
-                        if (s.cue_ids.indexOf(this.project.cues[k].id)!== -1) {
+                        if (section.cue_ids.indexOf(this.project.cues[k].id)!== -1) {
                             this.project.cues.splice(k,1);
                         }
                     }
-                }
+                    // And remove the section
+                    this.project.sections.splice(
+                        this.project.sections.indexOf(section),1);
+                }.bind(this));
             }
         }
 

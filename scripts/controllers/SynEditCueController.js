@@ -40,8 +40,10 @@ function SynEditCueController(SynChannel,SynProject,$mdDialog,$scope) {
 SynEditCueController.prototype.activate = function() {
 
     // get the media list
-    this.SynProject_.getProjectMediaList().then(function(response) {
-        this.mediaList = response;
+    this.SynProject_.getProjectMediaByAssignment().then(function(response) {
+        this.media = response;
+        this.mediaList = response.all;
+        this.mediaListOnlyUnassigned = false;
     }.bind(this));
 
     // Make a holding value for the volume
@@ -53,7 +55,7 @@ SynEditCueController.prototype.activate = function() {
             this.cue._hotkey = keycode;
         }
     }.bind(this));
-    window.cue = this.cue;
+
 };
 
 /**
@@ -91,8 +93,8 @@ SynEditCueController.prototype.addFilesToCue = function() {
 
     // Iterate the selection so we don't duplicate files already there
     angular.forEach(this.selectedFiles, function(f) {
-        if (this.cue.sources.indexOf(f)===-1) {
-            this.cue.sources.push(f);
+        if (this.cue.sources.indexOf(f.name)===-1) {
+            this.cue.sources.push(f.name);
         }
     }.bind(this));
 
@@ -157,22 +159,36 @@ SynEditCueController.prototype.clearSources = function() {
 SynEditCueController.prototype.copyMediaToProject = function() {
 
     // Make a copy of the current list so we can see what's added
-    var oldList = angular.copy(this.mediaList);
+    var oldList = this.mediaList.map(function(l) {
+        return l.name;
+    });
 
-    this.SynProject_.copyMediaToProject().then(function(response) {
-        this.mediaList = response;
-        // For clarity, delesect anything that was previously selected
-        this.selectedFiles = [];
+    // Use the project's method to open the media selector
+    this.SynProject_.copyMediaToProject().then(function() {
 
-        // Select anything that's new
-        angular.forEach(this.mediaList, function(filename) {
-            if (oldList.indexOf(filename)===-1) {
-                this.selectedFiles.push(filename);
-            }
+        // Re-organize the media by assignment
+        this.SynProject_.getProjectMediaByAssignment().then(function(response){
+            // AVW: This is duplicated code from activate()
+            this.media = response;
+            this.mediaList = response.all;
+            this.mediaListOnlyUnassigned = false;
+
+            // For clarity, delesect anything that was previously selected
+            this.selectedFiles = [];
+
+            // Select anything that's new
+            angular.forEach(this.mediaList, function(m) {
+                if (oldList.indexOf(m.name)===-1) {
+                    this.selectedFiles.push(m);
+                }
+            }.bind(this));
+
+            // For convenience, assume the newly added media should go to the cue?
+            this.addFilesToCue();
+            // Since we're selected it, might as well load the player
+            // AVW: Commented out because of delay in copying the file!
+            // this.selectAssignedMedia('select');
         }.bind(this));
-
-        // For convenience, assume the newly added media should go to the cue?
-        this.addFilesToCue();
 
     }.bind(this));
 };
@@ -216,6 +232,7 @@ SynEditCueController.prototype.saveHotkeys = function() {
 };
 
 SynEditCueController.prototype.selectAssignedMedia = function(src) {
+
     // Unselect?
     if (!src) {
         this.selectedAssignedMedia = undefined;
@@ -223,7 +240,7 @@ SynEditCueController.prototype.selectAssignedMedia = function(src) {
     }
     // From the multi-select?
     else if (src === 'select') {
-        src = this.selectedFiles[0];
+        src = this.selectedFiles[0].name;
     }
     // If it's an assigned media, clear the select
     else {
@@ -253,6 +270,14 @@ SynEditCueController.prototype.selectAssignedMedia = function(src) {
 
     }.bind(this));
 
+};
+
+SynEditCueController.prototype.toggleMediaList = function() {
+    this.mediaListOnlyUnassigned = !this.mediaListOnlyUnassigned;
+
+    this.mediaList = this.media[
+        this.mediaListOnlyUnassigned ? 'unassigned' : 'all'
+    ];
 };
 
 SynEditCueController.prototype.updateVolume = function() {

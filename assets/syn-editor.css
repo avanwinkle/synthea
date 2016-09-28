@@ -262,6 +262,9 @@ div[dnd-list] .dndDraggingSource {
 .managelist-section.dndDraggingSource {
   display: none !important; }
 
+.section-container-drop {
+  min-height: 32px; }
+
 .section-container .dndPlaceholder {
   list-style: none;
   list-style-image: none;

@@ -29,6 +29,7 @@ function SynProject($http,$q,$log) {
         getProject: function() { return project; },
         getProjectDef: function() { return def; },
         getProjectMediaList: getProjectMediaList,
+        getProjectMediaByAssignment: getProjectMediaByAssignment,
         saveProject: saveProject,
         showFile: showFile,
     };
@@ -126,6 +127,52 @@ function SynProject($http,$q,$log) {
     function getPage(idx) {
         idx = parseInt(idx) || 0;
         return project.pages[idx];
+    }
+
+    function getProjectMediaByAssignment() {
+        var defer = $q.defer();
+
+        // Make a list of all cue media
+        var cueMedia = {};
+        angular.forEach(project.cues, function(c) {
+            for (var i=0;i<c.sources.length;i++) {
+                // Is this the first cue for this source?
+                if (!cueMedia[c.sources[i]]) {
+                    cueMedia[c.sources[i]] = [];
+                }
+                cueMedia[c.sources[i]].push(c);
+            }
+        });
+
+        var response = {
+            all: [],
+            assigned: [],
+            unassigned: [],
+            size: 0,
+        };
+
+        getProjectMediaList(true).then(function(medialist) {
+
+            response.all = medialist;
+
+            // Track media that's NOT in a cue
+            angular.forEach(medialist, function(m) {
+                if (!cueMedia[m.name]) {
+                    response.unassigned.push(m);
+                }
+                else {
+                    // Store the name as assigned
+                    response.assigned.push(m);
+                    // The list of assigned cues
+                    m._assignedCues = cueMedia[m.name];
+                }
+                response.size += m.stats.size;
+            });
+            defer.resolve(response);
+
+        });
+
+        return defer.promise;
     }
 
     /**

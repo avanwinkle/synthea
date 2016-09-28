@@ -399,6 +399,11 @@ div[dnd-list] .dndDraggingSource {
     display: none !important;
 }
 
+.section-container-drop {
+    // Ensure a min height so we can drop cues even if the section is empty
+    min-height: 32px;
+}
+
 // Drag placeholders for cues, sections
 .section-container .dndPlaceholder {
     list-style: none;

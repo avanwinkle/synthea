@@ -90,7 +90,8 @@ md-input-container.noerror .md-errors-spacer {
 .modal-title {
   background-color: #eee;
   font-size: 24px;
-  font-weight: 400; }
+  font-weight: 400;
+  line-height: 48px; }
 
 .modal-desc {
   font-weight: 300;
@@ -218,13 +219,15 @@ md-input-container.noerror .md-errors-spacer {
       border: solid 1px #ccc;
       border-radius: 8px; }
 
-.cueButton.md-button {
+.cueButton, .cueButton.md-button {
   background-color: #fafafa;
   border: solid 1px #bbb;
   border-radius: 6px;
   font-size: 12px;
   font-weight: 400;
+  line-height: 36px;
   margin: 0;
+  min-height: 36px;
   text-transform: none;
   width: 100%; }
 
