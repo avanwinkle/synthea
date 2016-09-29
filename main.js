@@ -16,8 +16,8 @@ let mainWindow;
 let menu;
 
 let DEBUG_MODE;
-// HEY LISTEN! Developers, wanna see what's going on? TURN THIS ON!!
-// DEBUG_MODE = true;
+// Developers, wanna see what's going on? >> $ electron . --debug
+DEBUG_MODE = process.argv.indexOf('--debug') !== -1;
 
 
 function browseCloudProjects() {
@@ -258,7 +258,7 @@ function createWindow () {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     backgroundColor: '#EEEEEE',
-    height: 680,
+    height: 720,
     icon: './assets/synthea_flat.ico',
     title: 'Synthea ' + VERSION,
     width: 1080,

@@ -302,9 +302,12 @@ md-input-container.noerror .md-errors-spacer {
 	border-radius: 6px;
 	font-size: 12px;
 	font-weight: 400;
-	line-height: 36px;
+	// Make the line height small and pad for height
+	line-height: 12px;
 	margin:0;
 	min-height: 36px;
+	// 12px padding minus one for the border = 36px for a one-line button
+	padding: 11px 2px;
 	text-transform: none;
 	width: 100%;
 

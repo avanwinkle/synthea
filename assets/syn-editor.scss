@@ -38,6 +38,12 @@ div[dnd-list] .dndDraggingSource {
     margin: 0 auto;
 }
 
+// Links should look linky
+.editor-link {
+    color: $syn-danger;
+    cursor: pointer;
+}
+
 // Not all md-input-containers can do labels, so we match
 .faux-label {
     color: rgba(0,0,0,0.54);
@@ -56,6 +62,7 @@ div[dnd-list] .dndDraggingSource {
 
     &:first-child {
         padding-right: $colpadding;
+        min-width: 400px;
     }
     &:last-child {
         width: 240px;
@@ -98,6 +105,13 @@ div[dnd-list] .dndDraggingSource {
             outline: none;
         }
     }
+
+    &-toggle {
+        cursor: pointer;
+        &:hover {
+            color: $syn-danger;
+        }
+    }
 }
 
 .editcue-hotkey {
@@ -137,6 +151,36 @@ div[dnd-list] .dndDraggingSource {
 
 .editcue-modal.modal-body {
     min-width: 640px;
+}
+
+.editcue-settingsgroup {
+    min-height: 180px;
+}
+
+.editcue-settingstoggle {
+    border-bottom: solid 1px rgba(0,0,0,0.1);
+    margin-bottom: 8px;
+
+    &-button {
+        border-radius: 4px 4px 0 0;
+        line-height: 18px;
+        font-size: 12px;
+        font-weight: 500;
+        margin-right: 16px;
+        padding: 4px 12px;
+
+        &.current {
+            color: #000;
+            background-color: #ddd;
+        }
+        &:not(.current) {
+            cursor: pointer;
+            color: #666;
+            &:hover {
+                color: $syn-danger;
+            }
+        }
+    }
 }
 
 .editcue-sources {
@@ -459,7 +503,7 @@ div[dnd-list] .dndDraggingSource {
     &-pointer {
         border-radius: 32px;
         bottom: 4px;
-        left: 16px;
+        left: 56px;
         line-height: 2.5;
         padding: 4px 16px;
         position:absolute;

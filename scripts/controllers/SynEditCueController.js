@@ -39,22 +39,74 @@ function SynEditCueController(SynChannel,SynProject,$mdDialog,$scope) {
  */
 SynEditCueController.prototype.activate = function() {
 
+    this.project = this.SynProject_.getProject();
+
     // get the media list
     this.SynProject_.getProjectMediaByAssignment().then(function(response) {
         this.media = response;
-        this.mediaList = response.all;
-        this.mediaListOnlyUnassigned = false;
+        // By default, show only unassigned media
+        this.mediaList = response.unassigned;
+        this.mediaListOnlyUnassigned = true;
+
+        // Do we have media to auto-assign? (i.e. came from media manager)
+        if (this.cue._media) {
+            var targetMedia;
+            // Find the media assignment in the media list
+            for (var i=0;i<response.all.length;i++) {
+                // The cue is a copy of everything, so find the original obj
+                if (response.all[i].name == this.cue._media.name) {
+                    targetMedia = response.all[i];
+                }
+            }
+            // If the target media is already assigned, change the shown list
+            if (response.unassigned.indexOf(targetMedia)===-1) {
+                this.mediaList = response.all;
+                this.mediaListOnlyUnassigned = false;
+            }
+
+            // Select the target media in the select box
+            this.selectedFiles = [ targetMedia ];
+            // Add the selected media to the cue
+            this.addFilesToCue();
+        }
     }.bind(this));
 
     // Make a holding value for the volume
     this.volume_pct = this.cue.volume * 100 || undefined;
 
+    // By default, show the basic settings
+    this.showAdvancedSettings = false;
+
     // Do we have a hotkey?
-    angular.forEach(this.SynProject_.getProject().hotKeys, function(keyobj,keycode) {
+    angular.forEach(this.project.hotKeys, function(keyobj,keycode) {
         if (keyobj.cue_id === this.cue.id) {
             this.cue._hotkey = keycode;
         }
     }.bind(this));
+
+    // What section should we show? Default to whatever is first?
+    var section = this.project.sections[0];
+
+    // Did we get a section id?
+    if (this.cue._section_id) {
+        angular.forEach(this.project.sections, function(s){
+            if (s.id === this.cue._section_id) {
+                section = s;
+            }
+        }.bind(this));
+    }
+    // Do we have a section already set? Find the first one
+    else if (this.cue.id) {
+        angular.forEach(this.project.sections, function(s){
+            if (s.cue_ids.indexOf(this.cue.id) !== -1) {
+                section = s;
+                // Backref this section
+                this.cue._section_id = s.id;
+            }
+        }.bind(this));
+    }
+    this.currentSectionId = section.id;
+    this.currentPageId = section.page_id;
 
 };
 
@@ -81,6 +133,10 @@ SynEditCueController.prototype.$close = function() {
             _code: this.cue._hotkey
         };
     }
+
+    // Attach the section
+    this.cue._section_id = this.currentSectionId;
+    this.changePage();
 
     this.$mdDialog_.hide(this.cue);
 };
@@ -146,10 +202,32 @@ SynEditCueController.prototype.captureHotkeys = function() {
 };
 
 /**
+ * Select the first section of a page when the cue page is changed
+ */
+SynEditCueController.prototype.changePage = function() {
+    // Is the original section in this page?
+    // if (this.cue._section && this.cue._section.page_id === this.currentPageId) {
+        // this.currentSection = this.cue._section;
+        // return;
+    // }
+    for (var i=0;i<this.project.sections.length;i++) {
+        // Is the cue already in this section?
+        if (this.cue._section_id && this.project.sections[i].id === this.cue._section_id) {
+            this.currentSectionId = this.project.sections[i].id;
+            // This trumps the rest, stop looking
+            break;
+        }
+        if (this.project.sections[i].page_id === this.currentPageId) {
+            this.currentSectionId = this.project.sections[i].id;
+        }
+    }
+};
+
+/**
  * Remove all sources from the cue
  */
 SynEditCueController.prototype.clearSources = function() {
-    this.cue.sources = [];
+    this.cue.sources.splice(0);
 };
 
 /**

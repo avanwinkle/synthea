@@ -112,7 +112,7 @@ ng-class="{'hasBanner': sVm.project._bannerImage}"
                 <div class="cueButton-container"
                 flex="none" layout="row">
                     <md-button class="md-accent editor-addbutton"
-                    ng-click="seVm.addCue(currentCues.length,section,$event)">
+                    ng-click="seVm.addCue(section,null,$event)">
                         + Add Cue
                     </md-button>
                 </div>
@@ -123,8 +123,12 @@ ng-class="{'hasBanner': sVm.project._bannerImage}"
             layout="column" layout-fill>
             <span flex="2"></span>
             <div flex="none">
-            Use the section manager to add sections <br/>
-            sections and start building this page.
+            Use the section manager to
+            <a class="editor-link"
+            ng-click="seVm.manageSections(sVm.currentPage.id,$event)">
+                add sections
+            </a> <br/>
+            and start building this page.
             </div>
             <span flex="3"></span>
 
@@ -132,7 +136,7 @@ ng-class="{'hasBanner': sVm.project._bannerImage}"
                 <span class="section-placeholder-pointer-icon">
                     <svg syn-icon="subdirectory_arrow_right"></svg>
                 </span>
-                Click the gear to add/manage sections
+                Click to add/manage sections
             </div>
         </div>
     </div>
@@ -143,6 +147,7 @@ ng-class="{'hasBanner': sVm.project._bannerImage}"
 class="md-accent md-hue-2">
     <div class="md-toolbar-tools" layout="row">
 
+        <!--
         <md-menu md-offset="0 48">
           <md-button aria-label="Open phone interactions menu" class="md-icon-button"
           ng-click="seVm.openMenu($mdOpenMenu, $event)">
@@ -191,16 +196,15 @@ class="md-accent md-hue-2">
 
           </md-menu-content>
         </md-menu>
-        <md-button class="md-icon-button"
-        ng-click="seVm.copyMediaToProject()"
-        aria-label="Add Media">
-            <md-icon>
-                <svg syn-icon="library_add"></svg>
-            </md-icon>
+        -->
+
+      <md-button class="md-icon-button" ng-click="seVm.manageMedia($event)">
+        <md-icon md-menu-align-target>
+            <svg syn-icon="library_music"></svg></md-icon>
             <md-tooltip md-direction="top" md-delay="200">
-                Add Media to Project
-            </md-tooltip>
-        </md-button>
+            Manage Media
+        </md-tooltip>
+      </md-button>
 
         <span flex></span>
         <!-- <h2>Edit Project</h2> -->

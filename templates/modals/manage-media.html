@@ -89,21 +89,12 @@ layout="column" layout-fill md-theme="pink">
                             This media is assigned to:
                         </div>
                         <div ng-if="!smVm.selectedMedia._assignedCues">
-                            <div>
-                                This media is not assigned to any cues.
-                            </div>
-                            <div style="font-style:normal;text-align: right;">
-                                <md-button class=""
-                                ng-if="smVm.unassignedMedia.indexOf(smVm.selectedMedia)!==-1"
-                                ng-click="smVm.deleteMedia()">
-                                Delete Media
-                                </md-button>
-                            </div>
+                            This media is not assigned to any cues.
                         </div>
                     </div>
 
                     <div class="editmedia-cuelist-item"
-                    ng-repeat="cue in smVm.selectedMedia._assignedCues">
+                      ng-repeat="cue in smVm.selectedMedia._assignedCues">
                         <div layout="row">
                             <div class="editmedia-cuelist-item-name"
                             ng-bind="cue.name"></div>
@@ -126,6 +117,23 @@ layout="column" layout-fill md-theme="pink">
                         <div class="editmedia-cuelist-item-ancestry">
                             <div ng-repeat="ans in cue._ancestry">{{ans.page}} &gt; {{ans.section}}
                             </div>
+                        </div>
+                    </div>
+
+                    <div layout="row">
+                        <div style="margin-left: -8px;">
+                            <md-button class="md-primary"
+                            ng-click="smVm.createCueFromMedia()">
+                            Create Cue
+                            </md-button>
+                        </div>
+                        <span flex></span>
+                        <div style="margin-right: -8px;">
+                            <md-button class="md-accent md-hue-3"
+                            ng-if="smVm.unassignedMedia.indexOf(smVm.selectedMedia)!==-1"
+                            ng-click="smVm.deleteMedia()">
+                            Delete Media
+                            </md-button>
                         </div>
                     </div>
                 </div>

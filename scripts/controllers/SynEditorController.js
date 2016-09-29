@@ -52,11 +52,13 @@ function SynEditorController(SynProject,$filter,$log,$mdDialog,$q,$timeout) {
  * @param {object} section Section to add the cue to
  * @param {$event} $event  Click event (for modal positioning)
  */
-SynEditorController.prototype.addCue = function(idx, section, $event) {
+SynEditorController.prototype.addCue = function(section, media, $event) {
 
     // This will become our new cue
     var newCue = {
         sources: [],
+        _section_id: section ? section.id : undefined,
+        _media: media,
     };
 
     // Set a default subgroup? If the board configuration says so
@@ -85,15 +87,15 @@ SynEditorController.prototype.addCue = function(idx, section, $event) {
             this._attachHotkey(newCue._hotkey);
         }
 
+        // Attach this cue to the section
+        newCue._section.cue_ids.push(newCue.id);
+        // And remove the section
+        newCue._section = undefined;
+        newCue._section_id = undefined;
+
         // And add it to the project
         this.project.cues.push(newCue);
-        // Store the cue ids on the sections
-        // AVW: This double check is from the legacy migration, won't need in future
-        if (!section.cue_ids) {
-            console.warn('Migration: section does not have cue ids array');
-            section.cue_ids = [];
-        }
-        section.cue_ids.push(newCue.id);
+
     }.bind(this));
 };
 
@@ -172,6 +174,34 @@ SynEditorController.prototype.editCue = function(cue,$event) {
             // The merge won't remove sources, even if the modal did
             if (response.sources.length===0) { cue.sources.splice(0); }
 
+
+            // Splice the cue out of all other sections
+            // TODO: Handle cues in multiple sections here
+            angular.forEach(this.project.sections, function(s) {
+
+                // AVW: This double check is from the legacy migration, won't need in future
+                if (!s.cue_ids) {
+                    console.warn('Migration: section does not have cue ids array');
+                    s.cue_ids = [];
+                }
+
+                // Is this the target section?
+                if (s.id === cue._section_id) {
+                    // Is this a new cue that needs to get an id before section?
+                    if (!cue.id) {
+                        cue._section = s;
+                    }
+                    // If it is the target section and doesn't have this cue?
+                    else if (s.cue_ids.indexOf(cue.id)===-1) {
+                        s.cue_ids.push(cue.id);
+                    }
+                }
+                // If it's not the target section and it has this cue?
+                else if (cue.id && s.cue_ids.indexOf(cue.id)!== -1) {
+                    s.cue_ids.splice(s.cue_ids.indexOf(cue.id),1);
+                }
+            });
+
             // MIGRATION: Not all projects have subgroups
             if (!this.project.subgroups) {
                 console.warn('Migration: project files need subgroups.');
@@ -217,7 +247,17 @@ SynEditorController.prototype.manageMedia = function($event) {
         },
         templateUrl: 'templates/modals/manage-media.html',
         targetEv: $event,
-    });
+    }).then(function(response) {
+
+        if (!response) { return; }
+
+        // Should we do something based on the media modal's response?
+        switch(response.action) {
+            case 'createCue':
+                this.addCue(null,response.media,$event);
+                break;
+        }
+    }.bind(this));
 };
 
 SynEditorController.prototype.managePages = function($event) {

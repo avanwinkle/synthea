@@ -51,7 +51,7 @@ with Synthea (see below).
 links to those distributions will be available soon. For now, you may clone this repo and run locally
 or create your own builds.
 
-**User Installation**
+**End-User Installation**
 
 Binary installers will be found on the [Synthea homepage](https://avanwinkle.github.io/synthea/)
 when available.
@@ -70,9 +70,10 @@ It is *slightly* faster to boot up Synthea using the Electron binary directly (r
 $ npm install -g electron
 ```
 
-And then, open Synthea via Electron directly (from the Synthea repository folder):
+And then, open Synthea via Electron directly (from the Synthea repository folder). The optional
+`--debug` argument enables the developer tools at load.
 ```
-$ electron .
+$ electron . [ --debug ]
 ```
 
 

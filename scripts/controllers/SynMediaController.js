@@ -60,6 +60,11 @@ SynMediaController.prototype.addMedia = function() {
         .then(this._processMediaFiles.bind(this));
 };
 
+SynMediaController.prototype.createCueFromMedia = function() {
+    // Pass in the media as a response object from the modal
+    this.$hide({ action: 'createCue', media: this.selectedMedia});
+};
+
 SynMediaController.prototype.deleteMedia = function() {
     this.SynProject_.deleteMedia(this.selectedMedia.name)
         // Update the media list, including our size tallies

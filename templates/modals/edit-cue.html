@@ -23,123 +23,190 @@
 
         <div layout="column" flex="60" class="editcue-column">
 
-            <md-input-container class="nobottom">
-                <label>Cue Title</label>
-                <input ng-model="secVm.cue.name" autofocus>
-            </md-input-container>
-
             <div layout="row">
-                <div flex="50">
-                    <md-input-container>
-                        <label>Subgroup</label>
-                        <md-select ng-model="secVm.cue.subgroup">
-                            <md-option ng-value="null"><em>None</em></md-option>
-                            <md-option value="music">Music</md-option>
-                            <md-option value="ambient">Ambient</md-option>
-                            <md-option value="fire">Fire</md-option>
-                            <md-option value="rain">Rain</md-option>
-                        </md-select>
-                        <div class="hint" ng-switch="secVm.cue.subgroup">
-                            <span ng-switch-when="null">
-                                This cue will play independent of other cues.
-                            </span>
-                            <span ng-switch-default>
-                                Playing this cue will replace any other
-                                {{secVm.cue.subgroup}} cue.
-                            </span>
-                        </div>
-                    </md-input-container>
-                </div>
-                <span flex="5"></span>
-                 <div flex="45">
-                    <md-input-container>
-                        <label>Fade In</label>
-                        <md-select ng-model="secVm.cue.isFadeIn">
-                            <md-option ng-value="undefined"><em>Automatic</em></md-option>
-                            <md-option ng-value="false">Never</md-option>
-                            <md-option ng-value="true">Always</md-option>
-                        </md-select>
-                        <div class="hint" ng-switch="secVm.cue.isFadeIn">
-                            <span ng-switch-when="true">
-                                Always fade in.
-                            </span>
-                            <span ng-switch-when="false">
-                                Always start at full volume.
-                            </span>
-                            <span ng-switch-default>
-                                Use the board's setting.
-                            </span>
-                        </div>
+                <div flex="75">
+                    <md-input-container class="nobottom" style="width: 100%;">
+                        <label>Cue Title</label>
+                        <input ng-model="secVm.cue.name" md-autofocus>
                     </md-input-container>
                 </div>
             </div>
 
-            <!-- Loop and volume row -->
-            <div layout="row">
-                <div flex="50">
-                    <div class="faux-label">Loop Cue</div>
-                    <md-checkbox style="padding:4px; font-size: 14px;"
-                    ng-model="secVm.cue.isLoop" class="md-primary">
-                        Looping {{secVm.cue.isLoop ? 'On':'Off'}}
-                    </md-checkbox>
+            <div layout="row" class="editcue-settingstoggle">
+                <a flex="none"
+                class="editcue-settingstoggle-button"
+                ng-class="{'current': !secVm.showAdvancedSettings}"
+                ng-click="secVm.showAdvancedSettings=false">Basic</a>
+                <a flex="none"
+                class="editcue-settingstoggle-button"
+                ng-class="{'current': secVm.showAdvancedSettings}"
+                ng-click="secVm.showAdvancedSettings=true">Advanced</a>
+            </div>
+
+            <div layout="column" class="editcue-settingsgroup"
+            ng-show="!secVm.showAdvancedSettings">
+                <div layout="row">
+                    <div flex="40">
+                        <md-input-container style="width: 100%;">
+                            <label>Page</label>
+                            <md-select required md-no-asterisk
+                            ng-model="secVm.currentPageId"
+                            ng-change="secVm.changePage()">
+                            <md-option ng-repeat="page in secVm.project.pages track by page.id"
+                            ng-value="page.id" ng-bind="page.name"></md-option>
+
+                            </md-select>
+                        </md-input-container>
+                    </div>
+                    <span flex="5"></span>
+                    <div flex="55">
+                        <md-input-container style="width: 100%;">
+                            <label>Section</label>
+                            <md-select required md-no-asterisk
+                            ng-model="secVm.currentSectionId">
+                            <md-option ng-repeat="section in secVm.project.sections | filter: {page_id: secVm.currentPageId} : true track by section.id"
+                            ng-value="section.id" ng-bind="section.name"></md-option>
+                            </md-select>
+                        </md-input-container>
+                    </div>
+
                 </div>
-                <span flex="5"></span>
-                <div flex="45">
-                    <md-input-container class="nobottom noerror" >
-                        <label style="overflow:visible;">Volume Adjustment</label>
-                        <input ng-model="secVm.volume_pct" type="number"
-                        style="min-width: 4em;"
-                        min="0" max="200" step="1" placeholder="100"
-                        ng-change="secVm.updateVolume()"
-                        ng-model-options='{ debounce: 500 }'>
-                        <span class="md-input-suffix">%</span>
-                    </md-input-container>
+                <div layout="row">
+                    <div flex="40">
+                        <div class="faux-label">Loop Cue</div>
+                        <md-checkbox style="padding:4px; font-size: 14px;"
+                        ng-model="secVm.cue.isLoop" class="md-primary">
+                            Looping {{secVm.cue.isLoop ? 'On':'Off'}}
+                        </md-checkbox>
+                    </div>
+                    <span flex="5"></span>
+
+                    <div flex="55">
+                        <md-input-container style="width: 100%;">
+                            <label>Subgroup</label>
+                            <md-select ng-model="secVm.cue.subgroup">
+                                <md-option ng-value="null"><em>None</em></md-option>
+                                <md-option value="music">Music</md-option>
+                                <md-option value="ambient">Ambient</md-option>
+                                <md-option value="fire">Fire</md-option>
+                                <md-option value="rain">Rain</md-option>
+                            </md-select>
+                            <div class="hint" ng-switch="secVm.cue.subgroup">
+                                <span ng-switch-when="null">
+                                    This cue will play independent of other cues.
+                                </span>
+                                <span ng-switch-default>
+                                    Playing this cue will replace any other
+                                    {{secVm.cue.subgroup}} cue.
+                                </span>
+                            </div>
+                        </md-input-container>
+                    </div>
+
                 </div>
+
+                <!-- Loop and volume row -->
+                <div layout="row">
+
+                    <span flex="5"></span>
+                    <div flex="45">
+                    </div>
+
+                </div>
+
 
             </div>
 
-            <!-- Hotkey row -->
-            <div>
-                    <div class="faux-label">Hotkey</div>
+            <!-- ADVANCED SETTINGS -->
+            <div layout="column" class="editcue-settingsgroup"
+            ng-show="secVm.showAdvancedSettings">
+                <!-- Loop and volume row -->
+                <div layout="row">
+                    <div flex="50">
+                        <md-input-container>
+                            <label>Fade In</label>
+                            <md-select ng-model="secVm.cue.isFadeIn">
+                                <md-option ng-value="undefined"><em>Automatic</em></md-option>
+                                <md-option ng-value="false">Never</md-option>
+                                <md-option ng-value="true">Always</md-option>
+                            </md-select>
+                            <div class="hint" ng-switch="secVm.cue.isFadeIn">
+                                <span ng-switch-when="true">
+                                    Always fade in.
+                                </span>
+                                <span ng-switch-when="false">
+                                    Always start at full volume.
+                                </span>
+                                <span ng-switch-default>
+                                    Use the board's setting.
+                                </span>
+                            </div>
+                        </md-input-container>
+                    </div>
+                    <span flex="5"></span>
+                    <div flex="45">
+                        <md-input-container class="nobottom noerror" >
+                            <label style="overflow:visible;">Volume Adjustment</label>
+                            <input ng-model="secVm.volume_pct" type="number"
+                            style="min-width: 4em;"
+                            min="0" max="200" step="1" placeholder="100"
+                            ng-change="secVm.updateVolume()"
+                            ng-model-options='{ debounce: 500 }'>
+                            <span class="md-input-suffix">%</span>
+                        </md-input-container>
+                    </div>
 
-                    <div layout="row" class="editcue-hotkey" >
+                </div>
 
-                        <div class="editcue-hotkey-code" flex>
-                            <div class="hotkey-input-container">
-                                <div class="hotkey-input hotkey-capture" ng-if="secVm.showHotkeys && secVm.hotkeyCapture">
-                                    <span ng-if="secVm.hotkeyCapture.ctrlKey">Ctrl + </span>
-                                    <span ng-if="secVm.hotkeyCapture.shiftKey">Shift + </span>
-                                    <span ng-bind="secVm.hotkeyCapture.code | hotkeyCode"></span>
-                                </div>
-                                <div class="hotkey-input hotkey-placeholder"
-                                ng-if="secVm.showHotkeys && !secVm.hotkeyCapture">
-                                    Press Keys to Bind!
-                                </div>
-                                <div class="hotkey-input hotkey-bound"
-                                ng-if="!secVm.showHotkeys && secVm.cue._hotkey">
-                                    <span ng-bind="secVm.cue._hotkey | hotkeyCode"></span>
-                                </div>
-                                <div class="hotkey-input hotkey-none"
-                                ng-if="!secVm.showHotkeys && !secVm.cue._hotkey">
-                                    No hotkey bound
+                <!-- Fade row -->
+                <div layout="row">
+
+                </div>
+
+                <!-- Hotkey row -->
+                <div>
+                        <div class="faux-label">Hotkey</div>
+
+                        <div layout="row" class="editcue-hotkey" >
+
+                            <div class="editcue-hotkey-code" flex>
+                                <div class="hotkey-input-container">
+                                    <div class="hotkey-input hotkey-capture" ng-if="secVm.showHotkeys && secVm.hotkeyCapture">
+                                        <span ng-if="secVm.hotkeyCapture.ctrlKey">Ctrl + </span>
+                                        <span ng-if="secVm.hotkeyCapture.shiftKey">Shift + </span>
+                                        <span ng-bind="secVm.hotkeyCapture.code | hotkeyCode"></span>
+                                    </div>
+                                    <div class="hotkey-input hotkey-placeholder"
+                                    ng-if="secVm.showHotkeys && !secVm.hotkeyCapture">
+                                        Press Keys to Bind!
+                                    </div>
+                                    <div class="hotkey-input hotkey-bound"
+                                    ng-if="!secVm.showHotkeys && secVm.cue._hotkey">
+                                        <span ng-bind="secVm.cue._hotkey | hotkeyCode"></span>
+                                    </div>
+                                    <div class="hotkey-input hotkey-none"
+                                    ng-if="!secVm.showHotkeys && !secVm.cue._hotkey">
+                                        No hotkey bound
+                                    </div>
                                 </div>
                             </div>
+
+                            <div flex="none" style="margin-right: -16px">
+
+
+                                <md-button class="smallbutton md-accent md-hue-3"
+                                ng-style="{'visibility': secVm.showHotkeys ? 'visible':'hidden'}"
+                                ng-click="secVm.captureHotkeys()">Cancel</md-button>
+
+                                <md-button class="smallbutton md-primary" ng-if="secVm.showHotkeys"
+                                ng-click="secVm.saveHotkeys()">Set Key</md-button>
+
+                                <md-button class="smallbutton md-primary" ng-if="!secVm.showHotkeys"
+                                 ng-click="secVm.captureHotkeys()">Record Key</md-button>
+                            </div>
                         </div>
+                </div>
 
-                        <div flex="none" style="margin-right: -16px">
-
-
-                            <md-button class="smallbutton md-accent md-hue-3"
-                            ng-style="{'visibility': secVm.showHotkeys ? 'visible':'hidden'}"
-                            ng-click="secVm.captureHotkeys()">Cancel</md-button>
-
-                            <md-button class="smallbutton md-primary" ng-if="secVm.showHotkeys"
-                            ng-click="secVm.saveHotkeys()">Set Key</md-button>
-
-                            <md-button class="smallbutton md-primary" ng-if="!secVm.showHotkeys"
-                             ng-click="secVm.captureHotkeys()">Record Key</md-button>
-                        </div>
-                    </div>
             </div>
 
             <!-- List of assigned files -->
@@ -183,8 +250,8 @@
             <!-- Media list -->
 
             <div class="faux-label" layout="row">
-                <div ng-click="secVm.toggleMediaList()" style="cursor:pointer;">
-                    Project Media:
+                <div class="editcue-filelist-toggle" ng-click="secVm.toggleMediaList()">
+                    Media:
                     <span ng-if="!secVm.mediaListOnlyUnassigned">
                         All
                     </span>

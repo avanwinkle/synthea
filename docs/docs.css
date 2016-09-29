@@ -53,8 +53,7 @@ p {
 instr {
   font-family: monospace;
   font-weight: 800;
-  font-size: 115%;
-  vertical-align: text-bottom; }
+  font-size: 115%; }
 
 .internal-link {
   color: #ff4081;
