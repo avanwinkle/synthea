@@ -5,6 +5,9 @@ angular
     .module('SyntheaApp')
     .factory('SynChannel', SynChannel);
 
+// Note what "full" volume is, so we can consistently fade in/out of it
+const MAX_VOLUME = 0.5;
+
 SynChannel.$inject = ['SynProject','$interval','$q','$timeout'];
 
 /**
@@ -68,9 +71,9 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
      * @param  {number} startingLevel Volume at which to start the fade-in
      * @return {promise} A promise, resolved when the fade is complete
      */
-    Channel.prototype._fade = function(direction,startingLevel) {
+    Channel.prototype._fade = function(direction,startingLevel,duration) {
 
-        var start, end, duration;
+        var start, end;
         var defer = $q.defer();
 
         switch (direction) {
@@ -81,7 +84,7 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
                     // starting value
                     Math.min(Math.max(startingLevel,0), this.getFullVolume()):0;
                 end = this.getFullVolume();
-                duration = SynProject.getProject().config.fadeInDuration;
+                duration = duration || SynProject.getProject().config.fadeInDuration;
                 break;
             case 'out':
                 // AVW: If a double-fade is somehow triggered, this could
@@ -90,15 +93,27 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
                 // start = this.getFullVolume();
                 start = this._player.volume();
                 end = 0;
-                duration = SynProject.getProject().config.fadeOutDuration;
+                duration = duration || SynProject.getProject().config.fadeOutDuration;
+                break;
+            case 'to':
+                start = this._player.volume();
+                end = startingLevel;
+                // For volume changes, default to half a second
+                duration = duration || 500;
+                break;
         }
 
-        // Make the fade
-        this._player.fade(start,end,duration);
-        // Resolve the promise, which triggers a $scope.digest?
+        // HowlerJS player has trouble with too many decimal places?
+        // TODO: Make pull request for Howler to fix bug on their end
+        end = Math.round(end*100) / 100;
+
+        // Resolve the promise, which triggers a $scope.digest automatically
         this._player.once('fade', function() {
             defer.resolve(duration);
         });
+
+        // Make the fade
+        this._player.fade(start,end,duration);
 
         return defer.promise;
     };
@@ -161,8 +176,6 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
      * @return {number} Volume level (min 0, max 1)
      */
     Channel.prototype.getFullVolume = function() {
-        // Note what "full" volume is, so we can consistently fade in/out of it
-        const MAX_VOLUME = 0.5;
         return MAX_VOLUME * (this.volume_pct / 100);
     };
 
@@ -439,15 +452,11 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
             angular.isDefined(targetTime) ? targetTime : this.currentTime);
     };
 
-    Channel.prototype.setFullVolume = function(adjustment) {
+    Channel.prototype.setFullVolume = function(adjustment,duration) {
         // Constraints, of course
         this.volume_pct = Math.max(0, Math.min(adjustment,200));
-        console.log(adjustment,this.volume_pct)
-        // Make the fade in... half a second, why not?
-        this._player.fade(
-            this._player.volume(),
-            this.getFullVolume(),
-            500);
+        // Make the fade to this volume
+        this._fade('to',this.getFullVolume(),duration);
     };
 
     /**
