@@ -532,7 +532,7 @@ function setMenusEnabled(arg) {
             break;
         // By default, the arg is the object of the states
         default:
-            console.log("Unknown menus arg", arg)
+            console.log("Unknown menus arg", arg);
             menustate = {};
     }
 

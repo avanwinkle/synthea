@@ -18,6 +18,7 @@
           </md-input-container>
               <md-slider
                 ng-model="cVm.channel.volume_pct"
+                ng-change="cVm.volumeChange()"
                 min="0"
                 max="200"
                 step="5"

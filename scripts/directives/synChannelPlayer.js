@@ -97,5 +97,13 @@ SynChannelPlayerController.prototype.timelineSeekPreview = function(evt) {
     return this.seekPreview;
 };
 
+/**
+ * Callback function for changing the volume in realtime. Takes the ng-model
+ * channel volume level and fades from the current level to that target.
+ */
+SynChannelPlayerController.prototype.volumeChange = function() {
+    this.channel.setFullVolume(this.channel.volume_pct);
+};
+
 // IIFE
 })();

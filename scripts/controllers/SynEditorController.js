@@ -488,6 +488,11 @@ SynEditorController.prototype._manageList = function($event, listtype, page_id) 
             }
         }
 
+        // For ease of prev/next navigation on pages, sort them by display order
+        this.project.pages.sort(function(a,b) {
+            return a.display_order - b.display_order;
+        });
+
     }.bind(this));
 
 };

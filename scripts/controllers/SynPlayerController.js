@@ -174,7 +174,7 @@ SynPlayerController.prototype.activate =  function() {
     this.project = this.SynProject_.getProject();
     this.mixer = this.SynMixer_.createMixer();
 
-    // Store some search
+    // Store some search values for our global search
     this.search = {
         query: undefined,
         selected: undefined,
@@ -201,8 +201,17 @@ SynPlayerController.prototype.contextCue = function(cue,event) {
  */
 SynPlayerController.prototype.enableDJMode = function() {
 
+    // If we have ANY music tracks, only DJ them.
+    var tracks = this.$filter_('filter')(this.project.cues, function(cue) {
+        if (cue.subgroup === 'music') { return cue; }
+    });
+    // If no tracks are music, DJ all of them
+    if (tracks.length) {
+        tracks = this.project.cues;
+    }
+
     // How many new tracks before repeat?
-    const TOTAL_TRACKS = this.project.cues.length;
+    const TOTAL_TRACKS = tracks.length;
     const PLAY_MEMORY = Math.min( TOTAL_TRACKS, 10);
     let recently_played = [];
 
@@ -214,7 +223,7 @@ SynPlayerController.prototype.enableDJMode = function() {
     // Play a random track
     function getRandomTrack() {
         var tracknum = Math.floor(Math.random() * TOTAL_TRACKS);
-        return syn.project.cues[ tracknum ];
+        return tracks[ tracknum ];
     }
 
     function playThatFunkyMusic() {
@@ -302,7 +311,7 @@ SynPlayerController.prototype.openSearchDialog = function() {
  * controller-specific actions.
  *
  * The event for this method can include a modifier key to force the fadeIn
- * state: click+shift will force fadeIn = true, while click+alt will force
+ * state: shift+click will force fadeIn = true, while alt+click will force
  * fadeIn = false.
  *
  * @param  {Cue} cue   The cue object that was clicked
@@ -316,8 +325,11 @@ SynPlayerController.prototype.selectCue = function(cue,event) {
 
     // We can pass in a "force" value for fadeIn
     var forceFadeIn;
+    // Shift + Click = Force fade in
     if (event && event.shiftKey) { forceFadeIn = true; }
-    else if (event && event.altKey) { forceFadeIn = false;}
+    // Alt + Click = Force NOT fade in
+    // Why not Ctrl + Click? Because that = context click, which will queue
+    else if (event && event.altKey) { console.log('alt'); forceFadeIn = false;}
 
     // Clear the search box
     this.search.query = undefined;
@@ -337,8 +349,7 @@ SynPlayerController.prototype.selectCue = function(cue,event) {
         // checkViz();
     }
 
-
-    // Use the mixer's method, which handles all the necessary
+    // Use the mixer's play method, which handles all the necessary
     // group and channel logic. It returns the channel that the cue
     // gets assigned to.
     return this.mixer.play(cue,{forceFadeIn: forceFadeIn});
@@ -347,9 +358,10 @@ SynPlayerController.prototype.selectCue = function(cue,event) {
 
 /**
  * Global stop method to gracefully kill playback on all channels. A wrapper for
- * the mixer's method to do the same, plus remove any latent timers.
+ * the mixer's method to do the same, plus removal of any latent timers.
  *
- * @param {boolean} fullstop Force all channels (including queued) to stop & flush
+ * @param {boolean} fullstop Force all channels (including queued) to stop
+ *                           immediately & flush their loaded files
  */
 SynPlayerController.prototype.stopAll = function(fullstop) {
 
@@ -370,7 +382,6 @@ SynPlayerController.prototype.visualize = function() {
 
     const WIDTH = document.body.clientWidth; //canvas.width;
     const HEIGHT = canvas.height;
-    console.log(WIDTH,HEIGHT)
 
     // Begin FREQUENCY BARS viz
     this.mixer.analyser.fftSize = 256 * 4;
@@ -387,7 +398,6 @@ SynPlayerController.prototype.visualize = function() {
         if (!Howler._howls.length) {
             this.$interval_.cancel(this.vizInterval);
             this.vizInterval = null;
-            console.log("done!")
             return;
         }
 
@@ -402,7 +412,7 @@ SynPlayerController.prototype.visualize = function() {
         for(var i = 0; i < bufferLength; i++) {
             barHeight = dataArray[i]/3;
 
-            canvasCtx.fillStyle = '#999'; //'#2196F3'; //'rgb(' + (barHeight+100) + ',50,50)';
+            canvasCtx.fillStyle = '#999';
             canvasCtx.fillRect(x,HEIGHT/2 - barHeight,barWidth, barHeight*2);
 
             x += barWidth + 1;

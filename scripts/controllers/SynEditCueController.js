@@ -41,6 +41,9 @@ SynEditCueController.prototype.activate = function() {
 
     this.project = this.SynProject_.getProject();
 
+    // REFACTOR: A lot of the auto-assign and page/section selection code was
+    // written quickly during a project creation, and should be refactored.
+
     // get the media list
     this.SynProject_.getProjectMediaByAssignment().then(function(response) {
         this.media = response;
@@ -71,15 +74,16 @@ SynEditCueController.prototype.activate = function() {
         }
     }.bind(this));
 
-    // Make a holding value for the volume
+    // Make a holding value for the volume (stored an a percent)
     this.volume_pct = this.cue.volume * 100 || undefined;
 
-    // By default, show the basic settings
+    // By default, show the basic cue settings
     this.showAdvancedSettings = false;
 
-    // Do we have a hotkey?
+    // Do we have a hotkey? Look in our project hotkey bindings
     angular.forEach(this.project.hotKeys, function(keyobj,keycode) {
         if (keyobj.cue_id === this.cue.id) {
+            // Store the hotkey key so we can display it
             this.cue._hotkey = keycode;
         }
     }.bind(this));
@@ -87,7 +91,7 @@ SynEditCueController.prototype.activate = function() {
     // What section should we show? Default to whatever is first?
     var section = this.project.sections[0];
 
-    // Did we get a section id?
+    // Did we get a section id, by clicking +Add Cue in a section?
     if (this.cue._section_id) {
         angular.forEach(this.project.sections, function(s){
             if (s.id === this.cue._section_id) {
@@ -95,7 +99,7 @@ SynEditCueController.prototype.activate = function() {
             }
         }.bind(this));
     }
-    // Do we have a section already set? Find the first one
+    // Do we have a section already saved for this cue? Find the first one
     else if (this.cue.id) {
         angular.forEach(this.project.sections, function(s){
             if (s.cue_ids.indexOf(this.cue.id) !== -1) {
@@ -105,6 +109,8 @@ SynEditCueController.prototype.activate = function() {
             }
         }.bind(this));
     }
+
+    // Store the ids of the section and page for showing in the dropdown
     this.currentSectionId = section.id;
     this.currentPageId = section.page_id;
 
@@ -121,11 +127,11 @@ SynEditCueController.prototype.$cancel = function() {
  * Bind the $mdDialog service close method to the view model
  */
 SynEditCueController.prototype.$close = function() {
-    // Set the real volume, if need be
+    // Set the cue volume (in real number, not percent), if need be
     if (this.volume_pct) {
         this.cue.volume = this.volume_pct / 100;
     }
-    // Make the hotkey into an object
+    // Make the hotkey into an object to play the cue
     if (this.cue._hotkey) {
         this.cue._hotkey = {
             action: 'PLAY',
@@ -134,7 +140,8 @@ SynEditCueController.prototype.$close = function() {
         };
     }
 
-    // Attach the section
+    // Attach the section id. Binding the section to the cue id is outside the
+    // purview of this controller (i.e. we only edit the cue here)
     this.cue._section_id = this.currentSectionId;
     this.changePage();
 
@@ -172,11 +179,16 @@ SynEditCueController.prototype.addFilesToCue = function() {
 
 };
 
+/**
+ * Method to enable a key event listener and capture key presses for binding
+ * as hotkeys to this cue.
+ */
 SynEditCueController.prototype.captureHotkeys = function() {
-    // ALready doing? Cancel
+    // Already capturing hotkeys? Cancel
     this.showHotkeys = !this.showHotkeys;
 
     if (!this.showHotkeys) {
+        // Remove the listener if we're not capturing anymore
         document.removeEventListener('keypress', this.hotkeyListener);
         return;
     }
@@ -186,13 +198,19 @@ SynEditCueController.prototype.captureHotkeys = function() {
         e.preventDefault();
         // Don't allow reserved keys to bind
         switch (e.code) {
+            // Not ALL of these have keypress events (some only keyup events),
+            // but better to be safe and explicit than risk it.
+            case "Backspace":
             case "Enter":
+            case "Escape":
             case "Space":
+            case "Tab":
                 return;
         }
 
         this.hotkeyCapture = e;
 
+        // Key press events are a native event listener, so apply the scope
         this.$scope_.$apply();
 
     }.bind(this);
@@ -202,14 +220,11 @@ SynEditCueController.prototype.captureHotkeys = function() {
 };
 
 /**
- * Select the first section of a page when the cue page is changed
+ * Select the first section of a page when the cue page is changed, to prevent
+ * cues from not having sections.
  */
 SynEditCueController.prototype.changePage = function() {
-    // Is the original section in this page?
-    // if (this.cue._section && this.cue._section.page_id === this.currentPageId) {
-        // this.currentSection = this.cue._section;
-        // return;
-    // }
+
     for (var i=0;i<this.project.sections.length;i++) {
         // Is the cue already in this section?
         if (this.cue._section_id && this.project.sections[i].id === this.cue._section_id) {
@@ -309,6 +324,10 @@ SynEditCueController.prototype.saveHotkeys = function() {
 
 };
 
+/**
+ * Method for loading a media file into the preview player
+ * @param  {object} src Media object selected
+ */
 SynEditCueController.prototype.selectAssignedMedia = function(src) {
 
     // Unselect?
@@ -318,9 +337,10 @@ SynEditCueController.prototype.selectAssignedMedia = function(src) {
     }
     // From the multi-select?
     else if (src === 'select') {
+        // We really only accept one select, so just take the first
         src = this.selectedFiles[0].name;
     }
-    // If it's an assigned media, clear the select
+    // If it's an assigned media, clear the select (to avoid confusion)
     else {
         this.selectedFiles.splice(0);
     }
@@ -335,6 +355,7 @@ SynEditCueController.prototype.selectAssignedMedia = function(src) {
             return;
         }
 
+        // Load the cue, overriding params for a full and clear preview
         this.channel.loadCue({
             _audioRoot: this.SynProject_.getProjectDef().documentRoot + '/audio/',
             isFadeIn: false,
@@ -350,6 +371,9 @@ SynEditCueController.prototype.selectAssignedMedia = function(src) {
 
 };
 
+/**
+ * Toggle the list of project media files between all <-> unassigned
+ */
 SynEditCueController.prototype.toggleMediaList = function() {
     this.mediaListOnlyUnassigned = !this.mediaListOnlyUnassigned;
 
@@ -358,12 +382,15 @@ SynEditCueController.prototype.toggleMediaList = function() {
     ];
 };
 
+/**
+ * Update the preview player channel volume according to the cue volume setting
+ */
 SynEditCueController.prototype.updateVolume = function() {
-    // Nothing?
+    // Nothing? Set to default
     if (!this.volume_pct && this.volume_pct !== 0) {
         this.volume_pct = 100;
     }
-    // Coerce the constraints to be valid
+    // Coerce the constraints to be valid (between 0-200)
     else {
         this.volume_pct = Math.max(0, Math.min(this.volume_pct,200));
     }
