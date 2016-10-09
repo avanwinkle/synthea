@@ -24,8 +24,10 @@ function browseCloudProjects() {
 
     // Create a new window to show the loader
     let child = new BrowserWindow({
+        height: 480,
         modal: true,
-        show: false
+        show: false,
+        width: 600
     });
 
     // Create a node-formatted url for the loader window

@@ -313,9 +313,9 @@ SynEditCueController.prototype.saveHotkeys = function() {
         (this.hotkeyCapture.shiftKey ? 'Shift.' : '') +
         this.hotkeyCapture.code;
 
-    if (this.hotkeyCapture.altKey) { this.cue._hotkey.accelAlt = true; }
-    if (this.hotkeyCapture.ctrlKey) { this.cue._hotkey.accelCtrl = true; }
-    if (this.hotkeyCapture.shiftKey) { this.cue._hotkey.accelShift = true; }
+    // if (this.hotkeyCapture.altKey) { this.cue._hotkey.accelAlt = true; }
+    // if (this.hotkeyCapture.ctrlKey) { this.cue._hotkey.accelCtrl = true; }
+    // if (this.hotkeyCapture.shiftKey) { this.cue._hotkey.accelShift = true; }
 
     // Destroy the listener
     document.removeEventListener('keypress', this.hotkeyListener);

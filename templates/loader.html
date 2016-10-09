@@ -16,24 +16,25 @@
 ng-controller="SyntheaLoaderController as slVm">
 
 
-    <div class="modal-content">
+    <div class="modal-content" layout="column" layout-fill>
 
-        <div class="modal-title">Synthea Cloud Projects</div>
-        <div class="modal-desc">
+        <div class="modal-title" flex="none">Synthea Cloud Projects</div>
+        <div class="modal-desc" flex="none">
             These example projects are real-world uses of Synthea
             in live unscripted theater. All audio contents are property
             of their respective owners.
         </div>
-        <div>
-            <div ng-repeat="proj in slVm.projects | orderBy: 'name'">
+        <div flex layout="row" layout-wrap>
+            <div flex="50" ng-repeat="proj in slVm.projects | orderBy: 'name'">
                 <md-button ng-click="slVm.loadProject(proj)"
                 ng-bind="proj.name" aria-label="proj.name"></md-button>
             </div>
         </div>
-        <div class="modal-footer" layout="row">
+        <span flex></span>
+        <div class="modal-footer" layout="row" flex="none">
+            <span flex></span>
             <md-button class="cancelbutton"
             ng-click="slVm.close()">Cancel</md-button>
-            <span flex>
         </div>
     </div>
 
