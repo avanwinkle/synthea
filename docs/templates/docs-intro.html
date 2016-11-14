@@ -19,14 +19,32 @@
 
         <div layout="row">
             <span flex></span>
-            <div>
-                <md-button ng-disabled="true" class="md-accent md-raised"
+            <div ng-if="!vm.defaultWindowsDownload">
+                <md-button class="md-accent md-raised"
                 href="https://s3-us-west-2.amazonaws.com/synthea/Synthea.dmg"
                 target="_download">
-                    Download Pre-Alpha
+                    Download for OSX
                 </md-button>
                 <div class="intro-download-sub">
-                    <i>Coming October 2016!</i>
+                    <i>version 0.0.8</i>
+                </div>
+                <div class="intro-download-sub" style="margin-top: 16px;">
+                    <a href="https://s3-us-west-2.amazonaws.com/synthea/Synthea-win32-x64.zip"
+                       target="_download">Download for Windows</a>
+                </div>
+            </div>
+            <div ng-if="vm.defaultWindowsDownload">
+                <md-button class="md-accent md-raised"
+                href="https://s3-us-west-2.amazonaws.com/synthea/Synthea-win32-x64.zip"
+                target="_download">
+                    Download for Windows
+                </md-button>
+                <div class="intro-download-sub">
+                    <i>version 0.0.8</i>
+                </div>
+                <div class="intro-download-sub" style="margin-top: 16px;">
+                    <a href="https://s3-us-west-2.amazonaws.com/synthea/Synthea.dmg"
+                       target="_download">Download for OS X</a>
                 </div>
             </div>
             <span flex></span>

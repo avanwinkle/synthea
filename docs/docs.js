@@ -51,6 +51,7 @@ function SyntheaDocsController($mdSidenav,$scope,$timeout) {
     var vm = this;
 
     this.openSidenav = openSidenav;
+    this.defaultWindowsDownload = navigator.platform.indexOf('Win') !== -1;
 
     $scope.$on('$routeChangeSuccess', function(evt,route) {
 
