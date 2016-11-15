@@ -434,6 +434,7 @@ function _validateProject(projectLayout) {
     v.addSchema(syntheaSchema.cueSchema, '/synCue');
     v.addSchema(syntheaSchema.pageSchema, '/synPage');
     v.addSchema(syntheaSchema.sectionSchema, '/synSection');
+    v.addSchema(syntheaSchema.spriteSchema, '/synSprite');
 
     var validation = v.validate(projectLayout,schema);
 

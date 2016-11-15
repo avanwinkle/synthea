@@ -130,6 +130,12 @@ var projectSchema = {
         "$ref": "/synSection"
       }
     },
+    "sprites": {
+      "type": "array",
+      "items": {
+        "$ref": "/synSprite"
+        }
+    },
     "subgroups": {
         "type": "object"
     }
@@ -178,11 +184,36 @@ var sectionSchema = {
     "additionalProperties": false
 };
 
+var spriteSchema = {
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string"
+        },
+        "source": {
+            "type": "string"
+        },
+        "slice": {
+            "type": "array",
+            "items": {
+                "type": "integer"
+            }
+        }
+    },
+    "required": [
+        "name",
+        "source",
+        "slice"
+    ],
+    "additionalProperties": false
+}
+
 module.exports = {
     cueSchema: cueSchema,
     pageSchema: pageSchema,
     projectSchema: projectSchema,
-    sectionSchema: sectionSchema
+    sectionSchema: sectionSchema,
+    spriteSchema: spriteSchema
 };
 
 

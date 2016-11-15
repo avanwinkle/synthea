@@ -147,6 +147,7 @@ function SynProject($http,$q,$log) {
         var response = {
             all: [],
             assigned: [],
+            sprites: [],
             unassigned: [],
             size: 0,
         };
@@ -154,9 +155,12 @@ function SynProject($http,$q,$log) {
         getProjectMediaList(true).then(function(medialist) {
 
             response.all = medialist;
+            var mediafiles = [];
 
             // Track media that's NOT in a cue
             angular.forEach(medialist, function(m) {
+                mediafiles.push(m.name);
+
                 if (!cueMedia[m.name]) {
                     response.unassigned.push(m);
                 }
@@ -168,8 +172,28 @@ function SynProject($http,$q,$log) {
                 }
                 response.size += m.stats.size;
             });
-            defer.resolve(response);
 
+            // Check all the sprites
+            for (var k=project.sprites.length-1;k>=0;k--) {
+                var s = project.sprites[k];
+                // If we don't have the media, remove the sprite
+                if (mediafiles.indexOf(s.source)==-1) {
+                    console.warn('Unable to find media '+s.source+' for sprite '+s.name);
+                    project.sprites.splice(k,1);
+                }
+                else {
+                    // A sprite can be assigned or unassigned
+                    if (!cueMedia[s.name]) {
+                        response.unassigned.push(s);
+                    }
+                    else {
+                        response.assigned.push(s);
+                    }
+                }
+            }
+            console.log(response)
+
+            defer.resolve(response);
         });
 
         return defer.promise;
@@ -224,6 +248,13 @@ function SynProject($http,$q,$log) {
     function _processLayoutFile(layoutfile) {
         angular.extend(project, layoutfile);
 
+        // Make a name lookup for sprites so we can connect cues
+        var sprite_names = {}
+        if (!project.sprites) { project.sprites = []; }
+        for (var i=project.sprites.length;i--;i>=0) {
+            sprite_names[project.sprites[i].name] = project.sprites[i];
+        }
+
         // Make an id lookup for cues so we can bind hotkeys
         var cue_ids = {};
 
@@ -239,13 +270,23 @@ function SynProject($http,$q,$log) {
         // Look over our cue objects and make some conveniences
         angular.forEach(project.cues, function(c, idx) {
 
-
             // Note the full path to the audio file, including the
             // documentRoot (which is NOT saved in the project)
             c._audioRoot = def.documentRoot + '/audio/';
 
             // And the lookup for hotkeys
             cue_ids[c.id] = c;
+
+            // Look through the sources
+            angular.forEach(c.sources, function(src) {
+                // Do we have a sprite by this name?
+                if (sprite_names[src]) {
+                    // Is this the first sprite for this cue?
+                    if (!c._sprites) { c._sprites = {}; }
+                    // Store a pointer to the sprite in the cue
+                    c._sprites[src] = sprite_names[src];
+                }
+            })
         });
 
         // Map the cues to the hotkeys so we can call the cue directly

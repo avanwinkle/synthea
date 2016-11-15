@@ -17,7 +17,6 @@ SynChannel.$inject = ['SynProject','$interval','$q','$timeout'];
  */
 function SynChannel(SynProject,$interval,$q,$timeout) {
 
-
     // Track our channel counts so we can assign global ids
     var cidx = 0;
 
@@ -127,12 +126,15 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
      */
     Channel.prototype._fadeIn = function() {
 
+        // Is there a sprite defined that we should call?
+        var play_sprite = this._player._sprite.slice ? 'slice' : undefined;
+
         // Do we ACTUALLY fade in?
         if (this.isFadeIn) {
             // Set the volume to zero for fade-in goodness
             this._player.volume(0);
             // Start playing before we start the fade, to ensure smoothness
-            this._player.play();
+            this._player.play(play_sprite);
             // Return the promise from the _fade() method
             return this._fade('in');
         }
@@ -142,7 +144,7 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
             // Set the channel to full volume
             this._player.volume( this.getFullVolume() );
             // Play immediately
-            this._player.play();
+            this._player.play(play_sprite);
             // Resolve immediately so the "fade" is complete (duration == 0)
             fadeprom.resolve(0);
             // Return the promise
@@ -245,10 +247,10 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
             this._player.unload();
         }
 
-        this._player = new Howl({
+        // There might be multiple sources
+        var targetSrc;
+        var howl = {
             src: function(c) {
-                // There might be multiple sources
-                var targetSrc;
                 // If there's only one, take it and be done
                 if (c.sources.length===1) {
                     targetSrc = c.sources[0];
@@ -262,7 +264,6 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
                     // Note that this is the one we'll be playing
                     c._last_source = targetSrc;
                 }
-
                 // Return the full path of the determined target source
                 return c._audioRoot + targetSrc;
             }(cue),
@@ -308,8 +309,17 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
             },
             // onpause: function() {},
             // onplay: function() {}
-        });
+        };
 
+        // Sprites need to be tracked down
+        if (targetSrc.indexOf('* ') !== -1) {
+            // Create a sprite object with a property 'slice'
+            howl.sprite = {'slice': cue._sprites[targetSrc].slice};
+            // Replace the sprite name with the sprite source name
+            howl.src = howl.src.replace(/\* .*/,cue._sprites[targetSrc].source);
+        }
+
+        this._player = new Howl(howl);
 
         // The default "full" volume can be adjusted on a media-by-media basis,
         // measured  in percents from zero to 200
