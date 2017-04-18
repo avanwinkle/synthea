@@ -2,7 +2,7 @@
 'use strict';
 
 angular
-    .module("SyntheaApp",['dndLists','SyntheaCore','ngRoute'])
+    .module("SyntheaApp",['dndLists','SyntheaCore','SyntheaModels','ngRoute'])
     .config(SyntheaAppConfig)
     .run(SyntheaAppRun);
 
@@ -52,6 +52,8 @@ function SyntheaAppRun() {
 
 require('howler');
 require('./SyntheaCore');
+require('./models/SynPlayer');
+
 require('./controllers/SyntheaController');
 require('./controllers/SynCueSearchController');
 require('./controllers/SynEditCueController');

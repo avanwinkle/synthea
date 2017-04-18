@@ -73,10 +73,15 @@ SynChannelPlayerController.prototype.timelineSeek = function(evt) {
 
     // We'll assume that we're seeking to the preview time, rather than
     // passing in a time (which could lead to delays? Who knows!)
-    this.channel.setTime(this.seekPreview);
+    // TODO: Replace with a nice cross-fade within the same cue source media
+    // this.channel.setTime(this.seekPreview);
     // If we're not playing, update the current time manually
     if (!this.channel.is_playing) {
         this.channel.currentTime = this.seekPreview;
+    }
+    // If we are playing, create a temporary clone of the media to crossfade
+    else {
+        this.channel._fadeTo(this.seekPreview);
     }
 };
 

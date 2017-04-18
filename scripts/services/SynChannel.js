@@ -8,14 +8,14 @@ angular
 // Note what "full" volume is, so we can consistently fade in/out of it
 const MAX_VOLUME = 0.5;
 
-SynChannel.$inject = ['SynProject','$interval','$q','$timeout'];
+SynChannel.$inject = ['SynProject','SynHowlPlayer','$interval','$q','$timeout'];
 
 /**
  * The SynChannel service returns the Channel constructor
  * @constructor
  *
  */
-function SynChannel(SynProject,$interval,$q,$timeout) {
+function SynChannel(SynProject,SynHowlPlayer,$interval,$q,$timeout) {
 
     // Track our channel counts so we can assign global ids
     var cidx = 0;
@@ -165,6 +165,57 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
     };
 
     /**
+     * Cross-fade to another place on the channel media's timeline
+     *
+     * @private
+     * @return {promise}
+     */
+    Channel.prototype._fadeTo = function(timecode) {
+
+        // Promise for loading the player media
+        var mediaLoadDefer = $q.defer();
+        // Promise for the fade itself
+        var fadeToDefer = $q.defer();
+
+        // If we have multiple sources, track the current one
+        this.opts.targetSrc = this.media._last_source || this.media.sources[0];
+        this.opts.preventLoadDefault = true;
+
+        // Create a new Howl player from the existing media
+        this._temp_player = new SynHowlPlayer(this, mediaLoadDefer);
+
+        // When the new player is ready...
+        mediaLoadDefer.promise.then(() => {
+            // Jump to the desired timecode and start playing (silently)
+            this._temp_player.seek(timecode);
+            this._temp_player.volume(0);
+            this._temp_player.play();
+
+            // Promise resolve when the new player fades in is done
+            this._temp_player.once('fade', () => {
+                // Fade out the original player
+                this._player.once('fade', () => {
+                    // Stop and unload the original player
+                    this._player.stop();
+                    this._player.unload();
+                    // Replace the channel's player reference with the new one
+                    this._player = this._temp_player;
+                    this._temp_player = undefined;
+                    // Resolve the promise for the crossfade
+                    fadeToDefer.resolve();
+                });
+
+                this._player.fade(this._player.volume(), 0, 1000);
+            });
+
+            // Fade up to the same volume as the other (in 1/2 second)
+            this._temp_player.fade(0, this._player.volume(), 1000 )
+        });
+
+        return fadeToDefer.promise;
+    }
+
+    /**
      * Wrapper method for getting the media duration
      * @return {number} Seconds of duration
      */
@@ -186,6 +237,9 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
      * @return {number} Seconds elapsed
      */
     Channel.prototype.getTime = function() {
+        if (this._temp_player) {
+            return this._temp_player.seek();
+        }
         return this._player.seek();
     };
 
@@ -217,7 +271,13 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
         this.duration = undefined;
 
         // Force opts
-        opts = opts || {};
+        // Use HTML5 mode to allow playback before full download
+        // BUT the buffering process prevents seamless looping, so we
+        // should only stream via HTML5 for non-looping tracks!
+        // However, switching back and forth creates playback problems.
+        // CURRENT SOLUTION: always HTML5 for cloud, never for local
+        this.opts = angular.extend(opts || {},
+            {useWebAudio: this.opts.useWebAudio});
         // Loading a cue returns a promise, to be resolved when the cue is ready
         var defer = $q.defer();
 
@@ -247,79 +307,8 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
             this._player.unload();
         }
 
-        // There might be multiple sources
-        var targetSrc;
-        var howl = {
-            src: function(c) {
-                // If there's only one, take it and be done
-                if (c.sources.length===1) {
-                    targetSrc = c.sources[0];
-                }
-                else {
-                    // Track the last one we played, to avoid double-playing
-                    while (!targetSrc || targetSrc === c._last_source) {
-                        // Find a random source that is NOT the last one we played
-                        targetSrc = c.sources[ Math.floor(Math.random() * c.sources.length) ];
-                    }
-                    // Note that this is the one we'll be playing
-                    c._last_source = targetSrc;
-                }
-                // Return the full path of the determined target source
-                return c._audioRoot + targetSrc;
-            }(cue),
-            // Additional params
-            loop: cue.isLoop,
-            // Use HTML5 mode to allow playback before full download
-            // BUT the buffering process prevents seamless looping, so we
-            // should only stream via HTML5 for non-looping tracks!
-            // However, switching back and forth creates playback problems.
-            // CURRENT SOLUTION: always HTML5 for cloud, never for local
-            html5: this.opts.useWebAudio,
-            preload: true,
-            onend: function() {
-                // This event fires at the end of each loop
-                if (!cue.isLoop) {
-                    channel.state = 'ENDED';
-                    channel.is_playing = false;
-                    // Clear out the cue and all relatedness
-                    channel.stop();
 
-                }
-            },
-            onload: function() {
-                channel.duration = channel._player.duration();
-                defer.resolve(cue);
-
-                if (opts.autoplay) {
-                    channel.play();
-                }
-                else {
-                    // Wait a digest for this non-angular event
-                    $timeout(function() {
-                        // Occupied!
-                        channel.state = 'QUEUED';
-                        channel.is_queued = true;
-                        channel.currentTime = 0;
-                    },0);
-                }
-            },
-            onloaderror: function(soundId,reason) {
-                console.log("Load error!", reason);
-                defer.reject(reason);
-            },
-            // onpause: function() {},
-            // onplay: function() {}
-        };
-
-        // Sprites need to be tracked down
-        if (targetSrc.indexOf('* ') !== -1) {
-            // Create a sprite object with a property 'slice'
-            howl.sprite = {'slice': cue._sprites[targetSrc].slice};
-            // Replace the sprite name with the sprite source name
-            howl.src = howl.src.replace(/\* .*/,cue._sprites[targetSrc].source);
-        }
-
-        this._player = new Howl(howl);
+        this._player = new SynHowlPlayer(channel, defer);
 
         // The default "full" volume can be adjusted on a media-by-media basis,
         // measured  in percents from zero to 200
@@ -402,13 +391,13 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
         this.is_queued = false;
 
         // Delay the timer interval to avoid an off-sync that looks bad
-        $timeout(function() {
+        $timeout(() => {
             // Create an interval to update the playback time while the cue plays
-            this.elapsedCounter = $interval(function() {
+            this.elapsedCounter = $interval(() => {
 
                 // Are we playing? Get the current time!
                 if (this._player.playing()) {
-                    this.currentTime = this._player.seek();
+                    this.currentTime = this.getTime();
                 }
                 // The track might have been faded out, or ended, by the time we get here
                 else {
@@ -420,8 +409,8 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
                     $interval.cancel(this.elapsedCounter);
                 }
 
-            }.bind(this),100);
-        }.bind(this), 0);
+            },100);
+        }, 0);
 
         // Fade in the cue
         this._fadeIn().then(function(duration) {
