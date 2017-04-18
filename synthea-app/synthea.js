@@ -208,7 +208,7 @@ function editProject(projectDef) {
     if (!projectDef.documentRoot || !projectDef.key) {
         projectDef = undefined;
     }
-    synthea.mainWindow.webContents.send('edit-project',projectDef);
+    synthea.mainWindow.webContents.send('edit-project', projectDef);
 }
 
 /**
@@ -249,15 +249,7 @@ function init(userDataPath) {
     // Keep a global reference to the application configuration
     synthea.config_path = userDataPath + '/config';
 
-
-    // Does a config file exist in the user data folder?
-    try {
-        fs.statSync(synthea.config_path);
-        synthea.configs = JSON.parse(fs.readFileSync(synthea.config_path));
-    }
-    // If not, let's make a config file (it lives in %APP_DIR% or equivalent)
-    catch(err) {
-
+    function createDefaultProjectFolder() {
         var defaultFolder = userDataPath + '/Projects';
 
         // Make the folder, if need be
@@ -268,9 +260,29 @@ function init(userDataPath) {
             fs.mkdirSync(defaultFolder);
         }
 
+        return defaultFolder;
+    }
+
+    // Does a config file exist in the user data folder?
+    try {
+        fs.statSync(synthea.config_path);
+        synthea.configs = JSON.parse(fs.readFileSync(synthea.config_path));
+
+        // Check if our projects folder exists
+        if (!fs.existsSync(synthea.config.projectFolder)) {
+            // Go to the default
+            synthea.configs.projectFolder = createDefaultProjectFolder();
+            // Save it
+            synthea.saveConfig();
+        }
+
+    }
+    // If not, let's make a config file (it lives in %APP_DIR% or equivalent)
+    catch(err) {
+
         // Make a default config file, which is just the default folder
         synthea.configs = {
-            projectFolder: defaultFolder,
+            projectFolder: createDefaultProjectFolder(),
         };
         // Save it
         synthea.saveConfig();
@@ -313,6 +325,11 @@ function openProject(projectDef) {
         projectDef = null;
         projectMenus = 'no-project';
     }
+    // This means we didn't get a project, aka a reset
+    else {
+        projectDef = null; // Force the type to null, for consistency
+        projectMenus = 'no-project';
+    }
 
     // Keep track of what's currently open, so we can reference it easily
     synthea.currentProjectDef = projectDef;
@@ -349,7 +366,7 @@ function saveAndOpenProject(evt, projectLayout) {
 function saveConfig() {
     console.info("Saving configuration", synthea.configs);
     fs.writeFile(synthea.config_path,JSON.stringify(synthea.configs), function(err) {
-        console.error(err);
+        if (err) throw err;
     });
 }
 

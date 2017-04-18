@@ -532,9 +532,19 @@ function setMenusEnabled(arg) {
                 'Delete Project': false,
             };
             break;
+        case 'no-project':
+            menustate = {
+                'Close Project': false,
+                'Edit Project': false,
+                'Save Project': false,
+                'Save Project As': false,
+                'Delete Project': false,
+                'DJ Mode': {checked: false, enabled: false},
+            }
+            break;
         // By default, the arg is the object of the states
         default:
-            console.log("Unknown menus arg", arg);
+            console.log("Unknown menus arg for setMenusEnabled: '" + arg + "'");
             menustate = {};
     }
 
