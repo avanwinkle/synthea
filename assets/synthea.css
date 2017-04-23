@@ -61,13 +61,19 @@ md-input-container.noerror .md-errors-spacer {
   right: 0;
   bottom: 0;
   z-index: 1000; }
+  #ng-loading-text {
+    margin-top: 50%; }
   #ng-loading.ng-enter {
+    display: block !important;
     opacity: 0; }
     #ng-loading.ng-enter-active {
+      display: block !important;
       opacity: 1; }
   #ng-loading.ng-leave {
+    display: block !important;
     opacity: 1; }
     #ng-loading.ng-leave-active {
+      display: block !important;
       opacity: 0; }
 
 .md-icon-subtitle {

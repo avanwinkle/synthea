@@ -53,16 +53,24 @@ md-input-container.noerror .md-errors-spacer {
 	top: 0; left:0; right:0; bottom: 0;
 	z-index: 1000;
 
+	&-text {
+		margin-top: 50%;
+	}
+
 	&.ng-enter {
+		display: block !important;
 		opacity: 0;
 		&-active {
+			display: block !important;
 			opacity: 1;
 		}
 	}
 
 	&.ng-leave {
+		display: block !important;
 		opacity: 1;
 		&-active {
+			display: block !important;
 			opacity: 0;
 		}
 	}

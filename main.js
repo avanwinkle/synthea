@@ -580,7 +580,6 @@ function setMenusEnabled(arg) {
 }
 
 function showFile(evt, path) {
-    console.log(path)
     electron.shell.showItemInFolder(path);
 }
 

@@ -45,15 +45,15 @@ function SyntheaController(SynMixer,SynProject,$location,$log,$q,$scope,$timeout
     }.bind(this));
 
     // Listen for the main application to broadcast a project change
-    ipcRenderer.on('open-project', function(event,projectDef,projectLayout) {
+    ipcRenderer.on('open-project', (event,projectDef,projectLayout) => {
         // Clear out the current project to trigger the animation
 
-        this.$timeout_(function() {
+        this.$timeout_(() => {
             sVm.ready = false;
         },0);
 
 
-        this.$timeout_(function() {
+        this.$timeout_(() => {
             // Did we get a project?
             if (projectDef) {
                 // Open it!
@@ -61,8 +61,6 @@ function SyntheaController(SynMixer,SynProject,$location,$log,$q,$scope,$timeout
             }
             // If we didn't get a project, clear out
             else {
-                // Hearing this broadcast means we're ready
-                sVm.ready = true;
                 // Clear out any older project
                 sVm.project = undefined;
                 $location.path('/landing');
@@ -71,11 +69,15 @@ function SyntheaController(SynMixer,SynProject,$location,$log,$q,$scope,$timeout
 
                 // This is an external callback, so time to digest!
                 $scope.$apply();
-            }
-            sVm.ready = true;
-        }.bind(this),500);
 
-    }.bind(this));
+                // In the above IF, we rely on loadProject to trigger sVm.ready
+                this.$timeout_(() => {
+                    sVm.ready = true;
+                }, 500)
+            }
+        },500);
+
+    });
 
     ipcRenderer.on('reset-audio-engine', this.resetAudioEngine.bind(this));
 
@@ -137,8 +139,10 @@ SyntheaController.prototype.loadProject = function(projectDef,projectLayout) {
         // Trigger a route change!
         this.$location_.path('/player/'+projectDef.key).replace();
 
-        // Ready!
-        this.ready = true;
+        // Ready! But delay it by an animation duration
+        this.$timeout_(() => {
+            this.ready = true;
+        }, 500);
 
         defer.resolve(this.project);
 

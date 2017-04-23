@@ -29,11 +29,9 @@
 	<div id="ng-view" layout="column" layout-fill ng-view></div>
 
 	<div id="ng-loading" layout="column" layout-fill ng-if="!sVm.ready">
-		<span flex></span>
-		<div>
+		<div id="ng-loading-text">
 			<span ng-if="!sVm.ready">Loading Synthea...</span>
 		</div>
-		<span flex></span>
 	</div>
 
 </body>
