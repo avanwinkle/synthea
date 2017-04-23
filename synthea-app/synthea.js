@@ -269,16 +269,16 @@ function init(userDataPath) {
         synthea.configs = JSON.parse(fs.readFileSync(synthea.config_path));
 
         // Check if our projects folder exists
-        if (!fs.existsSync(synthea.config.projectFolder)) {
+        if (!fs.existsSync(synthea.configs.projectFolder)) {
             // Go to the default
             synthea.configs.projectFolder = createDefaultProjectFolder();
             // Save it
             synthea.saveConfig();
         }
-
     }
     // If not, let's make a config file (it lives in %APP_DIR% or equivalent)
     catch(err) {
+        console.warn('Error opening config file', err);
 
         // Make a default config file, which is just the default folder
         synthea.configs = {
@@ -315,6 +315,12 @@ function openProject(projectDef) {
         if (validation.errors.length) {
             synthea.openProject(null);
             return;
+        }
+
+        // If we opened from a folder rather than a hydrated projectDef, grab
+        // the project key from the project config file
+        if (!projectDef.key) {
+            projectDef.key = projectLayout.key;
         }
 
         projectMenus = 'open-project';
