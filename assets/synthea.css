@@ -263,7 +263,6 @@ md-input-container.noerror .md-errors-spacer {
   .cueButton-badge .badge {
     position: absolute;
     visibility: hidden;
-    top: -1px;
     left: 0; }
     .cueButton-badge .badge.badge-queue {
       top: 0;

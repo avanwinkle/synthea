@@ -191,8 +191,6 @@ function SynProject($http,$q,$log) {
                     }
                 }
             }
-            console.log(response)
-
             defer.resolve(response);
         });
 

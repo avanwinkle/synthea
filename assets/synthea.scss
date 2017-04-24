@@ -365,8 +365,8 @@ md-input-container.noerror .md-errors-spacer {
 		position:absolute;
 		visibility: hidden;
 
-		// Awkward positioning
-		top: -1px;
+		// Awkward positioning, constantly tweaking :(
+		// top: -1px;
 		left: 0;
 
 		&.badge-queue {
