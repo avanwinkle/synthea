@@ -87,8 +87,6 @@ div[dnd-list] .dndDraggingSource {
       outline: none; }
   .editcue-filelist-toggle {
     cursor: pointer; }
-    .editcue-filelist-toggle:hover {
-      color: #e91e63; }
 
 .editcue-hotkey .hotkey-input {
   display: inline;

@@ -113,7 +113,6 @@ SynEditCueController.prototype.activate = function() {
     // Store the ids of the section and page for showing in the dropdown
     this.currentSectionId = section.id;
     this.currentPageId = section.page_id;
-
 };
 
 /**
@@ -176,7 +175,6 @@ SynEditCueController.prototype.addFilesToCue = function() {
 
         this.cue.name = name;
     }
-
 };
 
 /**
@@ -216,7 +214,6 @@ SynEditCueController.prototype.captureHotkeys = function() {
     }.bind(this);
 
     document.addEventListener('keypress', this.hotkeyListener);
-
 };
 
 /**
@@ -251,39 +248,38 @@ SynEditCueController.prototype.clearSources = function() {
  */
 SynEditCueController.prototype.copyMediaToProject = function() {
 
-    // Make a copy of the current list so we can see what's added
-    var oldList = this.mediaList.map(function(l) {
-        return l.name;
+    // Make a list of the current media so we can see what's added
+    this.SynProject_.getProjectMediaByAssignment().then((response) => {
+        var oldList = response.all.map((l) => { return l.name; });
+
+        // Use the project's method to open the media selector
+        this.SynProject_.copyMediaToProject().then(() => {
+
+            // Re-organize the media by assignment
+            this.SynProject_.getProjectMediaByAssignment().then((response) => {
+                // AVW: This is duplicated code from activate()
+                this.media = response;
+                this.mediaList = response.all;
+                this.mediaListOnlyUnassigned = false;
+
+                // For clarity, delesect anything that was previously selected
+                this.selectedFiles = [];
+
+                // Select anything that's new
+                angular.forEach(this.mediaList, (m) => {
+                    if (oldList.indexOf(m.name)===-1) {
+                        this.selectedFiles.push(m);
+                    }
+                });
+
+                // For convenience, assume the newly added media should go to the cue?
+                this.addFilesToCue();
+                // Since we're selected it, might as well load the player
+                // AVW: Commented out because of delay in copying the file!
+                // this.selectAssignedMedia('select');
+            });
+        });
     });
-
-    // Use the project's method to open the media selector
-    this.SynProject_.copyMediaToProject().then(function() {
-
-        // Re-organize the media by assignment
-        this.SynProject_.getProjectMediaByAssignment().then(function(response){
-            // AVW: This is duplicated code from activate()
-            this.media = response;
-            this.mediaList = response.all;
-            this.mediaListOnlyUnassigned = false;
-
-            // For clarity, delesect anything that was previously selected
-            this.selectedFiles = [];
-
-            // Select anything that's new
-            angular.forEach(this.mediaList, function(m) {
-                if (oldList.indexOf(m.name)===-1) {
-                    this.selectedFiles.push(m);
-                }
-            }.bind(this));
-
-            // For convenience, assume the newly added media should go to the cue?
-            this.addFilesToCue();
-            // Since we're selected it, might as well load the player
-            // AVW: Commented out because of delay in copying the file!
-            // this.selectAssignedMedia('select');
-        }.bind(this));
-
-    }.bind(this));
 };
 
 /**
@@ -302,7 +298,6 @@ SynEditCueController.prototype.removeSource = function(filename) {
     if (this.cue.sources.indexOf(filename) !== -1) {
         this.cue.sources.splice(this.cue.sources.indexOf(filename),1);
     }
-
 };
 
 SynEditCueController.prototype.saveHotkeys = function() {
@@ -321,7 +316,6 @@ SynEditCueController.prototype.saveHotkeys = function() {
     document.removeEventListener('keypress', this.hotkeyListener);
     // And the boolean
     this.showHotkeys = false;
-
 };
 
 /**
@@ -368,7 +362,6 @@ SynEditCueController.prototype.selectAssignedMedia = function(src) {
         });
 
     }.bind(this));
-
 };
 
 /**

@@ -45,9 +45,11 @@ function addMediaToProject(evt,pkey) {
         // Maybe nothing?
         if (!selection) { return; }
 
+        // TODO: Find an elegant way to create a single deferral that resolves
+        //       when each of the file copy operations completes, so that callback
+        //       behavior can assume that all the files exist in the project folder
         for (var i=0;i<selection.length;i++) {
             try {
-
                 // Windows slashes are backwards
                 var splitter = process.platform === 'win32' ? '\\' : '/';
                 var filename = selection[i].split(splitter).pop();
@@ -58,7 +60,7 @@ function addMediaToProject(evt,pkey) {
                     synthea.configs.projectFolder+'/'+pkey+'/audio/'+filename));
             }
             catch(err) {
-
+                console.error(err);
             }
         }
 

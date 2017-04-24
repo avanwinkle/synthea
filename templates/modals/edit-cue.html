@@ -250,18 +250,20 @@
             <!-- Media list -->
 
             <div class="faux-label" layout="row">
-                <div class="editcue-filelist-toggle" ng-click="secVm.toggleMediaList()">
+                <div>
                     Media:
-                    <span ng-if="!secVm.mediaListOnlyUnassigned">
-                        All
-                    </span>
-                    <span ng-if="secVm.mediaListOnlyUnassigned">
-                        Unassigned
-                    </span>
+                    <a class="editcue-filelist-toggle md-primary" ng-click="secVm.toggleMediaList()">
+                        <span ng-if="!secVm.mediaListOnlyUnassigned">
+                            All
+                        </span>
+                        <span ng-if="secVm.mediaListOnlyUnassigned">
+                            Unassigned
+                        </span>
+                    </a>
                 </div>
                 <span flex></span>
                 <div>
-                    <a class="md-primary" ng-click="secVm.copyMediaToProject()">
+                    <a class="editcue-filelist-add md-primary" ng-click="secVm.copyMediaToProject()">
                         + Add Media
                     </a>
                 </div>
