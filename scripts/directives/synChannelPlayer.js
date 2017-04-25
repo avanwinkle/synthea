@@ -77,7 +77,7 @@ SynChannelPlayerController.prototype.timelineSeek = function(evt) {
     // this.channel.setTime(this.seekPreview);
     // If we're not playing, update the current time manually
     if (!this.channel.is_playing) {
-        this.channel.currentTime = this.seekPreview;
+        this.channel.setTime(this.seekPreview);
     }
     // If we are playing, create a temporary clone of the media to crossfade
     else {

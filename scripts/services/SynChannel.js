@@ -122,15 +122,15 @@ function SynChannel(SynProject,SynHowlPlayer,$interval,$q,$timeout) {
      * fade-in is complete.
      *
      * @private
+     * @param {boolean} opt_forceFadeIn If true, override the channel/track setting
      * @return {promise}
      */
-    Channel.prototype._fadeIn = function() {
-
+    Channel.prototype._fadeIn = function(opt_forceFadeIn) {
         // Is there a sprite defined that we should call?
         var play_sprite = this._player._sprite.slice ? 'slice' : undefined;
 
         // Do we ACTUALLY fade in?
-        if (this.isFadeIn) {
+        if (opt_forceFadeIn || this.isFadeIn) {
             // Set the volume to zero for fade-in goodness
             this._player.volume(0);
             // Start playing before we start the fade, to ensure smoothness
@@ -384,6 +384,10 @@ function SynChannel(SynProject,SynHowlPlayer,$interval,$q,$timeout) {
      */
     Channel.prototype.play = function() {
 
+        // If we are going from paused to playing, fade in (regardless of whether
+        // the cue itself starts with a fade in or not)
+        var forceFadeIn = this.state === 'PAUSED';
+
         this.state = 'PLAYING';
 
         this.is_current = true;
@@ -412,8 +416,8 @@ function SynChannel(SynProject,SynHowlPlayer,$interval,$q,$timeout) {
             },100);
         }, 0);
 
-        // Fade in the cue
-        this._fadeIn().then(function(duration) {
+        // Fade in the cue, forcing a fade if the cue was paused
+        this._fadeIn(forceFadeIn).then(function(duration) {
             // AVW: Trying to track some fades that don't make it all the way
             console.log(' -- channel '+this._id+' fade in complete ('+duration+'ms)');
         }.bind(this));
@@ -449,6 +453,8 @@ function SynChannel(SynProject,SynHowlPlayer,$interval,$q,$timeout) {
         // Target time might be zero, so have to check for defined-ness
         this._player.seek(
             angular.isDefined(targetTime) ? targetTime : this.currentTime);
+        // Update the current time to reflect
+        this.currentTime = this._player.seek();
     };
 
     Channel.prototype.setFullVolume = function(adjustment,duration) {
