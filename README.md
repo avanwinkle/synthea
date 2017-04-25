@@ -35,7 +35,7 @@ It is still in its infancy, but for those willing and able to learn it, I hope i
 
 ## Requirements
 
-To develop and build ***Synthea***, you will need [NPM](https://www.npmjs.com/package/npm) and git. The application is built on the following platforms and frameworks:
+To run ***Synthea***, all you need to do is download and install it (see "Installation" below). To develop and build ***Synthea*** from the source code, you will need [NPM](https://www.npmjs.com/package/npm) and git. The application is built on the following platforms and frameworks:
  - [AngularJS](https://angularjs.org/)
  - [Angular Material](https://material.angularjs.org/)
  - [Electron](http://electron.atom.io/)
@@ -47,25 +47,30 @@ with Synthea (see below).
 
 ## Installation
 
-***Synthea*** can be built into a native application for Mac OS, Windows, and Linux, and
-links to those distributions will be available soon. For now, you may clone this repo and run locally
-or create your own builds.
-
 **End-User Installation**
 
-Binary installers will be found on the [Synthea homepage](https://avanwinkle.github.io/synthea/)
-when available.
+Installers for the most recent Synthea release can be found on the
+[Synthea homepage](https://avanwinkle.github.io/synthea/)
+for Mac OS and Windows users.
 
 **Developer Installation**
 
+***Synthea*** can be built into a native application for Mac OS, Windows, and Linux,
+or can be run directly from the source code using Electron.
+
+The following commands will download Synthea and its dependencies:
 ```
 $ git clone https://github.com/avanwinkle/synthea.git
 $ cd synthea
 $ npm install
+```
+
+Then, from the same folder, Synthea can be run from the source code:
+```
 $ npm start
 ```
 
-It is *slightly* faster to boot up Synthea using the Electron binary directly (rather than going through npm), so if you're developing seriously I recommend installing Electron globally.
+It is *slightly* faster to boot up Synthea via the Electron binary (rather than going through npm), so if you're developing seriously it is recommended to install Electron globally.
 ```
 $ npm install -g electron
 ```
@@ -79,7 +84,7 @@ $ electron . [ --debug ]
 
 **Build Instructions**
 
-Builds will be created in the `dist/` folder of the repo. Currently a build configuration is only default for Mac OSX, which can be run using the following command (inside the synthea repo directory):
+Builds will be created in the `dist/` folder of the repo. Currently the default build configuration is for Mac OSX, which can be run using the following command (inside the synthea repo directory):
 
 ```$ npm run build```
 
@@ -98,10 +103,10 @@ projects can be accessed in the menu at **Projects > Browse Cloud Projects...**.
 
 _Please note that when streaming projects from the cloud, loops may not be gapless._
 
-An in-progress feature is an internal project creator/editor, and it works pretty
-well but has a ways to go. You can create a project by making a new folder in the projects folder, whach can be accessed by the menu **Projects > Go to Projects Folder** (by default, %APPLICATION DATA%/Synthea/Projects). The projects folder can be changed via the menu **Projects > Change Projects Folder...**.
+Synthea includes a project creator/editor, which stores board layouts and media files in the projects folder. You can access this folder by the menu **Projects > Go to Projects Folder** (by default, %APPLICATION DATA%/Synthea/Projects). The projects folder can be changed via the menu **Projects > Change Projects Folder...**.
 
-A project is defined by a JSON-formatted `layout.json` file, an optional banner image file, and an `/audio` subfolder containing the cue files (accepting OGG, MP3, WAV, and other major formats).
+A project is defined by a JSON-formatted `layout.json` file, an optional banner image file, and an `/audio` subfolder containing the media files (accepting OGG, MP3, WAV, and other major formats). When a media file
+is added to a project Synthea ***creates a copy*** of the file in the project `/audio` subfolder.
 
 _TODO: Use [asar](https://www.npmjs.com/package/asar) to package each project folder into a single archive file with a unique extension, e.g. myProject.synpkg_
 
@@ -119,7 +124,7 @@ myProject
 
 ```javascript
 {
-    "bannerImage": "banner.jpg",         // Optional image
+    "bannerImage": "banner.jpg",         // Optional image in the project subfolder
     "config": {
         "boardType": "music",            // Optional, default subgroup for cues
         "fadeInDuration": 1000,          // Default fade-in for cues (ms)
@@ -131,7 +136,7 @@ myProject
             "sources": ["soundf.wav"],   // A cue can have multiple source files
             "id": 1000,
             "isLoop": true,              // Looping can be toggled in-app, but cues can be preset
-            "name": "Basic Effect",
+            "name": "Basic Effect"
         },
         {
             "section_ids": [ 1 ],
