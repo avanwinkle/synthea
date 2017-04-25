@@ -18,6 +18,9 @@ var cueSchema = {
           "name": {
             "type": "string"
           },
+          "playbackRate": {
+            "type": "number"
+          },
           "sources": {
             "type": "array",
             "items": {

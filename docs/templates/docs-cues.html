@@ -68,6 +68,14 @@
                 different volumes.
             </p>
             <p>
+                <div><strong>Playback Speed</strong></div>
+                You can shift the playback speed of this cue, relative to the
+                natural speed of the source media (100%). This can be used to
+                speed up or slow down a cue without editing the source, or
+                to create multiple cue variants of the same source
+                at different playback speeds.
+            </p>
+            <p>
                 <div><strong>Hotkey</strong></div>
                 Click on <b>Record Key</b> to capture a hotkey for this cue. A
                 capture box will appear and display your key presses, click
@@ -142,22 +150,24 @@
         ambient audio, and discrete sound effects. If a project has a "board type"
         set, all new cues will default to the subgroup for that board type.</p>
 
-        <p>
-        <div><strong>Concurrency</strong></div>
-        By default, all cues want to play on top of one another, which works well
-        for layering audio and creating dynamic soundscapes. Any cue without a
-        subgroup will layer on top of other currently-playing cues
-        (i.e. concurrency).
-        </p>
+        <blockquate>
+            <p>
+            <div><strong>Concurrency</strong></div>
+            By default, all cues want to play on top of one another, which works well
+            for layering audio and creating dynamic soundscapes. Any cue without a
+            subgroup will layer on top of other currently-playing cues
+            (i.e. concurrency).
+            </p>
 
-        <p>
-        <div><strong>Exclusivity</strong></div>
-        Some types of cues shouldn&apos;t be played on top of each other. For
-        example, a music track should seamlessly <i>replace</i> another
-        music track that&apos;s currently playing, and itself be replaced by
-        the next music track. In short: there should only be one music track playing at any given time
-        (i.e. exclusivity).
-        </p>
+            <p>
+            <div><strong>Exclusivity</strong></div>
+            Some types of cues shouldn&apos;t be played on top of each other. For
+            example, a music track should seamlessly <i>replace</i> another
+            music track that&apos;s currently playing, and itself be replaced by
+            the next music track. In short: there should only be one music track playing at any given time
+            (i.e. exclusivity).
+            </p>
+        </blockquate>
 
         <p>
         Every Synthea subgroup creates an exclusivity set, so playing a cue

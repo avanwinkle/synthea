@@ -276,6 +276,8 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
             // CURRENT SOLUTION: always HTML5 for cloud, never for local
             html5: this.opts.useWebAudio,
             preload: true,
+            // We store the playback rate as a percent, so reduce it here
+            rate: (cue.playbackRate || 100) / 100,
             onend: function() {
                 // This event fires at the end of each loop
                 if (!cue.isLoop) {
@@ -324,6 +326,9 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
         // The default "full" volume can be adjusted on a media-by-media basis,
         // measured  in percents from zero to 200
         channel.volume_pct = this.media.volume * 100 || 100;
+
+        // The default playback rate starts from the media
+        channel.rate_pct = cue.playbackRate || 100;
 
         // Note that we're occupied!
         channel.state = 'QUEUING';
@@ -451,6 +456,14 @@ function SynChannel(SynProject,$interval,$q,$timeout) {
         // Update the player to reflect the media's attribute
         this._player.loop(this.media.isLoop);
     };
+
+    /**
+     * @param {number} ratePct Playback rate, a percent from 0-200%
+     */
+    Channel.prototype.setRate = function(ratePct) {
+        // The Howler object takes rate as a multiplier, rather than a percent
+        this._player.rate( (ratePct || 100) / 100);
+    }
 
     /**
      * Wrapper method for setting the playback position of the media

@@ -1,0 +1,35 @@
+<md-menu md-offset="100 48" md-position-mode="target-right target" md-theme="player">
+    <md-button
+    class="md-icon-button cplayer-button cplayer-button-subgroup"
+    aria-label="media volume"
+    ng-click="cVm.openMenu($mdOpenMenu, $event)">
+        <md-icon md-menu-align-target>
+            <svg syn-icon="slow_motion_video"></svg>
+        </md-icon>
+        <md-tooltip md-delay="500" md-direction="top">Playback Speed</md-tooltip>
+        <div class="cplayer-button-subtitle">
+            {{cVm.channel.rate_pct}}%
+        </div>
+    </md-button>
+    <md-menu-content>
+         <md-slider-container flex>
+          <md-input-container>
+            <input flex type="number"
+            ng-model="cVm.channel.rate_pct"
+            aria-label="volume"
+            aria-controls="volume-slider">
+          </md-input-container>
+              <md-slider
+                ng-model="cVm.channel.rate_pct"
+                ng-change="cVm.rateChange()"
+                min="10"
+                max="200"
+                step="10"
+                aria-label="volume"
+                id="volume-slider"
+                class="md-primary"
+                md-vertical
+                md-range></md-slider>
+        </md-slider-container>
+    </md-menu-content>
+</md-menu>
