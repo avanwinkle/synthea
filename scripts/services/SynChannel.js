@@ -177,9 +177,31 @@ function SynChannel(SynProject,SynHowlPlayer,$interval,$q,$timeout) {
         // Promise for the fade itself
         var fadeToDefer = $q.defer();
 
+        // Store the original volume target
+        var targetVolume = this._player.volume();
+
         // If we have multiple sources, track the current one
         this.opts.targetSrc = this.media._last_source || this.media.sources[0];
         this.opts.preventLoadDefault = true;
+
+        // If we are already doing a transition?
+        if (this._temp_player) {
+            /* There are a number of ways to handle multiple triggers of a crossfade,
+               but most of them have a lot of overhead and callbacks. Until crossfade
+               becomes a heavily-used feature and the ideal multiple-trigger behavior
+               becomes clear, we'll stick with a simple solution:
+
+               A crossfade triggered while an existing crossfade is in effect
+               is delayed until the completion of the existing crossfade. If
+               multiple crossfades are triggered in rapid succession, only the
+               last (i.e. most recent) crossfade will be executed, and that
+               execution will occur after the current crossfade completes.
+            */
+
+            // Wait for the existing to complete, then trigger the one from this request
+            this._pending_timecode = timecode;
+            return;
+        }
 
         // Create a new Howl player from the existing media
         this._temp_player = new SynHowlPlayer(this, mediaLoadDefer);
@@ -195,21 +217,52 @@ function SynChannel(SynProject,SynHowlPlayer,$interval,$q,$timeout) {
             this._temp_player.once('fade', () => {
                 // Fade out the original player
                 this._player.once('fade', () => {
-                    // Stop and unload the original player
-                    this._player.stop();
-                    this._player.unload();
+                    var original_player = this._player;
                     // Replace the channel's player reference with the new one
                     this._player = this._temp_player;
                     this._temp_player = undefined;
+
+                    // Stop and unload the original player
+                    original_player.stop();
+                    original_player.unload();
+
+                    // Was another crossfade triggered?
+                    if (this._pending_timecode) {
+                        this._fadeTo(this._pending_timecode);
+                        this._pending_timecode = undefined;
+                    }
+
                     // Resolve the promise for the crossfade
                     fadeToDefer.resolve();
-                });
 
-                this._player.fade(this._player.volume(), 0, 1000);
+                    // Check for this cloud-project-related bug
+                    if (this._player.volume() !== targetVolume) {
+                        /*  A strange bug exists when using cloud projects, wherein at the end
+                            of the cross-fade the Howl object tracks an internal '_volume' property
+                            with a value of 0. Playback is unaffected at the end of the cross-fade,
+                            but subsequent attempts to pause/stop/fade have a hard cut because the
+                            internal volume is zero so no fade is triggered.
+
+                            This here is a workaround: after the cross-fade completes, check if
+                            the player's _volume property has the expected value, and if not,
+                            brute force the property value to be the expected volume level.
+
+                            This problem has only been reproduced on cloud projects, so it should not
+                            impact live performances (which should always be run locally). Still,
+                            this is not ideal and it's a bit confusing as to what causes the bug.
+
+                            TODO: Fix this bug.
+                        */
+                        console.warn('Player volume does not match target: ' +
+                                     this._player.volume() + ' vs ' + targetVolume);
+                        this._player._volume = targetVolume;
+                    }
+                });
+                this._player.fade(targetVolume, 0, 1000);
             });
 
             // Fade up to the same volume as the other (in 1/2 second)
-            this._temp_player.fade(0, this._player.volume(), 1000 )
+            this._temp_player.fade(0, targetVolume, 1000 )
         });
 
         return fadeToDefer.promise;
@@ -400,11 +453,16 @@ function SynChannel(SynProject,SynHowlPlayer,$interval,$q,$timeout) {
             this.elapsedCounter = $interval(() => {
 
                 // Are we playing? Get the current time!
-                if (this._player.playing()) {
+                if (this._player && this._player.playing()) {
                     this.currentTime = this.getTime();
                 }
                 // The track might have been faded out, or ended, by the time we get here
                 else {
+                    // If there is no player? Possible glitch in the crossfade.
+                    // TODO: Improve the cross-fade to handle multiple clicks
+                    if (!this._player) {
+                        console.warn('Player elapsed counter interval found NO PLAYER!');
+                    }
                     // If we're not playing, stop this infernal counter
                     // AVW: I believe this occurs due to mis-syncing of the angular
                     // digest with the Howler events. Even though the channel stop()
@@ -420,6 +478,13 @@ function SynChannel(SynProject,SynHowlPlayer,$interval,$q,$timeout) {
         this._fadeIn(forceFadeIn).then(function(duration) {
             // AVW: Trying to track some fades that don't make it all the way
             console.log(' -- channel '+this._id+' fade in complete ('+duration+'ms)');
+            if (this._player._volume !== this._player._sounds[0]._volume) {
+                /* There is a bug on some cloud projects relating to getting the player _volume
+                   property, so we double-check and brute force the property to match the
+                   actual playback value. See the note in channel _fadeTo method for details. */
+                console.warn('Channel player volume does not match sound volume');
+                this._player._volume = this._player._sounds[0]._volume;
+            }
         }.bind(this));
 
         // If we are playing in a Subgroup, cancel the rest of the subgroup
