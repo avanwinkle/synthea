@@ -10,7 +10,7 @@
             {{cVm.channel.volume_pct}}%
         </div>
     </md-button>
-    <md-menu-content>
+    <md-menu-content class="cplayer-volume">
          <md-slider-container flex>
           <md-input-container>
             <input flex type="number"
@@ -30,5 +30,23 @@
                 md-vertical
                 md-range></md-slider>
         </md-slider-container>
+        <div layout="row" class="cplayer-volume-duration">
+            <md-icon ng-mousedown="cVm.volumeDurationShift($event, true)"
+                     ng-class="{'disabled': cVm.volumeChangeDuration === 0}"
+                     class="cplayer-volume-duration-button"
+                     flex="none">
+                <svg syn-icon="chevron_left"></svg>
+            </md-icon>
+            <div class="cplayer-volume-duration-amount">
+                {{cVm.volumeChangeDuration}}s
+            </div>
+            <md-icon ng-mousedown="cVm.volumeDurationShift($event)"
+                     ng-class="{'disabled': cVm.volumeChangeDuration === cVm.maxVolumeDuration}"
+                     class="cplayer-volume-duration-button"
+                     flex="none">
+                <svg syn-icon="chevron_right"></svg>
+            </md-icon>
+        </div>
+
     </md-menu-content>
 </md-menu>

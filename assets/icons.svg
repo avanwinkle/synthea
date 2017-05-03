@@ -12,6 +12,10 @@
     <symbol id="ic_arrow_back_48px" viewBox="0 0 48 48"><path d="M40 22H15.66l11.17-11.17L24 8 8 24l16 16 2.83-2.83L15.66 26H40v-4z"/></symbol>
     <!-- CHEVRON_DOWN -->
     <symbol id="ic_chevron_down_24px" viewBox="0 0 24 24"><path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/></symbol>
+    <!-- CHEVRON_LEFT -->
+    <symbol id="ic_chevron_left_24px" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/><path d="M0 0h24v24H0z" fill="none"/></symbol>
+    <!-- CHEVRON_RIGHT -->
+    <symbol id="ic_chevron_right_24px" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/><path d="M0 0h24v24H0z" fill="none"/></symbol>
     <!-- CHEVRON_UP -->
     <symbol id="ic_chevron_up_24px" viewBox="0 0 24 24"><path d="M12 8l-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z"/></symbol>
     <!-- CLEAR -->

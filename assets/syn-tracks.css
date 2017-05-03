@@ -175,6 +175,25 @@
   text-overflow: ellipsis;
   white-space: nowrap; }
 
+.cplayer-volume-duration {
+  align-items: center;
+  border-top: solid 1px #ddd;
+  justify-content: center;
+  max-width: 66.5px;
+  margin: 0 auto;
+  padding-top: 8px;
+  width: 100%; }
+  .cplayer-volume-duration-amount {
+    min-width: 30px;
+    font-size: 14px;
+    text-align: center; }
+  .cplayer-volume-duration-button {
+    margin-left: 0;
+    margin-right: 0; }
+    .cplayer-volume-duration-button:not(.disabled) {
+      color: #1e88e5;
+      cursor: pointer; }
+
 /**  SPECIFIC STYLES TO PLAYBACK VIEW **/
 .track-container-title {
   background-color: #696969;

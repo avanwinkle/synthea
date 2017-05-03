@@ -30,6 +30,10 @@ function SynChannelPlayerController($scope,$timeout) {
 
     cVm.seekPreview = undefined;
 
+    // Seconds to transition during volume changes
+    cVm.volumeChangeDuration = 2;
+    cVm.maxVolumeDuration = 10;
+
     window.cVm = this;
     window.scope = $scope;
 
@@ -107,8 +111,17 @@ SynChannelPlayerController.prototype.timelineSeekPreview = function(evt) {
  * channel volume level and fades from the current level to that target.
  */
 SynChannelPlayerController.prototype.volumeChange = function() {
-    this.channel.setFullVolume(this.channel.volume_pct);
+    this.channel.setFullVolume(this.channel.volume_pct, this.volumeChangeDuration * 1000);
 };
+
+SynChannelPlayerController.prototype.volumeDurationShift = function(evt, rev) {
+    if (rev && this.volumeChangeDuration > 0) {
+        this.volumeChangeDuration -= 1;
+    }
+    else if (!rev && this.volumeChangeDuration < cVm.maxVolumeDuration) {
+        this.volumeChangeDuration += 1;
+    }
+}
 
 // IIFE
 })();

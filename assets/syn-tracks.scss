@@ -259,6 +259,35 @@
     white-space: nowrap;
 }
 
+.cplayer-volume {
+
+    &-duration {
+        align-items: center;
+        border-top: solid 1px #ddd;
+        justify-content: center;
+        max-width: 66.5px;
+        margin: 0 auto;
+        padding-top: 8px;
+        width: 100%;
+
+        &-amount {
+            min-width: 30px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        &-button {
+            margin-left: 0;
+            margin-right: 0;
+
+            &:not(.disabled) {
+                color: $syn-accent-600;
+                cursor: pointer;
+            }
+        }
+    }
+}
+
 
 /**  SPECIFIC STYLES TO PLAYBACK VIEW **/
 
