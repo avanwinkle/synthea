@@ -360,12 +360,14 @@ function SynChannel(SynProject,SynHowlPlayer,$interval,$q,$timeout) {
             this._player.unload();
         }
 
-
         this._player = new SynHowlPlayer(channel, defer);
 
         // The default "full" volume can be adjusted on a media-by-media basis,
         // measured  in percents from zero to 200
         channel.volume_pct = this.media.volume * 100 || 100;
+
+        // The default playback rate starts from the media
+        channel.rate_pct = cue.playbackRate || 100;
 
         // Note that we're occupied!
         channel.state = 'QUEUING';
@@ -509,6 +511,14 @@ function SynChannel(SynProject,SynHowlPlayer,$interval,$q,$timeout) {
         // Update the player to reflect the media's attribute
         this._player.loop(this.media.isLoop);
     };
+
+    /**
+     * @param {number} ratePct Playback rate, a percent from 0-200%
+     */
+    Channel.prototype.setRate = function(ratePct) {
+        // The Howler object takes rate as a multiplier, rather than a percent
+        this._player.rate( (ratePct || 100) / 100);
+    }
 
     /**
      * Wrapper method for setting the playback position of the media

@@ -375,6 +375,13 @@ SynEditCueController.prototype.toggleMediaList = function() {
     ];
 };
 
+SynEditCueController.prototype.updateRate = function() {
+    if (this.channel && this.channel.media) {
+        // Update the rate in the preview player
+        this.channel.setRate(this.cue.playbackRate)
+    }
+};
+
 /**
  * Update the preview player channel volume according to the cue volume setting
  */

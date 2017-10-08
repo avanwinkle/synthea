@@ -63,6 +63,14 @@ SynChannelPlayerController.prototype.openMenu = function($mdOpenMenu, ev) {
 };
 
 /**
+ * Method for setting a channel to playback at a given rate. Should only be
+ * used for tracks that are not currently playing
+ */
+SynChannelPlayerController.prototype.rateChange = function() {
+    this.channel.setRate(this.channel.rate_pct);
+}
+
+/**
  * Wrapper method for setting a channel to playback at the specific time
  * based on the timeline hover position.
  *

@@ -160,7 +160,17 @@
 
                 <!-- Fade row -->
                 <div layout="row">
-
+                    <div flex="50">
+                        <md-input-container class="noerror">
+                            <label style="overflow:visible;">Playback Speed</label>
+                            <input ng-model="secVm.cue.playbackRate" type="number"
+                                   style="min-width: 4em;"
+                                   min="10" max="200" step="10" placeholder="100"
+                                   ng-change="secVm.updateRate()"
+                                   ng-model-options="{ debounce: 500 }">
+                            <span class="md-input-suffix">%</span>
+                        </md-input-container>
+                    </div>
                 </div>
 
                 <!-- Hotkey row -->
