@@ -402,6 +402,7 @@ function SynChannel(SynProject,SynHowlPlayer,$interval,$q,$timeout) {
         // Other options can be set
         channel.forceFadeOut = opts.forceFadeOut;
         channel.dontUnload = opts.dontUnload;
+        channel.setTime(cue.startTime);
 
         return defer.promise;
     };

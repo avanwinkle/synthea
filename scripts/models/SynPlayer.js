@@ -65,7 +65,7 @@ function SynHowlPlayer($q, $timeout) {
                         // Occupied!
                         channel.state = 'QUEUED';
                         channel.is_queued = true;
-                        channel.currentTime = 0;
+                        channel.currentTime = channel._player.seek();
                     },0);
                 }
             },

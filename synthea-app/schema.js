@@ -27,6 +27,9 @@ var cueSchema = {
               "type": "string"
             }
           },
+          "startTime": {
+            "type": "number"
+          },
           "subgroup": {
             "type": ["null", "string"]
           },
