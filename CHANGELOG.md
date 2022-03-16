@@ -1,6 +1,13 @@
 # Change Log
 All notable changes (features, fixes, tweaks) to Synthea will be documented here.
 
+## 0.0.10 - March 17, 2022
+### Added
+- Support for arbitrary number of page tabs
+- New Cue settings: playbackRate, startTime
+### Fixed
+- Deprecated dependencies making build impossible (Electron stuck at version 8 for now though, Angular stuck at 1.5)
+
 ## 0.0.9 - April 23, 2017
 ### Added
 - Versioning to build distribution files
