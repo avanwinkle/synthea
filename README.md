@@ -78,7 +78,7 @@ $ npm install -g electron
 And then, open Synthea via Electron directly (from the Synthea repository folder). The optional
 `--debug` argument enables the developer tools at load.
 ```
-$ electron . [ --debug ]
+$ npx electron . [ --debug ]
 ```
 
 

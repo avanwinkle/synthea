@@ -16,7 +16,7 @@ let mainWindow;
 let menu;
 
 let DEBUG_MODE;
-// Developers, wanna see what's going on? >> $ electron . --debug
+// Developers, wanna see what's going on? >> $ npx electron . --debug
 DEBUG_MODE = process.argv.indexOf('--debug') !== -1;
 
 
