@@ -391,7 +391,10 @@ function openProjectFromFolder() {
         // After much usage, I've decided that this is more convenient than not
         defaultPath: synthea.configs.projectFolder,
         properties:['openDirectory']
-    }, function(d) {
+    }).then(function(value) {
+        if (value.canceled) { return; }
+        const d = value.filePaths;
+
         // Does openDialog always return an array?
         if (!d || !d.length) { return; }
 
@@ -485,7 +488,10 @@ function renderProjectsMenu() {
     output.push({
         label: 'Change Projects Folder...',
         click: function() {
-            dialog.showOpenDialog({properties:['openDirectory']}, function(d) {
+            dialog.showOpenDialog({properties:['openDirectory']}).then(function(value) {
+                if (value.canceled) { return; }
+                const d = value.filePaths;
+
                 if (!d) { return; }
 
                 synthea.configs.projectFolder = d[0];

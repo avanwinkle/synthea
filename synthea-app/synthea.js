@@ -37,10 +37,12 @@ module.exports = synthea;
  */
 function addMediaToProject(evt,pkey) {
 
-    dialog.showOpenDialog( {
+    dialog.showOpenDialog({
         title: 'Select Media for Project',
         properties: ['openFile', 'multiSelections'],
-    }, function(selection) {
+    }).then(function(value) {
+        if (value.canceled) { return; }
+        const selection = value.filePaths;
 
         // Maybe nothing?
         if (!selection) { return; }
