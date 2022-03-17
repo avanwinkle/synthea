@@ -27,7 +27,13 @@ function browseCloudProjects() {
         height: 480,
         modal: true,
         show: false,
-        width: 600
+        width: 600,
+        // https://stackoverflow.com/questions/55093700/electron-5-0-0-uncaught-referenceerror-require-is-not-defined#comment117883186_66604710
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+            enableRemoteModule: true,
+        },
     });
 
     // Create a node-formatted url for the loader window
@@ -235,7 +241,13 @@ function createModalWindow(name,callbackFn) {
     // Create a new window to show the creator
     let child = new BrowserWindow({
         modal: false,
-        show: false
+        show: false,
+        // https://stackoverflow.com/questions/55093700/electron-5-0-0-uncaught-referenceerror-require-is-not-defined#comment117883186_66604710
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+            enableRemoteModule: true,
+        },
     });
 
     // Create a node-formatted url for the loader window
@@ -264,6 +276,12 @@ function createWindow () {
     icon: './assets/synthea_flat.ico',
     title: 'Synthea ' + VERSION,
     width: 1080,
+    // https://stackoverflow.com/questions/55093700/electron-5-0-0-uncaught-referenceerror-require-is-not-defined#comment117883186_66604710
+    webPreferences: {
+        nodeIntegration: true,
+        contextIsolation: false,
+        enableRemoteModule: true,
+      },
   });
   synthea.mainWindow = mainWindow;
 
