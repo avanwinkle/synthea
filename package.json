@@ -14,12 +14,12 @@
   },
   "version": "0.0.9",
   "dependencies": {
-    "angular": "^1.5.8",
-    "angular-animate": "^1.5.8",
-    "angular-aria": "^1.5.8",
-    "angular-drag-and-drop-lists": "^1.4.0",
-    "angular-material": "^1.1.0",
-    "angular-route": "^1.5.8",
+    "angular": "~1.5.8",
+    "angular-animate": "~1.5.8",
+    "angular-aria": "~1.5.8",
+    "angular-drag-and-drop-lists": "~1.4.0",
+    "angular-material": "~1.1.0",
+    "angular-route": "~1.5.8",
     "howler": "^2.0.0",
     "jsonschema": "^1.1.0",
     "node-fs": "^0.1.7"

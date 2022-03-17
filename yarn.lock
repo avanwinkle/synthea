@@ -73,35 +73,35 @@ amdefine@>=0.0.4:
   resolved "https://registry.yarnpkg.com/amdefine/-/amdefine-1.0.1.tgz#4a5282ac164729e93619bcfd3ad151f817ce91f5"
   integrity sha1-SlKCrBZHKek2Gbz9OtFR+BfOkfU=
 
-angular-animate@^1.5.8:
-  version "1.8.2"
-  resolved "https://registry.yarnpkg.com/angular-animate/-/angular-animate-1.8.2.tgz#a3045e523ffb8d7fcbebd3cb68d1fdd474665ced"
-  integrity sha512-Jbr9+grNMs9Kj57xuBU3Ju3NOPAjS1+g2UAwwDv7su1lt0/PLDy+9zEwDiu8C8xJceoTbmBNKiWGPJGBdCQLlA==
+angular-animate@~1.5.8:
+  version "1.5.11"
+  resolved "https://registry.yarnpkg.com/angular-animate/-/angular-animate-1.5.11.tgz#1baa43c303d1b93c4e6aa89453b39114b7a1c669"
+  integrity sha1-G6pDwwPRuTxOaqiUU7ORFLehxmk=
 
-angular-aria@^1.5.8:
-  version "1.8.2"
-  resolved "https://registry.yarnpkg.com/angular-aria/-/angular-aria-1.8.2.tgz#3e5d546e549d8bddcf0b8031c677d3129d82a76d"
-  integrity sha512-xWT1Lm+Xug2GM6nGNMioBP4hXt3sj2eGaExa4cVCZUYSVWezgyuD1RiLgzJzwTkBGYplHQUzQaz3yDY8jVI6yQ==
+angular-aria@~1.5.8:
+  version "1.5.11"
+  resolved "https://registry.yarnpkg.com/angular-aria/-/angular-aria-1.5.11.tgz#26963ac336891ced7b199e59afd7e9b25e53d6a6"
+  integrity sha1-JpY6wzaJHO17GZ5Zr9fpsl5T1qY=
 
-angular-drag-and-drop-lists@^1.4.0:
+angular-drag-and-drop-lists@~1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/angular-drag-and-drop-lists/-/angular-drag-and-drop-lists-1.4.0.tgz#291104c935e10a42f8459696ed30069509d79bfc"
   integrity sha1-KREEyTXhCkL4RZaW7TAGlQnXm/w=
 
-angular-material@^1.1.0:
-  version "1.2.4"
-  resolved "https://registry.yarnpkg.com/angular-material/-/angular-material-1.2.4.tgz#c8c4212b8895db205530f58f3b7a0ebccff9a64e"
-  integrity sha512-8+gf2uYn6GVIxP+gTE8cUdXYhKdPzKHcvYn5lAz5/aY1L7/90mgaN9mGuj9taSdj7IJnkJDfdBOHCLsqSdBgig==
+angular-material@~1.1.0:
+  version "1.1.26"
+  resolved "https://registry.yarnpkg.com/angular-material/-/angular-material-1.1.26.tgz#b443aad40cdc9f821f0cc6486f5dc9efc9814928"
+  integrity sha512-DBLsoOP1D1E14EQsECZYabt3Jh1PpvsG8k1aZgaP/Ml57n4stpClzLhCsuTNbtB/pqq9CL8XtpCfB6fhVRWqIQ==
 
-angular-route@^1.5.8:
-  version "1.8.2"
-  resolved "https://registry.yarnpkg.com/angular-route/-/angular-route-1.8.2.tgz#d482bf05a8c9e448300acd8f9989c635d31b5077"
-  integrity sha512-49LJYxuaQ/ZDiu9dD2xo1LkazqObkGjw0a7dUF7UKCT8EELgBsMd6QrI6aEVGtI62ppkiFkxqmiV8fcwYdXpug==
+angular-route@~1.5.8:
+  version "1.5.11"
+  resolved "https://registry.yarnpkg.com/angular-route/-/angular-route-1.5.11.tgz#49614f3a167f54291e449fe8ba05d39c58924b83"
+  integrity sha1-SWFPOhZ/VCkeRJ/ougXTnFiSS4M=
 
-angular@^1.5.8:
-  version "1.8.2"
-  resolved "https://registry.yarnpkg.com/angular/-/angular-1.8.2.tgz#5983bbb5a9fa63e213cb7749199e0d352de3a2f1"
-  integrity sha512-IauMOej2xEe7/7Ennahkbb5qd/HFADiNuLSESz9Q27inmi32zB0lnAsFeLEWcox3Gd1F6YhNd1CP7/9IukJ0Gw==
+angular@~1.5.8:
+  version "1.5.11"
+  resolved "https://registry.yarnpkg.com/angular/-/angular-1.5.11.tgz#8c5ba7386f15965c9acf3429f6881553aada30d6"
+  integrity sha1-jFunOG8VllyazzQp9ogVU6raMNY=
 
 ansi-escape-sequences@^2.2.1, ansi-escape-sequences@^2.2.2:
   version "2.2.2"
