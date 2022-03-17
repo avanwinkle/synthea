@@ -1468,14 +1468,6 @@ electron-packager@^8.0.0:
     sanitize-filename "^1.6.0"
     semver "^5.3.0"
 
-electron-prebuilt@^1.4.0:
-  version "1.4.13"
-  resolved "https://registry.yarnpkg.com/electron-prebuilt/-/electron-prebuilt-1.4.13.tgz#0a0e4d7bf895a242061ccfab29394dcda1da33d2"
-  integrity sha1-Cg5Ne/iVokIGHM+rKTlNzaHaM9I=
-  dependencies:
-    electron-download "^3.0.1"
-    extract-zip "^1.0.3"
-
 electron@^1.4.0:
   version "1.8.8"
   resolved "https://registry.yarnpkg.com/electron/-/electron-1.8.8.tgz#a90cddb075291f49576993e6f5c8bb4439301cae"
