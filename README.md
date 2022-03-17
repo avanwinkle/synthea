@@ -35,7 +35,7 @@ It is still in its infancy, but for those willing and able to learn it, I hope i
 
 ## Requirements
 
-To run ***Synthea***, all you need to do is download and install it (see "Installation" below). To develop and build ***Synthea*** from the source code, you will need [NPM](https://www.npmjs.com/package/npm) and git. The application is built on the following platforms and frameworks:
+To run ***Synthea***, all you need to do is download and install it (see "Installation" below). To develop and build ***Synthea*** from the source code, you will need [Yarn](https://yarnpkg.com/getting-started/install) and git. The application is built on the following platforms and frameworks:
  - [AngularJS](https://angularjs.org/)
  - [Angular Material](https://material.angularjs.org/)
  - [Electron](http://electron.atom.io/)
@@ -62,15 +62,15 @@ The following commands will download Synthea and its dependencies:
 ```
 $ git clone https://github.com/avanwinkle/synthea.git
 $ cd synthea
-$ npm install
+$ yarn install
 ```
 
 Then, from the same folder, Synthea can be run from the source code:
 ```
-$ npm start
+$ yarn start
 ```
 
-It is *slightly* faster to boot up Synthea via the Electron binary (rather than going through npm), so if you're developing seriously it is recommended to install Electron globally.
+It is *slightly* faster to boot up Synthea via the Electron binary (rather than going through yarn), so if you're developing seriously it is recommended to install Electron globally.
 ```
 $ npm install -g electron
 ```
@@ -86,11 +86,11 @@ $ electron . [ --debug ]
 
 Builds will be created in the `dist/` folder of the repo. Currently the default build configuration is for Mac OSX, which can be run using the following command (inside the synthea repo directory):
 
-```$ npm run build```
+```$ yarn run build```
 
 Windows builds can be run explicitly:
 
-```$ npm run pack:win```
+```$ yarn run pack:win```
 
 For instructions to build for other systems, see the help output by running:
 
