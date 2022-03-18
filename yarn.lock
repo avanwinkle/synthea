@@ -380,35 +380,35 @@ add-stream@^1.0.0:
   resolved "https://registry.yarnpkg.com/add-stream/-/add-stream-1.0.0.tgz#6a7990437ca736d5e1288db92bd3266d5f5cb2aa"
   integrity sha1-anmQQ3ynNtXhKI25K9MmbV9csqo=
 
-angular-animate@~1.5.8:
-  version "1.5.11"
-  resolved "https://registry.yarnpkg.com/angular-animate/-/angular-animate-1.5.11.tgz#1baa43c303d1b93c4e6aa89453b39114b7a1c669"
-  integrity sha1-G6pDwwPRuTxOaqiUU7ORFLehxmk=
+angular-animate@~1.6:
+  version "1.6.10"
+  resolved "https://registry.yarnpkg.com/angular-animate/-/angular-animate-1.6.10.tgz#c520f6d341370e34e0a62060c99bcf47b7d7db8c"
+  integrity sha512-RU9ZJbTspq0W0x675H5k1DeSgKbAFfp2aiYoNGdlD+wQNKvwwMR5ho+EkDKkx9zE02a5goe8Z6EhhYPQSff9dA==
 
-angular-aria@~1.5.8:
-  version "1.5.11"
-  resolved "https://registry.yarnpkg.com/angular-aria/-/angular-aria-1.5.11.tgz#26963ac336891ced7b199e59afd7e9b25e53d6a6"
-  integrity sha1-JpY6wzaJHO17GZ5Zr9fpsl5T1qY=
+angular-aria@~1.6:
+  version "1.6.10"
+  resolved "https://registry.yarnpkg.com/angular-aria/-/angular-aria-1.6.10.tgz#472bfff8682c4cfe634d4bfda0524443e07e3501"
+  integrity sha512-QO+jSbsnGxLhULD8syFvfH0sQVCKCwDPDCd130ou11HYw4D8vAaU/NG6ufcmnh9XJHTcngAaBe3VVfZefMkiBA==
 
 angular-drag-and-drop-lists@~1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/angular-drag-and-drop-lists/-/angular-drag-and-drop-lists-1.4.0.tgz#291104c935e10a42f8459696ed30069509d79bfc"
   integrity sha1-KREEyTXhCkL4RZaW7TAGlQnXm/w=
 
-angular-material@1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/angular-material/-/angular-material-1.1.0.tgz#09062ed64e6f257f62f194b06a06c8b95fcb2b65"
-  integrity sha1-CQYu1k5vJX9i8ZSwagbIuV/LK2U=
+angular-material@1.1.4:
+  version "1.1.4"
+  resolved "https://registry.yarnpkg.com/angular-material/-/angular-material-1.1.4.tgz#27de35646f54ccd320080af0c708e1b438af87f6"
+  integrity sha1-J941ZG9UzNMgCArwxwjhtDivh/Y=
 
-angular-route@~1.5.8:
-  version "1.5.11"
-  resolved "https://registry.yarnpkg.com/angular-route/-/angular-route-1.5.11.tgz#49614f3a167f54291e449fe8ba05d39c58924b83"
-  integrity sha1-SWFPOhZ/VCkeRJ/ougXTnFiSS4M=
+angular-route@~1.6:
+  version "1.6.10"
+  resolved "https://registry.yarnpkg.com/angular-route/-/angular-route-1.6.10.tgz#4247a32eab19495624623e96c1626dfba17ebf21"
+  integrity sha512-BxjrjQNCbVqQKyB3nHjNI8zSUwhnQWFZnSBv5BZ336VbMKhWu74ad5xpFx5VMk6WyHlmMGDoRagzB6AKkRcvKA==
 
-angular@~1.5.8:
-  version "1.5.11"
-  resolved "https://registry.yarnpkg.com/angular/-/angular-1.5.11.tgz#8c5ba7386f15965c9acf3429f6881553aada30d6"
-  integrity sha1-jFunOG8VllyazzQp9ogVU6raMNY=
+angular@~1.6:
+  version "1.6.10"
+  resolved "https://registry.yarnpkg.com/angular/-/angular-1.6.10.tgz#eed3080a34d29d0f681ff119b18ce294e3f74826"
+  integrity sha512-PCZ5/hVdvPQiYyH0VwsPjrErPHRcITnaXxhksceOXgtJeesKHLA7KDu4X/yvcAi+1zdGgGF+9pDxkJvghXI9Wg==
 
 ansi-escape-sequences@^4.0.0:
   version "4.1.0"
