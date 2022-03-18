@@ -395,10 +395,10 @@ angular-drag-and-drop-lists@^2.1.0:
   resolved "https://registry.yarnpkg.com/angular-drag-and-drop-lists/-/angular-drag-and-drop-lists-2.1.0.tgz#da10cc85c804251fbaaa84d837f7380fb0cd780f"
   integrity sha1-2hDMhcgEJR+6qoTYN/c4D7DNeA8=
 
-angular-material@~1.1:
-  version "1.1.26"
-  resolved "https://registry.yarnpkg.com/angular-material/-/angular-material-1.1.26.tgz#b443aad40cdc9f821f0cc6486f5dc9efc9814928"
-  integrity sha512-DBLsoOP1D1E14EQsECZYabt3Jh1PpvsG8k1aZgaP/Ml57n4stpClzLhCsuTNbtB/pqq9CL8XtpCfB6fhVRWqIQ==
+angular-material@^1.2.4:
+  version "1.2.4"
+  resolved "https://registry.yarnpkg.com/angular-material/-/angular-material-1.2.4.tgz#c8c4212b8895db205530f58f3b7a0ebccff9a64e"
+  integrity sha512-8+gf2uYn6GVIxP+gTE8cUdXYhKdPzKHcvYn5lAz5/aY1L7/90mgaN9mGuj9taSdj7IJnkJDfdBOHCLsqSdBgig==
 
 angular-messages@^1.8.2:
   version "1.8.2"

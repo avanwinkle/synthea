@@ -30,7 +30,11 @@ function SynEditCueController(SynChannel,SynProject,$mdDialog,$scope) {
 
     // The files selected in the file menu are not immediately atteched
     secVm.selectedFiles = [];
+}
 
+// in order to access the "cue" local, we need to move activation to an $onInit method
+// https://github.com/angular/material/blob/master/CHANGELOG.md#120-2020-08-03
+SynEditCueController.prototype.$onInit = function() {
     this.activate();
 }
 

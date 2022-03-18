@@ -243,6 +243,8 @@ SynEditorController.prototype.manageMedia = function($event) {
         // We can delete cues from within
         locals: {
             // But bind to this!
+            // note: we're not accessing this "deleteCue" local from the constructor, so no need for an $onInit method
+            // https://github.com/angular/material/blob/master/CHANGELOG.md#120-2020-08-03
             deleteCue: this.deleteCue.bind(this),
         },
         templateUrl: 'templates/modals/manage-media.html',
@@ -396,6 +398,8 @@ SynEditorController.prototype._manageList = function($event, listtype, page_id) 
         controllerAs: 'slVm',
         locals: {
             // Our sorted list
+            // note: we're not accessing these "list" and "listtype" locals from the constructor, so no need for an $onInit method
+            // https://github.com/angular/material/blob/master/CHANGELOG.md#120-2020-08-03
             list: list,
             listtype: listtype,
         },

@@ -18,7 +18,7 @@
     "angular-animate": "^1.8.2",
     "angular-aria": "^1.8.2",
     "angular-drag-and-drop-lists": "^2.1.0",
-    "angular-material": "~1.1",
+    "angular-material": "^1.2.4",
     "angular-messages": "^1.8.2",
     "angular-route": "^1.8.2",
     "howler": "^2.2.3",
