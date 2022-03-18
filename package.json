@@ -22,8 +22,7 @@
     "angular-messages": "^1.8.2",
     "angular-route": "^1.8.2",
     "howler": "^2.2.3",
-    "jsonschema": "^1.4.0",
-    "node-fs": "^0.1.7"
+    "jsonschema": "^1.4.0"
   },
   "devDependencies": {
     "documentation": "^13.2.5",
