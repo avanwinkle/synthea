@@ -25,12 +25,12 @@
     "jsonschema": "^1.4.1"
   },
   "devDependencies": {
-    "documentation": "^14.0.0",
-    "electron": "^21.2.0",
+    "documentation": "^14.0.1",
+    "electron": "^23.1.2",
     "electron-installer-dmg": "^4.0.0",
-    "electron-packager": "^17.0.0",
-    "jsdoc-to-markdown": "^7.1.1",
-    "yarn-upgrade-all": "^0.7.1"
+    "electron-packager": "^17.1.1",
+    "jsdoc-to-markdown": "^8.0.0",
+    "yarn-upgrade-all": "^0.7.2"
   },
   "scripts": {
     "build": "yarn run pack:linux",
