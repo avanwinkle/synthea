@@ -32,11 +32,12 @@
     "jsdoc-to-markdown": "^7.1.1"
   },
   "scripts": {
-    "build": "npm run pack:osx",
+    "build": "yarn run pack:linux",
     "docs": "jsdoc2md --conf conf/jsdoc.conf.json scripts/**/*.js > api.md",
     "pack:dmg": "electron-installer-dmg ./dist/Synthea-darwin-x64/$npm_package_productName.app $npm_package_productName --debug --out=./dist/ --icon=./assets/synthea_icon_apple.icns --background=./assets/bg_dmg.png --overwrite",
     "pack:osx": "electron-packager . $npm_package_productName --out=dist --platform=darwin --arch=x64 --icon=assets/synthea_icon_apple.icns --overwrite=true",
     "pack:win": "electron-packager . --out=dist --platform=win32 --arch=x64 --overwrite=true",
+    "pack:linux": "electron-packager . --out=dist --platform=linux --arch=x64 --overwrite=true",
     "start": "electron ."
   }
 }
