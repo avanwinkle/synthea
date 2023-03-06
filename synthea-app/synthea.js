@@ -346,8 +346,9 @@ function openProject(projectDef) {
     synthea.currentProjectLayout = projectLayout;
 
     // Broadcast to the render window to open this project
+    // starting with Electron 9, we cannot send full projectDef but only a subset
     synthea.mainWindow.webContents.send(
-        'open-project',projectDef,projectLayout);
+        'open-project', projectDef==null?null:{"key":projectDef.key,"documentRoot":projectDef.documentRoot,"location":projectDef.location}, projectLayout);
     // Set the appropriate menu items to be enabled/disabled
     synthea.setMenusEnabled(projectMenus);
 
